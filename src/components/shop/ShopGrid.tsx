@@ -67,7 +67,7 @@ function GridCard({ product }: { product: Product }) {
           >
             {product.category}
           </p>
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/product/${product.id}`}>
             <h3
               className="text-sm font-medium font-['DM_Sans'] transition-colors hover:opacity-70"
               style={{ color: "var(--text-primary)" }}
@@ -121,7 +121,7 @@ function ListCard({ product }: { product: Product }) {
           >
             {product.category}
           </p>
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/product/${product.id}`}>
             <h3
               className="text-base font-medium font-['DM_Sans'] mb-1 hover:opacity-70 transition-opacity"
               style={{ color: "var(--text-primary)" }}
