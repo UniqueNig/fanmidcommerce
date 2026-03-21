@@ -3,6 +3,7 @@ import { ApolloServer } from "@apollo/server";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { connectDB } from "@/src/lib/db";
 import { startServerAndCreateNextHandler } from "@as-integrations/next";
+import { NextRequest } from "next/server";
 
 const server = new ApolloServer({
   typeDefs,
@@ -37,6 +38,13 @@ const handler = startServerAndCreateNextHandler(server, {
   },
 });
 
-await connectDB();
+// ⚠️ move DB connection inside handler (important for serverless)
+export async function GET(req: NextRequest) {
+  await connectDB();
+  return handler(req);
+}
 
-export { handler as GET, handler as POST };
+export async function POST(req: NextRequest) {
+  await connectDB();
+  return handler(req);
+}
