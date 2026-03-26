@@ -1,34 +1,42 @@
-import { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "User Dashboard - FanMidCommerce",
-  description:
-    "A fan-made e-commerce website built with Next.js and TypeScript.",
-};
+import { useState } from "react";
+import DashboardSidebar from "@/src/components/userdashboard/DashboardSidebar";
+import DashboardHeader from "@/src/components/userdashboard/DashboardHeader";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div className="flex min-h-screen">
+    <div
+      className="flex h-screen overflow-hidden"
+      style={{ backgroundColor: "var(--bg-primary)" }}
+    >
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white p-5">
-        <h2 className="text-xl font-bold mb-6">Dashboard</h2>
+      <DashboardSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
 
-        <nav className="flex flex-col gap-4">
-          <Link href="/dashboard">Overview</Link>
-          <Link href="/dashboard/orders">Orders</Link>
-          <Link href="/dashboard/profile">Profile</Link>
-        </nav>
-      </aside>
+      {/* Main area */}
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        <DashboardHeader
+          onMenuOpen={() => setSidebarOpen(true)}
+          userName="Emmanuel"
+        />
 
-      {/* Main Content */}
-      <main className="flex-1 p-6 bg-gray-400">
-        {children}
-      </main>
+        {/* Scrollable content */}
+        <main
+          className="flex-1 overflow-y-auto p-6 lg:p-8"
+          style={{ backgroundColor: "var(--bg-primary)" }}
+        >
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
