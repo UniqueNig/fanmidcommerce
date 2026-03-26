@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {  gql } from "@apollo/client";
+import { gql } from "@apollo/client";
 import AuthCard from "@/src/components/auth/AuthCard";
 import AuthInput from "@/src/components/auth/AuthInput";
 import { Loader2 } from "lucide-react";
 import { useMutation } from "@apollo/client/react";
+import { useFormik } from "formik";
+import * as yup from "yup";
 
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
@@ -14,7 +16,6 @@ const LOGIN_MUTATION = gql`
       token
       user {
         id
-        name
         email
         role
       }
@@ -22,17 +23,13 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-type FieldErrors = {
-  email?: string;
-  password?: string;
-};
+
 
 type LoginResponse = {
   login: {
     token: string;
     user: {
       id: string;
-      name: string;
       email: string;
       role: string;
     };
@@ -41,46 +38,53 @@ type LoginResponse = {
 
 export default function Login() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState("");
 
-  const [login, { loading }] = useMutation<LoginResponse>(LOGIN_MUTATION);
+  const [login, { data, loading, error }] = useMutation<LoginResponse>(
+    LOGIN_MUTATION,
+    {
+      onCompleted: (data) => {
+        localStorage.setItem("token", data.login.token);
+        router.push("/dashboard");
+      },
+      onError: (err) => {
+        setServerError(
+          err.message?.includes("Invalid credentials")
+            ? "Incorrect email or password"
+            : "Something went wrong. Please try again.",
+        );
+      },
+    },
+  );
 
-  const validate = (): boolean => {
-    const newErrors: FieldErrors = {};
-    if (!email) newErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-      newErrors.email = "Enter a valid email address";
-    if (!password) newErrors.password = "Password is required";
-    else if (password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    onSubmit: async (values) => {
+      setServerError("");
+      await login({
+        variables: {
+          email: values.email,
+          password: values.password,
+        },
+      });
+    },
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setServerError("");
-    if (!validate()) return;
+    validationSchema: yup.object().shape({
+      email: yup
+        .string()
+        .email("Enter a valid email address")
+        .required("Email is required"),
+      password: yup
+        .string()
+        .min(8, "Password must be at least 8 characters")
+        .required("Password is required"),
+    }),
+  });
 
-    try {
-      const { data } = await login({ variables: { email, password } });
-      if (!data) {
-        setServerError("Login failed. Please try again.");
-        return;
-      }
-      localStorage.setItem("token", data.login.token);
-      router.push("/");
-    } catch (err: any) {
-      setServerError(
-        err.message?.includes("Invalid credentials")
-          ? "Incorrect email or password"
-          : "Something went wrong. Please try again."
-      );
-    }
-  };
+
 
   return (
     <AuthCard
@@ -90,27 +94,34 @@ export default function Login() {
       footerLinkText="Create one"
       footerLinkHref="/register"
     >
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-
+      <form onSubmit={formik.handleSubmit} className="flex flex-col gap-5">
         <AuthInput
+          name="email"
           label="Email address"
           type="email"
-          value={email}
-          // onChange={(v) => { setEmail(v); setErrors((e) => ({ ...e, email: undefined })); }}
+          value={formik.values.email}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           placeholder="you@example.com"
-          error={errors.email}
-          success={!errors.email && email.includes("@")}
-          // autoComplete="email"
+          error={formik.errors.email}
+          touched={formik.touched.email}
+          success={
+            !formik.errors.email &&
+            formik.touched.email &&
+            formik.values.email.includes("@")
+          }
         />
 
         <AuthInput
+          name="password"
           label="Password"
           type="password"
-          value={password}
-          // onChange={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: undefined })); }}
+          value={formik.values.password}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           placeholder="••••••••"
-          error={errors.password}
-          // autoComplete="current-password"
+          error={formik.errors.password}
+          touched={formik.touched.password}
         />
 
         {/* Forgot password */}
