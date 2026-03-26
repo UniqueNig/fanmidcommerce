@@ -96,21 +96,21 @@ export default function Login() {
           label="Email address"
           type="email"
           value={email}
-          onChange={(v) => { setEmail(v); setErrors((e) => ({ ...e, email: undefined })); }}
+          // onChange={(v) => { setEmail(v); setErrors((e) => ({ ...e, email: undefined })); }}
           placeholder="you@example.com"
           error={errors.email}
           success={!errors.email && email.includes("@")}
-          autoComplete="email"
+          // autoComplete="email"
         />
 
         <AuthInput
           label="Password"
           type="password"
           value={password}
-          onChange={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: undefined })); }}
+          // onChange={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: undefined })); }}
           placeholder="••••••••"
           error={errors.password}
-          autoComplete="current-password"
+          // autoComplete="current-password"
         />
 
         {/* Forgot password */}
