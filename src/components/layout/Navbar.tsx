@@ -17,12 +17,11 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  setIsLoggedIn(!!token);
-}, []);
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
 
-
-const accountHref = isLoggedIn ? "/dashboard" : "/login";
+  const accountHref = isLoggedIn ? "/dashboard" : "/login";
 
   return (
     <nav
@@ -35,7 +34,6 @@ const accountHref = isLoggedIn ? "/dashboard" : "/login";
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="flex items-center justify-between h-20">
-
           {/* Logo */}
           <Link href="/" className="group flex items-center gap-2">
             <span
@@ -143,25 +141,41 @@ const accountHref = isLoggedIn ? "/dashboard" : "/login";
             borderColor: "var(--border)",
           }}
         >
-          {["Shop", "Categories", "About", "Login"].map(
-            (item) => (
-              <Link
-                key={item}
-                href={`/${item.toLowerCase().replace(" ", "-")}`}
-                className="text-sm tracking-widest uppercase transition-colors font-['DM_Sans']"
-                style={{ color: "var(--text-secondary)" }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.color = "var(--accent)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.color = "var(--text-secondary)")
-                }
-                onClick={() => setMenuOpen(false)}
-              >
-                {item}
-              </Link>
-            )
-          )}
+          {["Shop", "Categories", "About"].map((item) => (
+            <Link
+              key={item}
+              href={`/${item.toLowerCase().replace(" ", "-")}`}
+              className="text-sm tracking-widest uppercase transition-colors font-['DM_Sans']"
+              style={{ color: "var(--text-secondary)" }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.color = "var(--accent)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.color = "var(--text-secondary)")
+              }
+              onClick={() => setMenuOpen(false)}
+            >
+              {item}
+            </Link>
+          ))}
+          <Link
+            href={accountHref}
+            className=" text-sm px-5 py-2 border transition-all duration-300 tracking-widest uppercase font-['DM_Sans'] hover:opacity-80"
+            style={{
+              borderColor: "var(--border)",
+              color: "var(--text-primary)",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "var(--accent)";
+              e.currentTarget.style.color = "var(--accent)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "var(--border)";
+              e.currentTarget.style.color = "var(--text-primary)";
+            }}
+          >
+            {isLoggedIn ? "Dashboard" : "Account"}
+          </Link>
         </div>
       )}
     </nav>
