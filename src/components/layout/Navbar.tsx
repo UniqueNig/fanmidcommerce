@@ -143,7 +143,7 @@ const accountHref = isLoggedIn ? "/dashboard" : "/login";
             borderColor: "var(--border)",
           }}
         >
-          {["Shop", "Categories", "New Arrivals", "About", "Login"].map(
+          {["Shop", "Categories", "About", "Login"].map(
             (item) => (
               <Link
                 key={item}
