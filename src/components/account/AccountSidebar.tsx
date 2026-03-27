@@ -155,12 +155,12 @@ export default function AccountSidebar({
 
         {/* Logout */}
         <div
-          className="px-3 py-4 border-t flex-shrink-0"
+          className="px-3 py-2 border-t flex-shrink-0"
           style={{ borderColor: "var(--border)" }}
         >
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-['DM_Sans'] transition-all duration-200 hover:opacity-70"
+            className="w-full flex items-center gap-2 px-4 py-2 text-sm font-['DM_Sans'] transition-all duration-200 hover:opacity-70"
             style={{ color: "#ef4444" }}
           >
             <LogOut size={15} />
