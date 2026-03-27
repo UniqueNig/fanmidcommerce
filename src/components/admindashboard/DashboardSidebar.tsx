@@ -18,11 +18,13 @@ type DashboardSidebarProps = {
 };
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Orders", href: "/dashboard/orders", icon: ShoppingBag },
-  { label: "Products", href: "/dashboard/products", icon: Package },
-  { label: "Profile", href: "/dashboard/profile", icon: User },
-  { label: "Settings", href: "/dashboard/settings", icon: Settings },
+  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { label: "Orders", href: "/admin/dashboard/orders", icon: ShoppingBag },
+  { label: "Products", href: "/admin/dashboard/products", icon: Package },
+  { label: "Customers", href: "/admin/dashboard/customers", icon: User },
+  { label: "Categories", href: "/admin/dashboard/categories", icon: Package },
+  { label: "Profile", href: "/admin/dashboard/profile", icon: User },
+  { label: "Settings", href: "/admin/dashboard/settings", icon: Settings },
 ];
 
 export default function DashboardSidebar({

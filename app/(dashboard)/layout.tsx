@@ -1,10 +1,18 @@
 "use client";
 
+import AccountHeader from "@/src/components/account/AccountHeader";
+import AccountSidebar from "@/src/components/account/AccountSidebar";
 import { useState } from "react";
-import DashboardSidebar from "@/src/components/userdashboard/DashboardSidebar";
-import DashboardHeader from "@/src/components/userdashboard/DashboardHeader";
+// import AccountSidebar from "@/src/components/account/AccountSidebar";
+// import AccountHeader from "@/src/components/account/AccountHeader";
 
-export default function DashboardLayout({
+// Replace with real user from context/query later
+const MOCK_USER = {
+  name: "John Doe",
+  email: "johndoe@gmail.com",
+};
+
+export default function AccountLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -16,20 +24,15 @@ export default function DashboardLayout({
       className="flex h-screen overflow-hidden"
       style={{ backgroundColor: "var(--bg-primary)" }}
     >
-      {/* Sidebar */}
-      <DashboardSidebar
+      <AccountSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        userName={MOCK_USER.name}
+        userEmail={MOCK_USER.email}
       />
 
-      {/* Main area */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <DashboardHeader
-          onMenuOpen={() => setSidebarOpen(true)}
-          userName="Emmanuel"
-        />
-
-        {/* Scrollable content */}
+        <AccountHeader onMenuOpen={() => setSidebarOpen(true)} />
         <main
           className="flex-1 overflow-y-auto p-6 lg:p-8"
           style={{ backgroundColor: "var(--bg-primary)" }}

@@ -8,12 +8,21 @@ import ThemeToggle from "../ui/ThemeToggle";
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+  const token = localStorage.getItem("token");
+  setIsLoggedIn(!!token);
+}, []);
+
+
+const accountHref = isLoggedIn ? "/dashboard" : "/login";
 
   return (
     <nav
@@ -39,7 +48,7 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-10">
-            {["Shop", "Categories", "New Arrivals", "About"].map((item) => (
+            {["Shop", "Categories", "About"].map((item) => (
               <Link
                 key={item}
                 href={`/${item.toLowerCase().replace(" ", "-")}`}
@@ -95,7 +104,7 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/login"
+              href={accountHref}
               className="hidden md:block text-sm px-5 py-2 border transition-all duration-300 tracking-widest uppercase font-['DM_Sans'] hover:opacity-80"
               style={{
                 borderColor: "var(--border)",
@@ -110,7 +119,7 @@ export default function Navbar() {
                 e.currentTarget.style.color = "var(--text-primary)";
               }}
             >
-              Login
+              {isLoggedIn ? "Dashboard" : "Account"}
             </Link>
 
             {/* Mobile menu toggle */}

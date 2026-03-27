@@ -1,0 +1,66 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import { Menu, ShoppingBag } from "lucide-react";
+import Link from "next/link";
+import ThemeToggle from "@/src/components/ui/ThemeToggle";
+
+type AccountHeaderProps = {
+  onMenuOpen: () => void;
+};
+
+const PAGE_TITLES: Record<string, string> = {
+  "/account": "Overview",
+  "/account/orders": "My Orders",
+  "/account/wishlist": "Wishlist",
+  "/account/addresses": "Addresses",
+  "/account/profile": "Profile",
+};
+
+export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
+  const pathname = usePathname();
+  const title = PAGE_TITLES[pathname] ?? "Account";
+
+  return (
+    <header
+      className="h-16 flex items-center justify-between px-6 border-b flex-shrink-0 sticky top-0 z-30"
+      style={{
+        backgroundColor: "var(--bg-primary)",
+        borderColor: "var(--border)",
+      }}
+    >
+      {/* Left */}
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onMenuOpen}
+          className="lg:hidden transition-opacity hover:opacity-60"
+          style={{ color: "var(--text-secondary)" }}
+        >
+          <Menu size={20} />
+        </button>
+        <h1
+          className="text-lg font-black font-['Playfair_Display']"
+          style={{ color: "var(--text-primary)" }}
+        >
+          {title}
+        </h1>
+      </div>
+
+      {/* Right */}
+      <div className="flex items-center gap-3">
+        <Link
+          href="/shop"
+          className="hidden md:flex items-center gap-2 text-xs tracking-widest uppercase font-['DM_Sans'] px-4 py-2 border transition-opacity hover:opacity-70"
+          style={{
+            borderColor: "var(--border)",
+            color: "var(--text-secondary)",
+          }}
+        >
+          <ShoppingBag size={13} />
+          Continue Shopping
+        </Link>
+        <ThemeToggle />
+      </div>
+    </header>
+  );
+}
