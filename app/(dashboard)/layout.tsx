@@ -2,6 +2,7 @@
 
 import AccountHeader from "@/src/components/account/AccountHeader";
 import AccountSidebar from "@/src/components/account/AccountSidebar";
+import { useAuth } from "@/src/hooks/useAuth";
 import { useState } from "react";
 // import AccountSidebar from "@/src/components/account/AccountSidebar";
 // import AccountHeader from "@/src/components/account/AccountHeader";
@@ -17,8 +18,9 @@ export default function AccountLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const { loading } = useAuth();
+  if (loading) return <p>Loading...</p>; // Or spinner
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
     <div
       className="flex h-screen overflow-hidden"
