@@ -28,6 +28,7 @@ const UPDATE_PROFILE_MUTATION = gql`
       email
       phone
       address
+      createdAt
     }
   }
 `;
@@ -161,7 +162,7 @@ export default function ProfilePage() {
       email: data?.me?.email || "",
       phone: data?.me?.phone || "",
       address: data?.me?.address || "",
-      createdAt: data?.me?.createdAt || "",
+      // createdAt: data?.me?.createdAt || "",
     },
     enableReinitialize: true, // 🔥 THIS IS THE MAGIC
     validationSchema: profileSchema,
@@ -176,6 +177,15 @@ export default function ProfilePage() {
   if (userLoading) {
     return <div className="p-6">Loading profile...</div>;
   }
+
+  console.log("CREATED AT:", data?.me?.createdAt);
+  const createdAt = data?.me?.createdAt;
+
+  const date = createdAt
+    ? new Date(typeof createdAt === "string" ? createdAt : Number(createdAt))
+    : null;
+
+    console.log(date);
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -221,8 +231,8 @@ export default function ProfilePage() {
             style={{ color: "var(--accent)" }}
           >
             Member since{" "}
-            {data?.me?.createdAt
-              ? new Date(data.me.createdAt).toLocaleDateString("en-GB", {
+            {date && !isNaN(date.getTime())
+              ? date.toLocaleDateString("en-GB", {
                   month: "short",
                   year: "numeric",
                 })
@@ -315,11 +325,6 @@ export default function ProfilePage() {
               }}
               onBlur={() => formik.setFieldTouched("address", true)}
             />
-            {formik.touched.address && formik.errors.address && (
-              <p className="text-red-500 text-xs mt-1">
-                {formik.errors.address}
-              </p>
-            )}
           </div>
 
           <div className="flex justify-end">
