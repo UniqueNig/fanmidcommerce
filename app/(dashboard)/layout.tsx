@@ -3,6 +3,7 @@
 import AccountHeader from "@/src/components/account/AccountHeader";
 import AccountSidebar from "@/src/components/account/AccountSidebar";
 import { useAuth } from "@/src/hooks/useAuth";
+import { useAutoLogout } from "@/src/hooks/useAutoLogout";
 import { useState } from "react";
 // import AccountSidebar from "@/src/components/account/AccountSidebar";
 // import AccountHeader from "@/src/components/account/AccountHeader";
@@ -18,6 +19,7 @@ export default function AccountLayout({
 }: {
   children: React.ReactNode;
 }) {
+  useAutoLogout(); // 🔥 ADD THIS
   const { loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   if (loading) return <p>Loading...</p>; // Or spinner
