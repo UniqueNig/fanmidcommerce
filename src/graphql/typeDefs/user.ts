@@ -6,8 +6,8 @@ const userType = gql`
     id: ID!
     name: String!
     email: String!
-    phone: String
-    address: String
+    phone: String!
+    address: String!
     role: String
     createdAt: String!
   }
@@ -36,7 +36,7 @@ const userType = gql`
     updateUser(id: ID!, name: String, email: String, phone: String): User
 
     # ✅ ADD THIS
-    updateProfile(name: String!, email: String!, phone: String, address: String, ): User
+    updateProfile(name: String!, email: String!, phone: String!, address: String!, ): User
 
     changePassword(currentPassword: String!, newPassword: String!): Boolean!
 

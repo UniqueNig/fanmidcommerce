@@ -61,7 +61,7 @@ export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
           }}
         >
           <ShoppingBag size={13} />
-          Continue Shopping
+          Shop
         </Link>
       </div>
 
