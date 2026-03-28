@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Menu, ShoppingBag } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut, Menu, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import ThemeToggle from "@/src/components/ui/ThemeToggle";
 
@@ -20,6 +20,13 @@ const PAGE_TITLES: Record<string, string> = {
 export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
   const pathname = usePathname();
   const title = PAGE_TITLES[pathname] ?? "Account";
+
+  const router = useRouter()
+
+   const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
 
   return (
     <header
@@ -60,6 +67,14 @@ export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
           Continue Shopping
         </Link>
         <ThemeToggle />
+        <button
+          onClick={handleLogout}
+          // className="w-full flex items-center gap-2 px-4 py-2 text-sm font-['DM_Sans'] transition-all duration-200 hover:opacity-70"
+          style={{ color: "#ef4444" }}
+        >
+          <LogOut size={15} />
+          {/* <span>Logout</span> */}
+        </button>
       </div>
     </header>
   );

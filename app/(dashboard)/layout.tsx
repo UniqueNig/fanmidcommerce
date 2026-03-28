@@ -19,8 +19,8 @@ export default function AccountLayout({
   children: React.ReactNode;
 }) {
   const { loading } = useAuth();
-  if (loading) return <p>Loading...</p>; // Or spinner
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  if (loading) return <p>Loading...</p>; // Or spinner
   return (
     <div
       className="flex h-screen overflow-hidden"
