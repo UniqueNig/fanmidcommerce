@@ -21,9 +21,9 @@ export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
   const pathname = usePathname();
   const title = PAGE_TITLES[pathname] ?? "Account";
 
-  const router = useRouter()
+  const router = useRouter();
 
-   const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem("token");
     router.push("/login");
   };
@@ -51,6 +51,18 @@ export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
         >
           {title}
         </h1>
+
+        <Link
+          href="/shop"
+          className="flex lg:hidden items-center gap-2 text-xs tracking-widest uppercase font-['DM_Sans'] px-4 py-2 border transition-opacity hover:opacity-70"
+          style={{
+            borderColor: "var(--border)",
+            color: "var(--text-secondary)",
+          }}
+        >
+          <ShoppingBag size={13} />
+          Continue Shopping
+        </Link>
       </div>
 
       {/* Right */}
