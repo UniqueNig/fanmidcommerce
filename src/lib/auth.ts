@@ -7,6 +7,6 @@ export const generateToken = (user: { _id: string; role?: string }) => {
       role: user.role || "user",
     },
     process.env.JWT_SECRET!,
-    { expiresIn: "30s" }
+    { expiresIn: "30m" }
   );
 };

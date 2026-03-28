@@ -18,7 +18,7 @@ export const useAutoLogout = () => {
       if (!token) return;
 
       if (isTokenExpired(token)) {
-        console.log("⏰ Token expired — logging out");
+        // console.log("⏰ Token expired — logging out");
 
         localStorage.removeItem("token");
         client.clearStore();
