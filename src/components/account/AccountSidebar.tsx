@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client/react";
+import { client } from "@/src/lib/apolloClient";
 
 type AccountSidebarProps = {
   isOpen: boolean;
@@ -49,6 +50,8 @@ export default function AccountSidebar({
   const pathname = usePathname();
   const router = useRouter();
 
+
+  
   // ✅ Only here inside the component
   const { data, loading: userLoading } = useQuery<{
     me: {
@@ -63,6 +66,9 @@ export default function AccountSidebar({
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+
+    // ✅ OPTIONAL (refresh Apollo cache)
+    // client.resetStore();
     router.push("/login");
   };
 

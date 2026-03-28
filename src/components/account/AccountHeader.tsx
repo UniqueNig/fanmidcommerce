@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import ThemeToggle from "@/src/components/ui/ThemeToggle";
+// import { client } from "@/src/lib/apolloClient";
 
 type AccountHeaderProps = {
   onMenuOpen: () => void;
@@ -25,6 +26,8 @@ export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    // client.resetStore();
+
     router.push("/login");
   };
 
@@ -61,7 +64,7 @@ export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
           }}
         >
           <ShoppingBag size={13} />
-          Shop
+          Go to Shop
         </Link>
       </div>
 

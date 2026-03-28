@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import { useMutation } from "@apollo/client/react";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { client } from "@/src/lib/apolloClient";
 
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
@@ -22,8 +23,6 @@ const LOGIN_MUTATION = gql`
     }
   }
 `;
-
-
 
 type LoginResponse = {
   login: {
@@ -45,6 +44,9 @@ export default function Login() {
     {
       onCompleted: (data) => {
         localStorage.setItem("token", data.login.token);
+
+        // ✅ OPTIONAL (refresh Apollo cache)
+        client.resetStore();
         router.push("/dashboard");
       },
       onError: (err) => {
@@ -83,8 +85,6 @@ export default function Login() {
         .required("Password is required"),
     }),
   });
-
-
 
   return (
     <AuthCard

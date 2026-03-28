@@ -12,8 +12,7 @@ const authLink = setContext((_, { headers }) => {
     token = localStorage.getItem("token");
   }
 
-  console.log("TOKEN BEING SENT:", token); // 🔥 DEBUG
-
+  // console.log("TOKEN BEING SENT:", token); 
   return {
     headers: {
       ...headers,

@@ -6,23 +6,74 @@ import gql from "graphql-tag";
 import { useQuery } from "@apollo/client/react";
 
 const QUICK_LINKS = [
-  { label: "My Orders", sub: "Track & manage your orders", href: "/dashboard/orders", icon: ShoppingBag, count: "4 orders" },
-  { label: "Wishlist", sub: "Items you've saved", href: "/dashboard/wishlist", icon: Heart, count: "7 items" },
-  { label: "Addresses", sub: "Manage delivery addresses", href: "/dashboard/addresses", icon: MapPin, count: "2 saved" },
+  {
+    label: "My Orders",
+    sub: "Track & manage your orders",
+    href: "/dashboard/orders",
+    icon: ShoppingBag,
+    count: "4 orders",
+  },
+  {
+    label: "Wishlist",
+    sub: "Items you've saved",
+    href: "/dashboard/wishlist",
+    icon: Heart,
+    count: "7 items",
+  },
+  {
+    label: "Addresses",
+    sub: "Manage delivery addresses",
+    href: "/dashboard/addresses",
+    icon: MapPin,
+    count: "2 saved",
+  },
 ];
 
 const RECENT_ORDERS = [
-  { id: "#ORD-084", product: "Leather Jacket", amount: 299.99, status: "Delivered", date: "Mar 20, 2025" },
-  { id: "#ORD-083", product: "Linen Shirt", amount: 79.99, status: "Shipped", date: "Mar 18, 2025" },
-  { id: "#ORD-082", product: "Cargo Pants", amount: 129.99, status: "Pending", date: "Mar 15, 2025" },
+  {
+    id: "#ORD-084",
+    product: "Leather Jacket",
+    amount: 299.99,
+    status: "Delivered",
+    date: "Mar 20, 2025",
+  },
+  {
+    id: "#ORD-083",
+    product: "Linen Shirt",
+    amount: 79.99,
+    status: "Shipped",
+    date: "Mar 18, 2025",
+  },
+  {
+    id: "#ORD-082",
+    product: "Cargo Pants",
+    amount: 129.99,
+    status: "Pending",
+    date: "Mar 15, 2025",
+  },
 ];
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
-  Delivered: { bg: "color-mix(in srgb, #22c55e 12%, transparent)", color: "#22c55e" },
-  Shipped:   { bg: "color-mix(in srgb, #3b82f6 12%, transparent)", color: "#3b82f6" },
-  Pending:   { bg: "color-mix(in srgb, #f59e0b 12%, transparent)", color: "#f59e0b" },
-  Failed:    { bg: "color-mix(in srgb, #ef4444 12%, transparent)", color: "#ef4444" },
-  Paid:      { bg: "color-mix(in srgb, #22c55e 12%, transparent)", color: "#22c55e" },
+  Delivered: {
+    bg: "color-mix(in srgb, #22c55e 12%, transparent)",
+    color: "#22c55e",
+  },
+  Shipped: {
+    bg: "color-mix(in srgb, #3b82f6 12%, transparent)",
+    color: "#3b82f6",
+  },
+  Pending: {
+    bg: "color-mix(in srgb, #f59e0b 12%, transparent)",
+    color: "#f59e0b",
+  },
+  Failed: {
+    bg: "color-mix(in srgb, #ef4444 12%, transparent)",
+    color: "#ef4444",
+  },
+  Paid: {
+    bg: "color-mix(in srgb, #22c55e 12%, transparent)",
+    color: "#22c55e",
+  },
 };
 
 const ME_QUERY = gql`
@@ -39,19 +90,23 @@ const ME_QUERY = gql`
 `;
 
 export default function AccountPage() {
-   const { data, loading: userLoading } = useQuery<{
-      me: {
-        id: string;
-        name: string;
-        email: string;
-        phone: string;
-        address: string;
-        createdAt: string;
-      };
-    }>(ME_QUERY);
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  const { data, loading: userLoading } = useQuery<{
+    me: {
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      address: string;
+      createdAt: string;
+    };
+  }>(ME_QUERY, {
+    skip: !token,
+  });
   return (
     <div className="space-y-8 max-w-4xl">
-
       {/* Welcome */}
       <div>
         <h2
@@ -84,7 +139,8 @@ export default function AccountPage() {
               <div
                 className="w-10 h-10 flex items-center justify-center"
                 style={{
-                  backgroundColor: "color-mix(in srgb, var(--accent) 12%, transparent)",
+                  backgroundColor:
+                    "color-mix(in srgb, var(--accent) 12%, transparent)",
                   color: "var(--accent)",
                 }}
               >
@@ -123,7 +179,10 @@ export default function AccountPage() {
       {/* Recent orders */}
       <div
         className="border"
-        style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border)" }}
+        style={{
+          backgroundColor: "var(--card-bg)",
+          borderColor: "var(--border)",
+        }}
       >
         <div
           className="flex items-center justify-between px-6 py-4 border-b"

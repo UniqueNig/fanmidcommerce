@@ -17,15 +17,23 @@ type AuthUser = JwtPayload & {
 };
 
 const handler = startServerAndCreateNextHandler(server, {
-   context: async (req: Request) => {  // 👈 add Request type here
+  context: async (req: Request) => {
+    // 👈 add Request type here
     // console.log("🔥 REQ:", req);
 
     const authHeader = req.headers.get("authorization");
-    // console.log("🔥 AUTH HEADER:", authHeader);
+    console.log("🔥 AUTH HEADER:", authHeader);
 
-    if (!authHeader) return { user: null };
+    // if (!authHeader) return { user: null };
 
-    const token = authHeader.replace("Bearer ", "");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("❌ No auth header");
+      return {};
+    }
+
+    // const token = authHeader.replace("Bearer ", "");
+
+    const token = authHeader.split(" ")[1];
 
     try {
       const user = jwt.verify(token, process.env.JWT_SECRET!) as AuthUser;

@@ -8,10 +8,21 @@ import { gql } from "@apollo/client";
 import * as yup from "yup";
 import { useFormik } from "formik";
 import { useMutation, useQuery } from "@apollo/client/react";
+import { client } from "@/src/lib/apolloClient";
 
 const UPDATE_PROFILE_MUTATION = gql`
-  mutation UpdateProfile($name: String!, $email: String!, $phone: String!, $address: String!) {
-    updateProfile(name: $name, email: $email, phone: $phone, address: $address) {
+  mutation UpdateProfile(
+    $name: String!
+    $email: String!
+    $phone: String!
+    $address: String!
+  ) {
+    updateProfile(
+      name: $name
+      email: $email
+      phone: $phone
+      address: $address
+    ) {
       id
       name
       email
@@ -76,6 +87,9 @@ export default function ProfilePage() {
       .required("Confirm your password"),
   });
 
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
   const { data, loading: userLoading } = useQuery<{
     me: {
       id: string;
@@ -85,7 +99,9 @@ export default function ProfilePage() {
       address: string;
       createdAt: string;
     };
-  }>(ME_QUERY);
+  }>(ME_QUERY, {
+    skip: !token,
+  });
 
   const [updateProfile, { loading }] = useMutation(UPDATE_PROFILE_MUTATION, {
     onCompleted: (data) => {
@@ -115,6 +131,7 @@ export default function ProfilePage() {
       onCompleted: () => {
         // 🔥 logout user after delete
         localStorage.removeItem("token");
+        // client.resetStore();
 
         // redirect
         window.location.href = "/register";
@@ -277,12 +294,12 @@ export default function ProfilePage() {
             )}
           </div>
 
-                    <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1.5">
             <label
               className="text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans']"
               style={{ color: "var(--text-muted)" }}
             >
-               Address
+              Address
             </label>
             <input
               name="address"
@@ -299,7 +316,9 @@ export default function ProfilePage() {
               onBlur={() => formik.setFieldTouched("address", true)}
             />
             {formik.touched.address && formik.errors.address && (
-              <p className="text-red-500 text-xs mt-1">{formik.errors.address}</p>
+              <p className="text-red-500 text-xs mt-1">
+                {formik.errors.address}
+              </p>
             )}
           </div>
 
