@@ -12,7 +12,7 @@ export const userResolvers = {
         const usersDB = await userModel.find().select("-password");
         return usersDB;
       } catch (error) {
-        console.error("Error fetching users:", error);
+        // console.error("Error fetching users:", error);
         throw new Error("Failed to fetch users");
       }
     },
@@ -29,7 +29,7 @@ export const userResolvers = {
 
         return userDB;
       } catch (error) {
-        console.error("Error fetching user:", error);
+        // console.error("Error fetching user:", error);
         throw new Error("Failed to fetch user");
       }
     },
@@ -57,8 +57,10 @@ export const userResolvers = {
       {
         name,
         email,
+        phone,
+        address,
         password,
-      }: { name: string; email: string; password: string },
+      }: { name: string; email: string; phone?: string; address?: string; password: string },
     ) => {
       await connectDB();
 
@@ -72,6 +74,8 @@ export const userResolvers = {
       const newUser = await userModel.create({
         name,
         email,
+        phone,
+        address,
         password: hashedPassword,
         role: "user", // good practice
       });
@@ -80,6 +84,8 @@ export const userResolvers = {
         id: newUser._id,
         name: newUser.name,
         email: newUser.email,
+        phone: newUser.phone,
+        address: newUser.address,
         role: newUser.role,
       };
     },
@@ -121,10 +127,14 @@ export const userResolvers = {
         id,
         name,
         email,
+        phone,
+        address
       }: {
         id: string;
         name?: string;
         email?: string;
+        phone?: string;
+        address?: string;
       },
     ) => {
       await connectDB();
@@ -138,11 +148,82 @@ export const userResolvers = {
       if (name !== undefined) existingUser.name = name;
 
       if (email !== undefined) existingUser.email = email;
+      if (phone !== undefined) existingUser.phone = phone;
+      if (address !== undefined) existingUser.address = address;
 
       await existingUser.save();
 
       return existingUser;
     },
+
+    updateProfile: async (
+  _: unknown,
+  { name, email, phone }: { name: string; email: string; phone?: string },
+  context: any
+) => {
+  await connectDB();
+
+  if (!context.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await userModel.findById(context.user.id);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.name = name;
+  user.email = email;
+  if (phone !== undefined) user.phone = phone;
+
+  await user.save();
+
+  return user;
+},
+
+changePassword: async (
+  _: unknown,
+  {
+    currentPassword,
+    newPassword,
+  }: { currentPassword: string; newPassword: string },
+  context: any
+) => {
+  await connectDB();
+
+  // 🔐 Ensure user is logged in
+  if (!context.user) {
+    throw new Error("Not authenticated");
+  }
+
+  const user = await userModel.findById(context.user.id);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // 🔑 Verify current password
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+  if (!isMatch) {
+    throw new Error("Current password is incorrect");
+  }
+
+  // 🚨 Prevent same password reuse (optional but good)
+  const isSame = await bcrypt.compare(newPassword, user.password);
+  if (isSame) {
+    throw new Error("New password must be different from current password");
+  }
+
+  // 🔐 Hash new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  user.password = hashedPassword;
+  await user.save();
+
+  return true;
+},
 
     // ✅ DELETE USER
     deleteUser: async (_: unknown, { id }: { id: string }) => {
@@ -156,5 +237,21 @@ export const userResolvers = {
 
       return deletedUser;
     },
+
+    deleteAccount: async (_: unknown, __: unknown, context: any) => {
+  await connectDB();
+
+  if (!context.user) {
+    throw new Error("Not authenticated"); // This is fine
+  }
+
+  const deletedUser = await userModel.findByIdAndDelete(context.user.id);
+
+  if (!deletedUser) {
+    throw new Error("User not found"); // Or return false if you prefer
+  }
+
+  return true; // Make sure to **always return a boolean**
+},
   },
 };

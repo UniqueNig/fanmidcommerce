@@ -18,10 +18,10 @@ type AuthUser = JwtPayload & {
 
 const handler = startServerAndCreateNextHandler(server, {
    context: async (req: Request) => {  // 👈 add Request type here
-    console.log("🔥 REQ:", req);
+    // console.log("🔥 REQ:", req);
 
     const authHeader = req.headers.get("authorization");
-    console.log("🔥 AUTH HEADER:", authHeader);
+    // console.log("🔥 AUTH HEADER:", authHeader);
 
     if (!authHeader) return { user: null };
 
@@ -29,10 +29,10 @@ const handler = startServerAndCreateNextHandler(server, {
 
     try {
       const user = jwt.verify(token, process.env.JWT_SECRET!) as AuthUser;
-      console.log("🔥 DECODED USER:", user);
+      // console.log("🔥 DECODED USER:", user);
       return { user };
     } catch (err) {
-      console.log("🔥 JWT ERROR:", err);
+      // console.log("🔥 JWT ERROR:", err);
       return { user: null };
     }
   },

@@ -11,10 +11,24 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 
 const REGISTER_MUTATION = gql`
-  mutation Register($name: String!, $email: String!, $password: String!) {
-    register(name: $name, email: $email, password: $password) {
+  mutation Register(
+    $name: String!
+    $email: String!
+    $phone: String!
+    $address: String!
+    $password: String!
+  ) {
+    register(
+      name: $name
+      email: $email
+      phone: $phone
+      address: $address
+      password: $password
+    ) {
       id
       name
+      phone
+      address
       email
     }
   }
@@ -33,6 +47,8 @@ export default function Register() {
       id: string;
       name: string;
       email: string;
+      phone: string;
+      address: string;
     };
   }>(REGISTER_MUTATION, {
     onCompleted: (data) => {
@@ -52,6 +68,8 @@ export default function Register() {
     initialValues: {
       name: "",
       email: "",
+      phone: "",
+      address: "",
       password: "",
       confirm: "",
     },
@@ -61,6 +79,8 @@ export default function Register() {
         variables: {
           name: values.name,
           email: values.email,
+          phone: values.phone,
+          address: values.address,
           password: values.password,
         },
       });
@@ -72,6 +92,14 @@ export default function Register() {
         .string()
         .email("Enter a valid email address")
         .required("Email is required"),
+      phone: yup
+        .string()
+        .matches(
+          /^(\+?\d{1,3}[- ]?)?\d{10}$/,
+          "Enter a valid phone number (10 digits, optional country code)",
+        )
+        .required("Phone number is required"),
+      address: yup.string().required("Address is required"),
       password: yup
         .string()
         .min(8, "Password must be at least 8 characters")
@@ -83,10 +111,8 @@ export default function Register() {
     }),
   });
 
-  
   const [serverError, setServerError] = useState("");
   const [showRules, setShowRules] = useState(false);
-
 
   return (
     <AuthCard
@@ -127,6 +153,30 @@ export default function Register() {
             formik.values.email.includes("@")
           }
           // autoComplete="email"
+        />
+
+        <AuthInput
+          name="phone"
+          label="Phone number"
+          type="tel"
+          value={formik.values.phone}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          placeholder="+234 801 234 5678"
+          error={formik.errors.phone}
+          touched={formik.touched.phone}
+        />
+
+        <AuthInput
+          name="address"
+          label="Address"
+          type="text"
+          value={formik.values.address}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          placeholder="123 Main Street, City, Country"
+          error={formik.errors.address}
+          touched={formik.touched.address}
         />
 
         <div>

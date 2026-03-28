@@ -1,12 +1,15 @@
 import gql from "graphql-tag";
 
-const userType = gql`#graphql
+const userType = gql`
+  #graphql
   type User {
     id: ID!
     name: String!
     email: String!
+    phone: String
+    address: String
     role: String
-   
+    createdAt: String!
   }
 
   type AuthPayload {
@@ -21,18 +24,25 @@ const userType = gql`#graphql
   }
 
   type Mutation {
-    register(name: String!, email: String!, password: String!): User
+    register(
+      name: String!
+      email: String!
+      phone: String
+      address: String
+      password: String!
+    ): User
     login(email: String!, password: String!): AuthPayload
 
-    updateUser(
-      id: ID!
-      name: String
-      age: Int
-      email: String
-      address: String
-    ): User
+    updateUser(id: ID!, name: String, email: String, phone: String): User
+
+    # ✅ ADD THIS
+    updateProfile(name: String!, email: String!, phone: String, address: String, ): User
+
+    changePassword(currentPassword: String!, newPassword: String!): Boolean!
 
     deleteUser(id: ID!): User
+
+    deleteAccount: Boolean!
   }
 `;
 

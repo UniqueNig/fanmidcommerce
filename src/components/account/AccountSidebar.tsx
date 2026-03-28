@@ -11,6 +11,8 @@ import {
   Heart,
   MapPin,
 } from "lucide-react";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/client/react";
 
 type AccountSidebarProps = {
   isOpen: boolean;
@@ -18,6 +20,19 @@ type AccountSidebarProps = {
   userName: string;
   userEmail: string;
 };
+
+const ME_QUERY = gql`
+  query Me {
+    me {
+      id
+      name
+      email
+      phone
+      address
+      createdAt
+    }
+  }
+`;
 
 const NAV_ITEMS = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -30,11 +45,21 @@ const NAV_ITEMS = [
 export default function AccountSidebar({
   isOpen,
   onClose,
-  userName,
-  userEmail,
 }: AccountSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+
+  // ✅ Only here inside the component
+  const { data, loading: userLoading } = useQuery<{
+    me: {
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      address: string;
+      createdAt: string;
+    };
+  }>(ME_QUERY);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -95,20 +120,20 @@ export default function AccountSidebar({
               className="w-10 h-10 flex items-center justify-center text-sm font-black font-['Playfair_Display'] flex-shrink-0"
               style={{ backgroundColor: "var(--accent)", color: "#000" }}
             >
-              {userName.charAt(0).toUpperCase()}
+              {data?.me?.name.charAt(0).toUpperCase() || "U"}
             </div>
             <div className="min-w-0">
               <p
                 className="text-sm font-bold font-['DM_Sans'] truncate"
                 style={{ color: "var(--text-primary)" }}
               >
-                {userName}
+                {data?.me?.name}
               </p>
               <p
                 className="text-[11px] font-['DM_Sans'] truncate"
                 style={{ color: "var(--text-muted)" }}
               >
-                {userEmail}
+                {data?.me?.email}
               </p>
             </div>
           </div>

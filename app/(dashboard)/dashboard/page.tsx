@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { ShoppingBag, Heart, MapPin, ArrowRight, Package } from "lucide-react";
+import gql from "graphql-tag";
+import { useQuery } from "@apollo/client/react";
 
 const QUICK_LINKS = [
   { label: "My Orders", sub: "Track & manage your orders", href: "/dashboard/orders", icon: ShoppingBag, count: "4 orders" },
@@ -23,7 +25,30 @@ const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   Paid:      { bg: "color-mix(in srgb, #22c55e 12%, transparent)", color: "#22c55e" },
 };
 
+const ME_QUERY = gql`
+  query Me {
+    me {
+      id
+      name
+      email
+      phone
+      address
+      createdAt
+    }
+  }
+`;
+
 export default function AccountPage() {
+   const { data, loading: userLoading } = useQuery<{
+      me: {
+        id: string;
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        createdAt: string;
+      };
+    }>(ME_QUERY);
   return (
     <div className="space-y-8 max-w-4xl">
 
@@ -33,7 +58,7 @@ export default function AccountPage() {
           className="text-2xl font-black font-['Playfair_Display']"
           style={{ color: "var(--text-primary)" }}
         >
-          Welcome back, John 👋
+          Welcome back, {data?.me?.name} 👋
         </h2>
         <p
           className="text-sm font-['DM_Sans'] mt-1"

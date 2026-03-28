@@ -3,48 +3,165 @@
 import { useState } from "react";
 import { Save, Lock, Trash2, Check } from "lucide-react";
 import AuthInput from "@/src/components/auth/AuthInput";
+// import gql from "graphql-tag";
+import { gql } from "@apollo/client";
+import * as yup from "yup";
+import { useFormik } from "formik";
+import { useMutation, useQuery } from "@apollo/client/react";
+
+const UPDATE_PROFILE_MUTATION = gql`
+  mutation UpdateProfile($name: String!, $email: String!, $phone: String!, $address: String!) {
+    updateProfile(name: $name, email: $email, phone: $phone, address: $address) {
+      id
+      name
+      email
+      phone
+      address
+    }
+  }
+`;
+
+const ME_QUERY = gql`
+  query Me {
+    me {
+      id
+      name
+      email
+      phone
+      address
+      createdAt
+    }
+  }
+`;
+
+const CHANGE_PASSWORD_MUTATION = gql`
+  mutation ChangePassword($current: String!, $new: String!) {
+    changePassword(currentPassword: $current, newPassword: $new)
+  }
+`;
+
+const DELETE_ACCOUNT_MUTATION = gql`
+  mutation DeleteAccount {
+    deleteAccount
+  }
+`;
 
 export default function ProfilePage() {
-  const [name, setName] = useState("John Doe");
-  const [email, setEmail] = useState("johndoe@gmail.com");
-  const [phone, setPhone] = useState("+234 801 234 5678");
   const [saved, setSaved] = useState(false);
 
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [pwSaved, setPwSaved] = useState(false);
-  const [pwError, setPwError] = useState("");
 
-  const handleProfileSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
-    // TODO: wire up updateUser mutation
-  };
+  const profileSchema = yup.object().shape({
+    name: yup.string().required("Full name is required"),
+    email: yup
+      .string()
+      .email("Enter a valid email")
+      .required("Email is required"),
+    phone: yup
+      .string()
+      .min(10, "Enter a valid phone number")
+      .required("Phone number is required"),
+    address: yup.string().required("Address is required"),
+  });
 
-  const handlePasswordSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPwError("");
-    if (newPassword !== confirmPassword) {
-      setPwError("Passwords do not match");
-      return;
-    }
-    if (newPassword.length < 8) {
-      setPwError("Password must be at least 8 characters");
-      return;
-    }
-    setPwSaved(true);
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setTimeout(() => setPwSaved(false), 2500);
-    // TODO: wire up changePassword mutation
-  };
+  const passwordSchema = yup.object().shape({
+    current: yup.string().required("Current password is required"),
+    new: yup
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .required("New password is required"),
+    confirm: yup
+      .string()
+      .oneOf([yup.ref("new")], "Passwords do not match")
+      .required("Confirm your password"),
+  });
+
+  const { data, loading: userLoading } = useQuery<{
+    me: {
+      id: string;
+      name: string;
+      email: string;
+      phone: string;
+      address: string;
+      createdAt: string;
+    };
+  }>(ME_QUERY);
+
+  const [updateProfile, { loading }] = useMutation(UPDATE_PROFILE_MUTATION, {
+    onCompleted: (data) => {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    },
+    refetchQueries: [{ query: ME_QUERY }],
+
+    onError: (err) => {
+      // console.log("UPDATE ERROR:", err.message);
+    },
+  });
+
+  const [changePassword, { loading: pwLoading }] = useMutation(
+    CHANGE_PASSWORD_MUTATION,
+    {
+      onCompleted: () => {
+        setPwSaved(true);
+        setTimeout(() => setPwSaved(false), 2500);
+      },
+    },
+  );
+
+  const [deleteAccount, { loading: deleting }] = useMutation(
+    DELETE_ACCOUNT_MUTATION,
+    {
+      onCompleted: () => {
+        // 🔥 logout user after delete
+        localStorage.removeItem("token");
+
+        // redirect
+        window.location.href = "/register";
+      },
+    },
+  );
+  const passwordFormik = useFormik({
+    initialValues: {
+      current: "",
+      new: "",
+      confirm: "",
+    },
+    validationSchema: passwordSchema,
+    onSubmit: async (values) => {
+      await changePassword({
+        variables: {
+          current: values.current,
+          new: values.new,
+        },
+      });
+    },
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      name: data?.me?.name || "",
+      email: data?.me?.email || "",
+      phone: data?.me?.phone || "",
+      address: data?.me?.address || "",
+      createdAt: data?.me?.createdAt || "",
+    },
+    enableReinitialize: true, // 🔥 THIS IS THE MAGIC
+    validationSchema: profileSchema,
+    onSubmit: async (values) => {
+      // console.log("SUBMITTING", values);
+      await updateProfile({
+        variables: values,
+      });
+    },
+  });
+
+  if (userLoading) {
+    return <div className="p-6">Loading profile...</div>;
+  }
 
   return (
     <div className="space-y-8 max-w-2xl">
-
       {/* Header */}
       <div>
         <h2
@@ -67,26 +184,32 @@ export default function ProfilePage() {
           className="w-16 h-16 flex items-center justify-center text-2xl font-black font-['Playfair_Display'] flex-shrink-0"
           style={{ backgroundColor: "var(--accent)", color: "#000" }}
         >
-          {name.charAt(0).toUpperCase()}
+          {(data?.me?.name || "U").charAt(0).toUpperCase()}
         </div>
         <div>
           <p
             className="text-sm font-bold font-['DM_Sans']"
             style={{ color: "var(--text-primary)" }}
           >
-            {name}
+            {data?.me?.name || "User"}
           </p>
           <p
             className="text-xs font-['DM_Sans'] mt-0.5"
             style={{ color: "var(--text-muted)" }}
           >
-            {email}
+            {data?.me?.email || ""}
           </p>
           <p
             className="text-[10px] tracking-widest uppercase mt-1 font-['DM_Sans'] font-bold"
             style={{ color: "var(--accent)" }}
           >
-            Member since Jan 2025
+            Member since{" "}
+            {data?.me?.createdAt
+              ? new Date(data.me.createdAt).toLocaleDateString("en-GB", {
+                  month: "short",
+                  year: "numeric",
+                })
+              : "—"}
           </p>
         </div>
       </div>
@@ -94,7 +217,10 @@ export default function ProfilePage() {
       {/* Personal info */}
       <div
         className="border p-6"
-        style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border)" }}
+        style={{
+          backgroundColor: "var(--card-bg)",
+          borderColor: "var(--border)",
+        }}
       >
         <h3
           className="text-xs tracking-[0.2em] uppercase font-bold font-['DM_Sans'] mb-6"
@@ -102,21 +228,28 @@ export default function ProfilePage() {
         >
           Personal Information
         </h3>
-        <form onSubmit={handleProfileSave} className="flex flex-col gap-5">
+        <form onSubmit={formik.handleSubmit} className="flex flex-col gap-5">
           <AuthInput
+            name="name"
             label="Full Name"
-            value={name}
-            onChange={setName}
+            value={formik.values.name}
+            onChange={(e) => formik.setFieldValue("name", e.target.value)}
             placeholder="Your full name"
-            success={name.trim().length > 1}
+            // onBlur={() => formik.setFieldTouched("name", true)}
+            error={formik.errors.name}
+            touched={formik.touched.name}
           />
           <AuthInput
+            name="email"
             label="Email Address"
             type="email"
-            value={email}
-            onChange={setEmail}
+            value={formik.values.email}
+            onChange={(e) => formik.setFieldValue("email", e.target.value)}
             placeholder="your@email.com"
-            success={email.includes("@")}
+            success={formik.values.email.includes("@")}
+            onBlur={() => formik.setFieldTouched("email", true)}
+            error={formik.errors.email}
+            touched={formik.touched.email}
           />
           <div className="flex flex-col gap-1.5">
             <label
@@ -126,9 +259,10 @@ export default function ProfilePage() {
               Phone Number
             </label>
             <input
+              name="phone"
               type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={formik.values.phone}
+              onChange={(e) => formik.setFieldValue("phone", e.target.value)}
               placeholder="+234 800 000 0000"
               className="w-full px-4 py-3.5 text-sm font-['DM_Sans'] outline-none border transition-all duration-200"
               style={{
@@ -136,19 +270,58 @@ export default function ProfilePage() {
                 borderColor: "var(--border)",
                 color: "var(--text-primary)",
               }}
+              onBlur={() => formik.setFieldTouched("phone", true)}
             />
+            {formik.touched.phone && formik.errors.phone && (
+              <p className="text-red-500 text-xs mt-1">{formik.errors.phone}</p>
+            )}
+          </div>
+
+                    <div className="flex flex-col gap-1.5">
+            <label
+              className="text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans']"
+              style={{ color: "var(--text-muted)" }}
+            >
+               Address
+            </label>
+            <input
+              name="address"
+              type="text"
+              value={formik.values.address}
+              onChange={(e) => formik.setFieldValue("address", e.target.value)}
+              placeholder="123 Main Street, City, Country"
+              className="w-full px-4 py-3.5 text-sm font-['DM_Sans'] outline-none border transition-all duration-200"
+              style={{
+                backgroundColor: "var(--bg-primary)",
+                borderColor: "var(--border)",
+                color: "var(--text-primary)",
+              }}
+              onBlur={() => formik.setFieldTouched("address", true)}
+            />
+            {formik.touched.address && formik.errors.address && (
+              <p className="text-red-500 text-xs mt-1">{formik.errors.address}</p>
+            )}
           </div>
 
           <div className="flex justify-end">
             <button
               type="submit"
+              disabled={loading}
               className="flex items-center gap-2 px-6 py-3 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 hover:opacity-80"
               style={{
                 backgroundColor: saved ? "#22c55e" : "var(--accent)",
                 color: "#000",
               }}
             >
-              {saved ? <><Check size={13} /> Saved!</> : <><Save size={13} /> Save Changes</>}
+              {saved ? (
+                <>
+                  <Check size={13} /> Saved!
+                </>
+              ) : (
+                <>
+                  <Save size={13} /> Save Changes
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -157,7 +330,10 @@ export default function ProfilePage() {
       {/* Change password */}
       <div
         className="border p-6"
-        style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border)" }}
+        style={{
+          backgroundColor: "var(--card-bg)",
+          borderColor: "var(--border)",
+        }}
       >
         <div className="flex items-center gap-2 mb-6">
           <Lock size={14} style={{ color: "var(--accent)" }} />
@@ -168,41 +344,65 @@ export default function ProfilePage() {
             Change Password
           </h3>
         </div>
-        <form onSubmit={handlePasswordSave} className="flex flex-col gap-5">
+        <form
+          onSubmit={passwordFormik.handleSubmit}
+          className="flex flex-col gap-5"
+        >
           <AuthInput
+            name="current"
             label="Current Password"
             type="password"
-            value={currentPassword}
-            onChange={setCurrentPassword}
+            value={passwordFormik.values.current}
+            onChange={(e) =>
+              passwordFormik.setFieldValue("current", e.target.value)
+            }
+            // onChange={(value) => passwordFormik.setFieldValue("current", value)}
             placeholder="••••••••"
           />
           <AuthInput
+            name="new"
             label="New Password"
             type="password"
-            value={newPassword}
-            onChange={(v) => { setNewPassword(v); setPwError(""); }}
+            value={passwordFormik.values.new}
+            onChange={(e) =>
+              passwordFormik.setFieldValue("new", e.target.value)
+            }
             placeholder="••••••••"
-            error={pwError}
+            error={passwordFormik.errors.new}
           />
           <AuthInput
             label="Confirm New Password"
             type="password"
-            value={confirmPassword}
-            onChange={(v) => { setConfirmPassword(v); setPwError(""); }}
+            value={passwordFormik.values.confirm}
+            onChange={(e) =>
+              passwordFormik.setFieldValue("confirm", e.target.value)
+            }
             placeholder="••••••••"
-            success={confirmPassword.length > 0 && confirmPassword === newPassword}
+            success={
+              passwordFormik.values.confirm.length > 0 &&
+              passwordFormik.values.confirm === passwordFormik.values.new
+            }
           />
 
           <div className="flex justify-end">
             <button
               type="submit"
+              disabled={pwLoading}
               className="flex items-center gap-2 px-6 py-3 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 hover:opacity-80"
               style={{
                 backgroundColor: pwSaved ? "#22c55e" : "var(--accent)",
                 color: "#000",
               }}
             >
-              {pwSaved ? <><Check size={13} /> Updated!</> : <><Lock size={13} /> Update Password</>}
+              {pwSaved ? (
+                <>
+                  <Check size={13} /> Updated!
+                </>
+              ) : (
+                <>
+                  <Lock size={13} /> Update Password
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -226,18 +426,26 @@ export default function ProfilePage() {
           className="text-sm font-['DM_Sans'] mb-4"
           style={{ color: "var(--text-muted)" }}
         >
-          Permanently delete your account and all associated data. This action cannot be undone.
+          Permanently delete your account and all associated data. This action
+          cannot be undone.
         </p>
         <button
+          onClick={async () => {
+            const confirmDelete = confirm(
+              "Are you sure? This action cannot be undone.",
+            );
+            if (!confirmDelete) return;
+
+            await deleteAccount();
+          }}
+          disabled={deleting}
           className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] border transition-opacity hover:opacity-70"
           style={{ borderColor: "#ef4444", color: "#ef4444" }}
         >
           <Trash2 size={13} />
-          Delete Account
+          {deleting ? "Deleting..." : "Delete Account"}
         </button>
       </div>
     </div>
   );
 }
-
-
