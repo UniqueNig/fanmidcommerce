@@ -42,7 +42,8 @@ export default function AdminLoginPage() {
         setError("Access denied. Admin accounts only.");
         return;
       }
-      localStorage.setItem("token", data.login.token);
+      // localStorage.setItem("token", data.login.token);
+      document.cookie = `token=${data.login.token}; path=/; max-age=3600; SameSite=Strict; Secure`; 
       router.push("/admin/dashboard");
     },
     onError: (err) => {

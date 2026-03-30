@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DashboardSidebar from "@/src/components/admindashboard/DashboardSidebar";
 import DashboardHeader from "@/src/components/admindashboard/DashboardHeader";
+import AdminGuard from "@/src/components/adminguard/AdminGuard";
 
 export default function DashboardLayout({
   children,
@@ -34,7 +35,7 @@ export default function DashboardLayout({
           className="flex-1 overflow-y-auto p-6 lg:p-8"
           style={{ backgroundColor: "var(--bg-primary)" }}
         >
-          {children}
+          <AdminGuard>{children}</AdminGuard>
         </main>
       </div>
     </div>

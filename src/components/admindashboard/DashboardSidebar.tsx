@@ -36,8 +36,11 @@ export default function DashboardSidebar({
   const router = useRouter();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    router.push("/login");
+    document.cookie = "token=; path=/; max-age=0";
+
+    // Redirect
+    // window.location.href = "/login";
+    router.push("/admin/login");
   };
 
   return (

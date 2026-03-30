@@ -1,7 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import { Menu, Bell, Search } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Menu, Bell, Search, LogOut } from "lucide-react";
 import ThemeToggle from "@/src/components/ui/ThemeToggle";
 
 type DashboardHeaderProps = {
@@ -10,16 +10,32 @@ type DashboardHeaderProps = {
 };
 
 const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/dashboard/orders": "Orders",
-  "/dashboard/products": "Products",
-  "/dashboard/profile": "Profile",
-  "/dashboard/settings": "Settings",
+  "/admin/dashboard": "Dashboard",
+  "/admin/orders": "Orders",
+  "/admin/products": "Products",
+  "/admin/customers": "Customers",
+  "/admin/categories": "Categories",
+  "/admin/admins": "Admins User Management",
+  "/admin/profile": "Profile",
+  "/admin/settings": "Settings",
 };
 
-export default function DashboardHeader({ onMenuOpen, userName = "Emmanuel" }: DashboardHeaderProps) {
+export default function DashboardHeader({
+  onMenuOpen,
+  userName = "Emmanuel",
+}: DashboardHeaderProps) {
   const pathname = usePathname();
   const title = PAGE_TITLES[pathname] ?? "Dashboard";
+
+  const router = useRouter();
+
+  const handleLogout = () => {
+    document.cookie = "token=; path=/; max-age=0";
+
+    // Redirect
+    // window.location.href = "/login";
+    router.push("/admin/login");
+  };
 
   return (
     <header
@@ -50,7 +66,6 @@ export default function DashboardHeader({ onMenuOpen, userName = "Emmanuel" }: D
 
       {/* Right — search, notifications, theme, avatar */}
       <div className="flex items-center gap-3">
-
         {/* Search — desktop only */}
         <div
           className="hidden md:flex items-center gap-2 px-3 py-2 border text-sm font-['DM_Sans']"
@@ -67,7 +82,10 @@ export default function DashboardHeader({ onMenuOpen, userName = "Emmanuel" }: D
         {/* Notifications */}
         <button
           className="relative w-9 h-9 flex items-center justify-center border transition-opacity hover:opacity-60"
-          style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+          style={{
+            borderColor: "var(--border)",
+            color: "var(--text-secondary)",
+          }}
         >
           <Bell size={15} />
           {/* Unread dot */}
@@ -94,6 +112,14 @@ export default function DashboardHeader({ onMenuOpen, userName = "Emmanuel" }: D
             {userName}
           </span>
         </div>
+        <button
+          onClick={handleLogout}
+          // className="w-full flex items-center gap-2 px-4 py-2 text-sm font-['DM_Sans'] transition-all duration-200 hover:opacity-70"
+          style={{ color: "#ef4444" }}
+        >
+          <LogOut size={15} />
+          {/* <span>Logout</span> */}
+        </button>
       </div>
     </header>
   );
