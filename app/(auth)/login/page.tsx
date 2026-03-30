@@ -86,6 +86,14 @@ export default function Login() {
     }),
   });
 
+    if (loading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#080808" }}>
+          <Loader2 className="animate-spin" size={24} />
+        </div>
+      );
+    }
+
   return (
     <AuthCard
       title="Welcome back"

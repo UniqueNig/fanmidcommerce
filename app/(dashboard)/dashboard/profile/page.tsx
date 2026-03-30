@@ -9,6 +9,7 @@ import * as yup from "yup";
 import { useFormik } from "formik";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { client } from "@/src/lib/apolloClient";
+import ConfirmModal from "@/src/components/admindashboard/ConfirmModal";
 
 const UPDATE_PROFILE_MUTATION = gql`
   mutation UpdateProfile(
@@ -60,7 +61,7 @@ const DELETE_ACCOUNT_MUTATION = gql`
 
 export default function ProfilePage() {
   const [saved, setSaved] = useState(false);
-
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [pwSaved, setPwSaved] = useState(false);
 
   const profileSchema = yup.object().shape({
@@ -185,7 +186,7 @@ export default function ProfilePage() {
     ? new Date(typeof createdAt === "string" ? createdAt : Number(createdAt))
     : null;
 
-    console.log(date);
+  console.log(date);
 
   return (
     <div className="space-y-8 max-w-2xl">
@@ -453,15 +454,20 @@ export default function ProfilePage() {
           Permanently delete your account and all associated data. This action
           cannot be undone.
         </p>
-        <button
-          onClick={async () => {
-            const confirmDelete = confirm(
-              "Are you sure? This action cannot be undone.",
-            );
-            if (!confirmDelete) return;
 
+        <ConfirmModal
+          isOpen={isDeleteOpen}
+          onClose={() => setIsDeleteOpen(false)}
+          onConfirm={async () => {
             await deleteAccount();
+            setIsDeleteOpen(false);
           }}
+          title="Delete Account"
+          message="This will permanently delete your account and all associated data. This action cannot be undone."
+        />
+
+        <button
+         onClick={() => setIsDeleteOpen(true)}
           disabled={deleting}
           className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] border transition-opacity hover:opacity-70"
           style={{ borderColor: "#ef4444", color: "#ef4444" }}

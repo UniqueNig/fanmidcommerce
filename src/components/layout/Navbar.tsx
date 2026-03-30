@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import ThemeToggle from "../ui/ThemeToggle";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const router = useRouter(); // Ensure router is initialized for client-side navigation
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -75,6 +77,7 @@ export default function Navbar() {
               onMouseLeave={(e) =>
                 (e.currentTarget.style.color = "var(--text-secondary)")
               }
+              onClick={() => router.push("/search")}
             >
               <Search size={18} />
             </button>

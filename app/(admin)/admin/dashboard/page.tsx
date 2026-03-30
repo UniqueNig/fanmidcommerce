@@ -1,8 +1,10 @@
 "use client";
 
-import { ShoppingBag, Users, Package, DollarSign } from "lucide-react";
+import { ShoppingBag, Users, Package, DollarSign, Loader2 } from "lucide-react";
 import StatCard from "@/src/components/admindashboard/StatCard";
 import Link from "next/link";
+import { useQuery } from "@apollo/client/react";
+import gql from "graphql-tag";
 
 const STATS = [
   {
@@ -79,7 +81,44 @@ const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   },
 };
 
+const ME_QUERY = gql`
+  query Me {
+    me {
+      id
+      name
+      email
+      phone
+      address
+      createdAt
+    }
+  }
+`;
+
 export default function DashboardPage() {
+    const token =
+      typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  
+    const { data, loading: userLoading } = useQuery<{
+      me: {
+        id: string;
+        name: string;
+        email: string;
+        phone: string;
+        address: string;
+        createdAt: string;
+      };
+    }>(ME_QUERY, {
+      skip: !token,
+    });
+
+    //  if (userLoading) {
+    //     return (
+    //       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#080808" }}>
+    //         <Loader2 className="animate-spin" size={24} />
+    //       </div>
+    //     );
+    //   }
+
   return (
     <div className="space-y-8">
       {/* Welcome */}
@@ -88,7 +127,7 @@ export default function DashboardPage() {
           className="text-2xl font-black font-['Playfair_Display']"
           style={{ color: "var(--text-primary)" }}
         >
-          Good morning, Emmanuel 👋
+          Good morning, {data?.me?.name} 👋
         </h2>
         <p
           className="text-sm font-['DM_Sans'] mt-1"

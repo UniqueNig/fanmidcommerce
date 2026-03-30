@@ -19,12 +19,13 @@ type DashboardSidebarProps = {
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Orders", href: "/admin/dashboard/orders", icon: ShoppingBag },
-  { label: "Products", href: "/admin/dashboard/products", icon: Package },
-  { label: "Customers", href: "/admin/dashboard/customers", icon: User },
-  { label: "Categories", href: "/admin/dashboard/categories", icon: Package },
-  { label: "Profile", href: "/admin/dashboard/profile", icon: User },
-  { label: "Settings", href: "/admin/dashboard/settings", icon: Settings },
+  { label: "Orders", href: "/admin/orders", icon: ShoppingBag },
+  { label: "Products", href: "/admin/products", icon: Package },
+  { label: "Customers", href: "/admin/customers", icon: User },
+  { label: "Categories", href: "/admin/categories", icon: Package },
+  { label: "Profile", href: "/admin/profile", icon: User },
+  { label: "Admins", href: "/admin/admins", icon: User },
+  { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export default function DashboardSidebar({

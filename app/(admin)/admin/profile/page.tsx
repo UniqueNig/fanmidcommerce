@@ -1,12 +1,12 @@
 import React from 'react'
+import { AdminProfilePage } from '../AdminProfileSettingsPage'
 
-const ProfilePage = () => {
+const AdminProfile = () => {
   return (
-     <div>
-      <h1 className="text-2xl font-bold">My Profile</h1>
-      <p>Update your personal details here.</p>
+    <div>
+      <AdminProfilePage />
     </div>
   )
 }
 
-export default ProfilePage
+export default AdminProfile

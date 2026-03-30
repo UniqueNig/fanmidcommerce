@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, Heart, MapPin, ArrowRight, Package } from "lucide-react";
+import { ShoppingBag, Heart, MapPin, ArrowRight, Package, Loader2 } from "lucide-react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client/react";
 
@@ -105,6 +105,14 @@ export default function AccountPage() {
   }>(ME_QUERY, {
     skip: !token,
   });
+
+  if (userLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#080808" }}>
+        <Loader2 className="animate-spin" size={24} />
+      </div>
+    );
+  }
   return (
     <div className="space-y-8 max-w-4xl">
       {/* Welcome */}
