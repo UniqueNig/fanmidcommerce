@@ -1,18 +1,18 @@
 import gql from "graphql-tag";
 
-
-const productType = gql`#graphql
+const productType = gql`
+  #graphql
   type Product {
     id: ID!
     name: String!
     description: String!
     price: Float!
     image: String!
-    stock: Int
-    category: ID!
+    stock: Int!
+    category: String!
+    isNew: Boolean
     createdBy: ID
     createdAt: String
-    updatedAt: String
   }
 
   type Query {
@@ -26,8 +26,9 @@ const productType = gql`#graphql
       description: String!
       price: Float!
       image: String!
-      category: ID!
-      stock: Int
+      stock: Int!
+      category: String!
+      isNew: Boolean
     ): Product
 
     updateProduct(
@@ -36,8 +37,9 @@ const productType = gql`#graphql
       description: String
       price: Float
       image: String
-      category: ID
       stock: Int
+      category: String
+      isNew: Boolean
     ): Product
 
     deleteProduct(id: ID!): Product
