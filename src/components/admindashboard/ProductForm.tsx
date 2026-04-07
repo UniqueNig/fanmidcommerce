@@ -320,7 +320,7 @@ export default function ProductForm({
                 className={labelClass}
                 style={{ color: "var(--text-muted)" }}
               >
-                Price ($) *
+                Price (₦) *
               </label>
               <input
                 required

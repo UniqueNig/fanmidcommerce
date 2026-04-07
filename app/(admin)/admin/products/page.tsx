@@ -190,7 +190,7 @@ export default function AdminProductsPage() {
                     {/* Price */}
                     <td className="px-6 py-4">
                       <span className="font-bold font-['DM_Sans'] text-sm" style={{ color: "var(--accent)" }}>
-                        ${Number(product.price).toFixed(2)}
+                        ₦{Number(product.price).toFixed(2)}
                       </span>
                     </td>
 
