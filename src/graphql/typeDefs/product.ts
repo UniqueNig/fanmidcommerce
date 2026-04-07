@@ -25,7 +25,7 @@ const productType = gql`
       name: String!
       description: String!
       price: Float!
-      image: String!
+      image: String
       stock: Int!
       category: String!
       isNew: Boolean
