@@ -131,6 +131,24 @@ export default function ProductForm({
   const update = (key: string, val: any) =>
     setForm((f) => ({ ...f, [key]: val }));
 
+  const uploadImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "fanmid_products"); // your preset
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    const data = await res.json();
+    console.log("CLOUDINARY RESPONSE:", data);
+    return data.secure_url;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -233,12 +251,26 @@ export default function ProductForm({
               )}
             </div>
             <input
+              type="file"
+              accept="image/*"
               className={inputClass}
               style={inputStyle()}
-              value={form.image}
-              onChange={(e) => update("image", e.target.value)}
-              placeholder="https://images.unsplash.com/..."
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                setSaving(true);
+                try {
+                  const url = await uploadImage(file);
+                  update("image", url); // ✅ store Cloudinary URL
+                } catch (err) {
+                  console.error("Upload failed:", err);
+                } finally {
+                  setSaving(false);
+                }
+              }}
             />
+            {saving && <p>Uploading image...</p>}
           </div>
         </div>
 
