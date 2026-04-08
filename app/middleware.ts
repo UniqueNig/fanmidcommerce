@@ -1,26 +1,38 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
 
 export const middleware = (req: NextRequest) => {
-  const token = req.cookies.get("token")?.value;
+  // const token = req.cookies.get("token")?.value;
+ const token = req.nextUrl.pathname.startsWith("/admin")
+  ? req.cookies.get("admin_token")?.value
+  : req.cookies.get("user_token")?.value;
+  const { pathname } = req.nextUrl;
 
-  // Protect admin routes
-  if (req.nextUrl.pathname.startsWith("/admin")) {
+  // ✅ Allow login page
+  if (pathname === "/admin/login") {
+    return NextResponse.next();
+  }
+
+  // 🔒 Protect admin routes
+  if (pathname.startsWith("/admin")) {
     if (!token) {
       return NextResponse.redirect(new URL("/admin/login", req.url));
     }
 
     try {
-      // Decode token (simple check)
-      const payload = JSON.parse(
-        Buffer.from(token.split(".")[1], "base64").toString(),
-      );
+      const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+        role: string;
+      };
 
-      // Check role
+      // 🚫 Not admin
       if (payload.role !== "admin") {
         return NextResponse.redirect(new URL("/", req.url));
       }
-    } catch {
+
+      return NextResponse.next();
+    } catch (err: any) {
+      // ⛔ Expired or invalid token
       return NextResponse.redirect(new URL("/admin/login", req.url));
     }
   }
@@ -28,7 +40,7 @@ export const middleware = (req: NextRequest) => {
   return NextResponse.next();
 };
 
-// Only run middleware on admin pages
+// ✅ Only run on admin routes
 export const config = {
   matcher: ["/admin/:path*"],
 };

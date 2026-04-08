@@ -30,8 +30,8 @@ export default function DashboardHeader({
   const router = useRouter();
 
   const handleLogout = () => {
-    document.cookie = "token=; path=/; max-age=0";
-
+    // document.cookie = "token=; path=/; max-age=0";
+document.cookie = "admin_token=; Max-Age=0; path=/";
     // Redirect
     // window.location.href = "/login";
     router.push("/admin/login");

@@ -1,15 +1,19 @@
 import gql from "graphql-tag";
 
 const userType = gql`
-  #graphql
   type User {
     id: ID!
     name: String!
     email: String!
-    phone: String!
-    address: String!
+    phone: String
+    address: String
     role: String
-    createdAt: String!
+    status: String        # "Active" | "Inactive"
+    createdAt: String!    # used as "joined"
+
+    # Computed fields — resolved by counting user's orders
+    orders: Int           # total number of orders placed
+    spent: Float          # total amount spent across all orders
   }
 
   type AuthPayload {
@@ -31,12 +35,25 @@ const userType = gql`
       address: String
       password: String!
     ): User
+
     login(email: String!, password: String!): AuthPayload
 
-    updateUser(id: ID!, name: String, email: String, phone: String): User
+    updateUser(
+      id: ID!
+      name: String
+      email: String
+      phone: String
+      address: String
+    ): User
 
-    # ✅ ADD THIS
-    updateProfile(name: String!, email: String!, phone: String!, address: String!, ): User
+    updateProfile(
+      name: String!
+      email: String!
+      phone: String
+      address: String
+    ): User
+
+    updateUserStatus(id: ID!, status: String!): User   # admin toggle Active/Inactive
 
     changePassword(currentPassword: String!, newPassword: String!): Boolean!
 

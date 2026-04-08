@@ -5,14 +5,21 @@ const httpLink = new HttpLink({
   uri: "/api/graphql",
 });
 
+const getCookie = (name: string) => {
+  if (typeof document === "undefined") return null;
+
+  return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(name + "="))
+    ?.split("=")[1];
+};
+
 const authLink = setContext((_, { headers }) => {
-  let token = null;
+  const adminToken = getCookie("admin_token");
+  const userToken = getCookie("user_token");
 
-  if (typeof window !== "undefined") {
-    token = localStorage.getItem("token");
-  }
+  const token = adminToken || userToken;
 
-  // console.log("TOKEN BEING SENT:", token); 
   return {
     headers: {
       ...headers,

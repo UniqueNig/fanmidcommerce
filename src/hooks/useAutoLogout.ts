@@ -5,34 +5,32 @@ import { useRouter } from "next/navigation";
 import { isTokenExpired } from "@/src/lib/authClient";
 import { client } from "@/src/lib/apolloClient";
 
-export const useAutoLogout = () => {
+const getCookie = (name: string) => {
+  return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(name + "="))
+    ?.split("=")[1];
+};
+
+export const useAutoLogout = (role: "admin" | "user") => {
   const router = useRouter();
 
   useEffect(() => {
-    const checkToken = () => {
-      const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("token")
-          : null;
+    const tokenName = role === "admin" ? "admin_token" : "user_token";
 
+    const checkToken = () => {
+      const token = getCookie(tokenName);
       if (!token) return;
 
       if (isTokenExpired(token)) {
-        // console.log("⏰ Token expired — logging out");
-
-        localStorage.removeItem("token");
-        client.clearStore();
-
-        router.push("/login");
+        document.cookie = `${tokenName}=; Max-Age=0; path=/`;
+        router.push(role === "admin" ? "/admin/login" : "/login");
       }
     };
 
-    // Run immediately
     checkToken();
-
-    // Run every 1 minute
-    const interval = setInterval(checkToken, 60 * 1000);
+    const interval = setInterval(checkToken, 60000);
 
     return () => clearInterval(interval);
-  }, [router]);
+  }, [router, role]);
 };

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation } from "@apollo/client/react";
 import ConfirmModal from "@/src/components/admindashboard/ConfirmModal";
+import Pagination from "@/src/components/ui/Pagination";
 import { Plus, Search, Edit2, Trash2, Loader2, RefreshCw } from "lucide-react";
 import gql from "graphql-tag";
 // ── GraphQL ────────────────────────────────────────────────────────────────
@@ -44,6 +45,8 @@ interface ProductsData {
 export default function AdminProductsPage() {
   const [search,   setSearch]   = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   // ── Fetch ──────────────────────────────────────────────────────────────
   const { data, loading, error, refetch } = useQuery<ProductsData>(GET_PRODUCTS, {
@@ -60,6 +63,18 @@ export default function AdminProductsPage() {
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.category.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Reset to page 1 when search changes
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
+  // ── Pagination ─────────────────────────────────────────────────────────
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProducts = filtered.slice(startIndex, endIndex);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -127,7 +142,7 @@ export default function AdminProductsPage() {
         {/* Search */}
         <div className="px-6 py-4 border-b flex items-center gap-3" style={{ borderColor: "var(--border)" }}>
           <Search size={14} style={{ color: "var(--text-muted)" }} />
-          <input value={search} onChange={(e) => setSearch(e.target.value)}
+          <input value={search} onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search by name or category..."
             className="flex-1 text-sm font-['DM_Sans'] outline-none bg-transparent"
             style={{ color: "var(--text-primary)" }} />
@@ -162,9 +177,9 @@ export default function AdminProductsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((product, i) => (
+                {paginatedProducts.map((product, i) => (
                   <tr key={product.id}
-                    style={{ borderBottom: i < filtered.length - 1 ? "1px solid var(--border)" : "none" }}>
+                    style={{ borderBottom: i < paginatedProducts.length - 1 ? "1px solid var(--border)" : "none" }}>
 
                     {/* Product */}
                     <td className="px-6 py-4">
@@ -235,6 +250,17 @@ export default function AdminProductsPage() {
               </tbody>
             </table>
           </div>
+        )}
+
+        {/* Pagination */}
+        {filtered.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filtered.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
 

@@ -1,21 +1,24 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-export const useAuth = () => {
+export const useAuth = (role: "admin" | "user") => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const tokenName = role === "admin" ? "admin_token" : "user_token";
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${tokenName}=`))
+      ?.split("=")[1];
 
     if (!token) {
-      router.replace("/login"); // Redirect if not logged in
+      router.replace(role === "admin" ? "/admin/login" : "/login");
     } else {
-      setLoading(false); // User is authenticated
+      setLoading(false);
     }
-  }, [router]);
+  }, [router, role]);
 
   return { loading };
 };

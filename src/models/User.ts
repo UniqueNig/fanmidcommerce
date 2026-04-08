@@ -28,11 +28,18 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["user", "admin"], // 🔒 restrict values
-      default: "user", // 👈 very important
+      enum: ["user", "admin"],
+      default: "user",
+    },
+
+    // ✅ ADD THIS — tracks whether admin has disabled the account
+    status: {
+      type: String,
+      enum: ["Active", "Inactive"],
+      default: "Active",
     },
   },
-  { timestamps: true },
+  { timestamps: true }, // gives us createdAt (used as "joined")
 );
 
 const userModel =

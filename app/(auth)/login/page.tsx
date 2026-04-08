@@ -43,8 +43,14 @@ export default function Login() {
     LOGIN_MUTATION,
     {
       onCompleted: (data) => {
-        localStorage.setItem("token", data.login.token);
+        // localStorage.setItem("token", data.login.token);
+        const isProduction = process.env.NODE_ENV === "production";
 
+        // clear old cookie
+        document.cookie = "user_token=; Max-Age=0; path=/";
+
+        // set new cookie
+        document.cookie = `user_token=${data.login.token}; path=/; max-age=604800; SameSite=Strict;${isProduction ? " Secure;" : ""}`;
         // ✅ OPTIONAL (refresh Apollo cache)
         client.resetStore();
         router.push("/dashboard");
@@ -86,13 +92,16 @@ export default function Login() {
     }),
   });
 
-    if (loading) {
-      return (
-        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#080808" }}>
-          <Loader2 className="animate-spin" size={24} />
-        </div>
-      );
-    }
+  if (loading) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: "#080808" }}
+      >
+        <Loader2 className="animate-spin" size={24} />
+      </div>
+    );
+  }
 
   return (
     <AuthCard

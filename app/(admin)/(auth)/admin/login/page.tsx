@@ -40,11 +40,24 @@ export default function AdminLoginPage() {
     onCompleted: (data) => {
       if (data.login.user.role !== "admin") {
         setError("Access denied. Admin accounts only.");
+        document.cookie = "token=; Max-Age=0; path=/"; // clear token
+        localStorage.removeItem("token"); // clear old localStorage token
         return;
       }
       // localStorage.setItem("token", data.login.token);
-      document.cookie = `token=${data.login.token}; path=/; max-age=3600; SameSite=Strict; Secure`; 
+      const isProduction = process.env.NODE_ENV === "production";
+
+      // Determine cookie name
+      const cookieName =
+        data.login.user.role === "admin" ? "admin_token" : "user_token";
+
+      // Clear previous token of the same role
+      document.cookie = `${cookieName}=; Max-Age=0; path=/`;
+
+      // Store new token
+      document.cookie = `${cookieName}=${data.login.token}; path=/; max-age=604800; SameSite=Strict;${isProduction ? " Secure;" : ""}`;
       router.push("/admin/dashboard");
+      router.refresh(); // 🔥 force new request with fresh cookie
     },
     onError: (err) => {
       setError(
@@ -62,6 +75,10 @@ export default function AdminLoginPage() {
     },
     onSubmit: async (values) => {
       setError("");
+      // ✅ Clear any leftover token first
+      // localStorage.removeItem("token");
+      // document.cookie = "token=; Max-Age=0; path=/"; // also clear old cookie if needed
+
       await login({
         variables: {
           email: values.email,

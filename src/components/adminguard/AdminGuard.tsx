@@ -1,15 +1,16 @@
 "use client";
-
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
+    const tokenName = "admin_token";
     const token = document.cookie
       .split("; ")
-      .find((row) => row.startsWith("token="))
+      .find((row) => row.startsWith(`${tokenName}=`))
       ?.split("=")[1];
 
     if (!token) {
@@ -17,31 +18,30 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
       return;
     }
 
-    // Decode token
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-
-      if (payload.role !== "admin") {
-        router.push("/");
-      }
-
-      // ⏱ Auto logout timer (extra safety)
-      const expTime = payload.exp * 1000;
       const now = Date.now();
 
-      if (expTime < now) {
-        document.cookie = "token=; max-age=0";
+      if (payload.role !== "admin" || payload.exp * 1000 < now) {
+        document.cookie = `${tokenName}=; Max-Age=0; path=/`;
         router.push("/admin/login");
-      } else {
-        setTimeout(() => {
-          document.cookie = "token=; max-age=0";
-          router.push("/admin/login");
-        }, expTime - now);
+        return;
       }
+
+      setAuthorized(true);
+
+      const timeout = setTimeout(() => {
+        document.cookie = `${tokenName}=; Max-Age=0; path=/`;
+        router.push("/admin/login");
+      }, payload.exp * 1000 - now);
+
+      return () => clearTimeout(timeout);
     } catch {
+      document.cookie = `${tokenName}=; Max-Age=0; path=/`;
       router.push("/admin/login");
     }
-  }, []);
+  }, [router]);
 
+  if (!authorized) return null;
   return <>{children}</>;
 }

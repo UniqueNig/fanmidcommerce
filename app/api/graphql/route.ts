@@ -57,7 +57,6 @@
 //   return handler(req);
 // }
 
-
 import { resolvers, typeDefs } from "@/src/graphql";
 import { ApolloServer } from "@apollo/server";
 import jwt, { JwtPayload } from "jsonwebtoken";
@@ -75,50 +74,53 @@ type AuthUser = JwtPayload & {
   role: string;
 };
 
+// const getTokenFromRequest = (req: Request): string | null => {
+//   // 1. Authorization header
+//   const authHeader = req.headers.get("authorization");
+//   if (authHeader?.startsWith("Bearer ")) {
+//     return authHeader.split(" ")[1];
+//   }
+
+//   // 2. Cookie fallback
+//   const cookieHeader = req.headers.get("cookie");
+//   if (cookieHeader) {
+//     const match = cookieHeader.match(/token=([^;]+)/);
+//     if (match) return match[1];
+//   }
+
+//   return null;
+// };
+
+const getTokenFromRequest = (req: Request, role: "admin" | "user"): string | null => {
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) return authHeader.split(" ")[1];
+
+  const cookieHeader = req.headers.get("cookie");
+  if (cookieHeader) {
+    const cookieName = role === "admin" ? "admin_token" : "user_token";
+    const match = cookieHeader.match(new RegExp(`${cookieName}=([^;]+)`));
+    if (match) return match[1];
+  }
+  return null;
+};
+
 const handler = startServerAndCreateNextHandler(server, {
-  context: async (req: Request) => {
-    let token: string | null = null;
+  context: async (req: NextRequest) => {
+    const token =
+      getTokenFromRequest(req, "admin") ||
+      getTokenFromRequest(req, "user");
 
-    // ✅ 1. Try Authorization header first
-    const authHeader = req.headers.get("authorization");
-
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.split(" ")[1];
-    }
-
-    // ✅ 2. Fallback: Try cookies (useful if header is missing)
-    if (!token) {
-      const cookieHeader = req.headers.get("cookie");
-
-      if (cookieHeader) {
-        const match = cookieHeader.match(/token=([^;]+)/);
-        token = match ? match[1] : null;
-      }
-    }
-
-    // 🔍 Debug (optional)
-    console.log("🔥 TOKEN:", token);
-
-    // ❌ No token → unauthenticated
-    if (!token) {
-      return { user: null };
-    }
+    if (!token) return { user: null };
 
     try {
-      const user = jwt.verify(
-        token,
-        process.env.JWT_SECRET!
-      ) as AuthUser;
-
+      const user = jwt.verify(token, process.env.JWT_SECRET!) as AuthUser;
       return { user };
-    } catch (err) {
-      console.log("❌ JWT ERROR:", err);
+    } catch {
       return { user: null };
     }
   },
 });
 
-// ✅ DB connection per request (good for serverless)
 export async function GET(req: NextRequest) {
   await connectDB();
   return handler(req);
@@ -128,3 +130,6 @@ export async function POST(req: NextRequest) {
   await connectDB();
   return handler(req);
 }
+
+
+

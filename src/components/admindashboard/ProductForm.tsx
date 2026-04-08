@@ -145,7 +145,7 @@ export default function ProductForm({
     );
 
     const data = await res.json();
-    console.log("CLOUDINARY RESPONSE:", data);
+    // console.log("CLOUDINARY RESPONSE:", data);
     return data.secure_url;
   };
 

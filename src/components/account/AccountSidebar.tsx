@@ -65,7 +65,8 @@ export default function AccountSidebar({
   }>(ME_QUERY);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    // localStorage.removeItem("user_token");
+    document.cookie = "user_token=; Max-Age=0; path=/";
 
     // ✅ OPTIONAL (refresh Apollo cache)
     // client.resetStore();

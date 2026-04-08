@@ -25,7 +25,8 @@ export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
   const router = useRouter();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    document.cookie = "user_token=; Max-Age=0; path=/";
+    // localStorage.removeItem("user_token");
     // client.resetStore();
 
     router.push("/login");

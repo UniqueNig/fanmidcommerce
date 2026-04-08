@@ -19,8 +19,8 @@ export default function AccountLayout({
 }: {
   children: React.ReactNode;
 }) {
-  useAutoLogout(); // 🔥 ADD THIS
-  const { loading } = useAuth();
+  useAutoLogout("user"); // 🔥 ADD THIS
+  const { loading } = useAuth("user");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   if (loading) return <p>Loading...</p>; // Or spinner
   return (
