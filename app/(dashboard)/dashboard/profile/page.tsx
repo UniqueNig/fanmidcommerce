@@ -89,8 +89,8 @@ export default function ProfilePage() {
       .required("Confirm your password"),
   });
 
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  // const token =
+  //   typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const { data, loading: userLoading } = useQuery<{
     me: {
@@ -101,9 +101,7 @@ export default function ProfilePage() {
       address: string;
       createdAt: string;
     };
-  }>(ME_QUERY, {
-    skip: !token,
-  });
+  }>(ME_QUERY);
 
   const [updateProfile, { loading }] = useMutation(UPDATE_PROFILE_MUTATION, {
     onCompleted: (data) => {
@@ -131,12 +129,11 @@ export default function ProfilePage() {
     DELETE_ACCOUNT_MUTATION,
     {
       onCompleted: () => {
-        // 🔥 logout user after delete
-        localStorage.removeItem("token");
-        // client.resetStore();
+        document.cookie = "user_token=; Max-Age=0; path=/";
+        window.location.href = "/login";
 
         // redirect
-        window.location.href = "/register";
+        // window.location.href = "/register";
       },
     },
   );
@@ -467,7 +464,7 @@ export default function ProfilePage() {
         />
 
         <button
-         onClick={() => setIsDeleteOpen(true)}
+          onClick={() => setIsDeleteOpen(true)}
           disabled={deleting}
           className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] border transition-opacity hover:opacity-70"
           style={{ borderColor: "#ef4444", color: "#ef4444" }}
