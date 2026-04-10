@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, Heart, ArrowLeft, ArrowRight } from "lucide-react";
+import { ShoppingBag, Heart, ArrowLeft, ArrowRight, Check } from "lucide-react";
+// At the top of ShopGrid.tsx
+import { useCart } from "@/src/context/CartContext";
+import { useState } from "react";
 
 type Product = {
   id: string;
@@ -23,129 +26,114 @@ type ShopGridProps = {
   onPageChange: (p: number) => void;
 };
 
-function GridCard({ product }: { product: Product }) {
+// Add this hook above GridCard
+function useAddFeedback() {
+  const [added, setAdded] = useState(false);
+
+  const trigger = (callback: () => void) => {
+    callback();
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
+
+  return { added, trigger };
+}
+
+function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
+  const { added, trigger } = useAddFeedback();
+
   return (
     <div className="group relative">
-      {/* Image */}
-      <div
-        className="relative overflow-hidden aspect-[5/7] mb-4"
-        style={{ backgroundColor: "var(--card-bg)" }}
-      >
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        {/* Overlay actions */}
+      <div className="relative overflow-hidden aspect-[5/7] mb-4" style={{ backgroundColor: "var(--card-bg)" }}>
+        <img src={product.image || undefined} alt={product.name}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5 gap-2">
           <button
-            className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-opacity"
-            style={{ backgroundColor: "var(--accent)", color: "#000" }}
+            onClick={() => trigger(onAddToCart)}
+            className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300"
+            style={{
+              backgroundColor: added ? "#22c55e" : "var(--accent)",
+              color: "#000",
+            }}
           >
-            <ShoppingBag size={12} />
-            Add to Cart
+            {added ? <Check size={12} /> : <ShoppingBag size={12} />}
+            {added ? "Added!" : "Add to Cart"}
           </button>
-          <button
-            className="w-9 h-9 border border-white/40 hover:border-white text-white flex items-center justify-center transition-colors"
-          >
+          <button className="w-9 h-9 border border-white/40 hover:border-white text-white flex items-center justify-center transition-colors">
             <Heart size={13} />
           </button>
         </div>
-        
-        {/* Badge */}
+
         {product.isNew && (
-          <div
-            className="absolute top-3 left-3 text-black text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
-            style={{ backgroundColor: "var(--accent)" }}
-          >
+          <div className="absolute top-3 left-3 text-black text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
+            style={{ backgroundColor: "var(--accent)" }}>
             New
           </div>
         )}
       </div>
-      {/* Info */}
+      {/* Info unchanged */}
       <div className="flex items-start justify-between">
         <div>
-          <p
-            className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <p className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
             {product.category?.name}
           </p>
           <Link href={`/product/${product.id}`}>
-            <h3
-              className="text-sm font-medium font-['DM_Sans'] transition-colors hover:opacity-70"
-              style={{ color: "var(--text-primary)" }}
-            >
+            <h3 className="text-sm font-medium font-['DM_Sans'] transition-colors hover:opacity-70" style={{ color: "var(--text-primary)" }}>
               {product.name}
             </h3>
           </Link>
         </div>
-        <span
-          className="font-bold font-['Playfair_Display'] text-sm"
-          style={{ color: "var(--accent)" }}
-        >
-           ₦{product.price.toFixed(2)}
+        <span className="font-bold font-['Playfair_Display'] text-sm" style={{ color: "var(--accent)" }}>
+          ₦{product.price.toFixed(2)}
         </span>
       </div>
     </div>
   );
 }
 
-function ListCard({ product }: { product: Product }) {
+function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
+  const { added, trigger } = useAddFeedback();
+
   return (
-    <div
-      className="flex gap-5 py-5 border-b"
-      style={{ borderColor: "var(--border)" }}
-    >
-      {/* Image */}
-      <div
-        className="relative overflow-hidden w-24 h-32 flex-shrink-0"
-        style={{ backgroundColor: "var(--card-bg)" }}
-      >
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-full object-cover"
-        />
+    <div className="flex gap-5 py-5 border-b" style={{ borderColor: "var(--border)" }}>
+      <div className="relative overflow-hidden w-24 h-32 flex-shrink-0" style={{ backgroundColor: "var(--card-bg)" }}>
+        {product.image ? (
+          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full" />
+        )}
         {product.isNew && (
-          <div
-            className="absolute top-2 left-2 text-black text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 font-['DM_Sans']"
-            style={{ backgroundColor: "var(--accent)" }}
-          >
+          <div className="absolute top-2 left-2 text-black text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 font-['DM_Sans']"
+            style={{ backgroundColor: "var(--accent)" }}>
             New
           </div>
         )}
       </div>
-      {/* Info */}
       <div className="flex flex-1 items-center justify-between">
         <div>
-          <p
-            className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <p className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
             {product.category?.name}
           </p>
           <Link href={`/product/${product.id}`}>
-            <h3
-              className="text-base font-medium font-['DM_Sans'] mb-1 hover:opacity-70 transition-opacity"
-              style={{ color: "var(--text-primary)" }}
-            >
+            <h3 className="text-base font-medium font-['DM_Sans'] mb-1 hover:opacity-70 transition-opacity" style={{ color: "var(--text-primary)" }}>
               {product.name}
             </h3>
           </Link>
-          <span
-            className="font-bold font-['Playfair_Display']"
-            style={{ color: "var(--accent)" }}
-          >
-             ₦{product.price.toFixed(2)}
+          <span className="font-bold font-['Playfair_Display']" style={{ color: "var(--accent)" }}>
+            ₦{product.price.toFixed(2)}
           </span>
         </div>
         <button
-          className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-opacity hover:opacity-80"
-          style={{ backgroundColor: "var(--accent)", color: "#000" }}
+          onClick={() => trigger(onAddToCart)}
+          className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 hover:opacity-80"
+          style={{
+            backgroundColor: added ? "#22c55e" : "var(--accent)",
+            color: "#000",
+          }}
         >
-          <ShoppingBag size={12} />
-          Add
+          {added ? <Check size={12} /> : <ShoppingBag size={12} />}
+          {added ? "Added!" : "Add"}
         </button>
       </div>
     </div>
@@ -159,6 +147,8 @@ export default function ShopGrid({
   totalPages,
   onPageChange,
 }: ShopGridProps) {
+  const { addItem } = useCart();
+
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24">
@@ -178,19 +168,39 @@ export default function ShopGrid({
     );
   }
 
+  const handleAdd = (product: Product) => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image ?? null, // ← guards against empty string
+      category: product.category?.name ?? "",
+      quantity: 1,
+         size: "",   // ← add this; no size selector on the grid
+    });
+  };
+
   return (
     <div className="flex-1 min-w-0">
       {/* Grid or List */}
       {view === "grid" ? (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
           {products.map((product) => (
-            <GridCard key={product.id} product={product} />
+            <GridCard
+              key={product.id}
+              product={product}
+              onAddToCart={() => handleAdd(product)}
+            />
           ))}
         </div>
       ) : (
         <div>
           {products.map((product) => (
-            <ListCard key={product.id} product={product} />
+            <ListCard
+              key={product.id}
+              product={product}
+              onAddToCart={() => handleAdd(product)}
+            />
           ))}
         </div>
       )}

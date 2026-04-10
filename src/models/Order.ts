@@ -19,22 +19,21 @@ const orderSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "fanmidcommerce-users",
-      required: true,
+      required: false, // allow null for guest checkout
     },
 
     // What they ordered
     items: [orderItemSchema],
 
     // Shipping details
-    shippingAddress: {
-      firstName: { type: String, required: true },
-      lastName:  { type: String, required: true },
-      address:   { type: String, required: true },
-      city:      { type: String, required: true },
-      state:     { type: String, required: true },
-      phone:     { type: String, required: true },
-      email:     { type: String, required: true },
-    },
+shippingAddress: {
+  name: { type: String, required: true },
+  address: { type: String, required: true },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  phone: { type: String, required: true },
+  email: { type: String, required: true },
+},
 
     // Payment
     paymentMethod:    { type: String, default: "Paystack" },

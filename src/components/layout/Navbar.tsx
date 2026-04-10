@@ -5,12 +5,14 @@ import Link from "next/link";
 import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import ThemeToggle from "../ui/ThemeToggle";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/src/context/CartContext";
 
 export default function Navbar() {
-  const router = useRouter(); // Ensure router is initialized for client-side navigation
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { totalItems } = useCart();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -18,13 +20,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-useEffect(() => {
-  const token = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("user_token="))
-    ?.split("=")[1];
-  setIsLoggedIn(!!token);
-}, []);
+  useEffect(() => {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("user_token="))
+      ?.split("=")[1];
+    setIsLoggedIn(!!token);
+  }, []);
 
   const accountHref = isLoggedIn ? "/dashboard" : "/login";
 
@@ -99,12 +101,14 @@ useEffect(() => {
               }
             >
               <ShoppingBag size={18} />
-              <span
-                className="absolute -top-2 -right-2 text-black text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center"
-                style={{ backgroundColor: "var(--accent)" }}
-              >
-                0
-              </span>
+              {totalItems > 0 && (
+                <span
+                  className="absolute -top-2 -right-2 text-black text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center font-['DM_Sans']"
+                  style={{ backgroundColor: "var(--accent)" }}
+                >
+                  {totalItems > 9 ? "9+" : totalItems}
+                </span>
+              )}
             </Link>
 
             <Link
@@ -166,7 +170,7 @@ useEffect(() => {
           ))}
           <Link
             href={accountHref}
-            className=" text-sm px-5 py-2 border transition-all duration-300 tracking-widest uppercase font-['DM_Sans'] hover:opacity-80"
+            className="text-sm px-5 py-2 border transition-all duration-300 tracking-widest uppercase font-['DM_Sans'] hover:opacity-80"
             style={{
               borderColor: "var(--border)",
               color: "var(--text-primary)",
