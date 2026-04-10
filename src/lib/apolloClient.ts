@@ -7,7 +7,6 @@ const httpLink = new HttpLink({
 
 const getCookie = (name: string) => {
   if (typeof document === "undefined") return null;
-
   return document.cookie
     .split("; ")
     .find((row) => row.startsWith(name + "="))
@@ -15,10 +14,13 @@ const getCookie = (name: string) => {
 };
 
 const authLink = setContext((_, { headers }) => {
-  const adminToken = getCookie("admin_token");
-  const userToken = getCookie("user_token");
+  const isAdminRoute =
+    typeof window !== "undefined" &&
+    window.location.pathname.startsWith("/admin");
 
-  const token = adminToken || userToken;
+  const token = isAdminRoute
+    ? getCookie("admin_token")           // admin pages → admin token only
+    : getCookie("user_token");           // all other pages → user token only
 
   return {
     headers: {

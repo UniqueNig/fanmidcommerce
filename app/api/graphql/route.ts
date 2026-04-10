@@ -106,9 +106,12 @@ const getTokenFromRequest = (req: Request, role: "admin" | "user"): string | nul
 
 const handler = startServerAndCreateNextHandler(server, {
   context: async (req: NextRequest) => {
-    const token =
-      getTokenFromRequest(req, "admin") ||
-      getTokenFromRequest(req, "user");
+    // Try admin token first, then user token
+    const adminToken = getTokenFromRequest(req, "admin");
+    const userToken = getTokenFromRequest(req, "user");
+
+    // Use whichever is present — Apollo client now only sends the right one
+    const token = adminToken || userToken;
 
     if (!token) return { user: null };
 
