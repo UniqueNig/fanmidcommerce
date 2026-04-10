@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/src/components/layout/Navbar";
@@ -32,7 +32,8 @@ const VERIFY_AND_CREATE_ORDER = `
 
 type Status = "verifying" | "success" | "error";
 
-export default function OrderSuccessPage() {
+// ← Extract the actual page content into its own component
+function OrderSuccessContent() {
   const params = useSearchParams();
   const ref = params.get("ref");
   const { clearCart } = useCart();
@@ -48,7 +49,6 @@ export default function OrderSuccessPage() {
 
     const pending = localStorage.getItem("pending_order");
     if (!pending) {
-      // Already processed or direct navigation — just show success
       setStatus("success");
       return;
     }
@@ -86,108 +86,111 @@ export default function OrderSuccessPage() {
   }, [ref]);
 
   return (
+    <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6 text-center">
+      {status === "verifying" && (
+        <>
+          <Loader2 size={64} className="animate-spin" style={{ color: "var(--accent)" }} />
+          <div>
+            <h1 className="text-3xl font-black font-['Playfair_Display'] mb-2" style={{ color: "var(--text-primary)" }}>
+              Confirming your order...
+            </h1>
+            <p className="text-sm font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+              Please don't close this page.
+            </p>
+          </div>
+        </>
+      )}
+
+      {status === "success" && (
+        <>
+          <CheckCircle size={72} style={{ color: "#22c55e" }} />
+          <div>
+            <h1 className="text-4xl font-black font-['Playfair_Display'] mb-2" style={{ color: "var(--text-primary)" }}>
+              Order Confirmed!
+            </h1>
+            <p className="text-sm font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+              Thank you for your purchase. We'll process your order shortly.
+            </p>
+          </div>
+          {ref && (
+            <div className="px-6 py-4 border" style={{ borderColor: "var(--border)", backgroundColor: "var(--card-bg)" }}>
+              <p className="text-[10px] tracking-widest uppercase font-['DM_Sans'] mb-1" style={{ color: "var(--text-muted)" }}>
+                Payment Reference
+              </p>
+              <p className="text-sm font-bold font-['DM_Sans'] font-mono" style={{ color: "var(--accent)" }}>
+                {ref}
+              </p>
+            </div>
+          )}
+          <p className="text-xs font-['DM_Sans'] max-w-sm" style={{ color: "var(--text-secondary)" }}>
+            A confirmation will be sent to your email. You can track your order in your dashboard.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link href="/shop"
+              className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-80 transition-opacity"
+              style={{ backgroundColor: "var(--accent)", color: "#000" }}>
+              Continue Shopping <ArrowRight size={14} />
+            </Link>
+            <Link href="/dashboard"
+              className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] border hover:opacity-70 transition-opacity"
+              style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}>
+              My Orders
+            </Link>
+          </div>
+        </>
+      )}
+
+      {status === "error" && (
+        <>
+          <XCircle size={72} style={{ color: "#ef4444" }} />
+          <div>
+            <h1 className="text-3xl font-black font-['Playfair_Display'] mb-2" style={{ color: "var(--text-primary)" }}>
+              Something went wrong
+            </h1>
+            <p className="text-sm font-['DM_Sans'] max-w-sm" style={{ color: "var(--text-muted)" }}>
+              {errorMsg || "Your payment may have gone through. Please contact support with your reference."}
+            </p>
+          </div>
+          {ref && (
+            <div className="px-6 py-4 border" style={{ borderColor: "var(--border)", backgroundColor: "var(--card-bg)" }}>
+              <p className="text-[10px] tracking-widest uppercase font-['DM_Sans'] mb-1" style={{ color: "var(--text-muted)" }}>
+                Payment Reference
+              </p>
+              <p className="text-sm font-bold font-['DM_Sans'] font-mono" style={{ color: "var(--accent)" }}>
+                {ref}
+              </p>
+            </div>
+          )}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link href="/shop"
+              className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] border hover:opacity-70 transition-opacity"
+              style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}>
+              Back to Shop
+            </Link>
+            <a href="mailto:support@fanmid.com"
+              className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-80 transition-opacity"
+              style={{ backgroundColor: "var(--accent)", color: "#000" }}>
+              Contact Support
+            </a>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ← Default export wraps content in Suspense
+export default function OrderSuccessPage() {
+  return (
     <main style={{ backgroundColor: "var(--bg-primary)", minHeight: "100vh" }}>
       <Navbar />
-      <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6 text-center">
-
-        {/* Verifying */}
-        {status === "verifying" && (
-          <>
-            <Loader2 size={64} className="animate-spin" style={{ color: "var(--accent)" }} />
-            <div>
-              <h1 className="text-3xl font-black font-['Playfair_Display'] mb-2" style={{ color: "var(--text-primary)" }}>
-                Confirming your order...
-              </h1>
-              <p className="text-sm font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
-                Please don't close this page.
-              </p>
-            </div>
-          </>
-        )}
-
-        {/* Success */}
-        {status === "success" && (
-          <>
-            <CheckCircle size={72} style={{ color: "#22c55e" }} />
-            <div>
-              <h1 className="text-4xl font-black font-['Playfair_Display'] mb-2" style={{ color: "var(--text-primary)" }}>
-                Order Confirmed!
-              </h1>
-              <p className="text-sm font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
-                Thank you for your purchase. We'll process your order shortly.
-              </p>
-            </div>
-
-            {ref && (
-              <div className="px-6 py-4 border" style={{ borderColor: "var(--border)", backgroundColor: "var(--card-bg)" }}>
-                <p className="text-[10px] tracking-widest uppercase font-['DM_Sans'] mb-1" style={{ color: "var(--text-muted)" }}>
-                  Payment Reference
-                </p>
-                <p className="text-sm font-bold font-['DM_Sans'] font-mono" style={{ color: "var(--accent)" }}>
-                  {ref}
-                </p>
-              </div>
-            )}
-
-            <p className="text-xs font-['DM_Sans'] max-w-sm" style={{ color: "var(--text-secondary)" }}>
-              A confirmation will be sent to your email. You can track your order in your dashboard.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link href="/shop"
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: "var(--accent)", color: "#000" }}>
-                Continue Shopping <ArrowRight size={14} />
-              </Link>
-              <Link href="/dashboard"
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] border hover:opacity-70 transition-opacity"
-                style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}>
-                My Orders
-              </Link>
-            </div>
-          </>
-        )}
-
-        {/* Error */}
-        {status === "error" && (
-          <>
-            <XCircle size={72} style={{ color: "#ef4444" }} />
-            <div>
-              <h1 className="text-3xl font-black font-['Playfair_Display'] mb-2" style={{ color: "var(--text-primary)" }}>
-                Something went wrong
-              </h1>
-              <p className="text-sm font-['DM_Sans'] max-w-sm" style={{ color: "var(--text-muted)" }}>
-                {errorMsg || "Your payment may have gone through. Please contact support with your reference."}
-              </p>
-            </div>
-
-            {ref && (
-              <div className="px-6 py-4 border" style={{ borderColor: "var(--border)", backgroundColor: "var(--card-bg)" }}>
-                <p className="text-[10px] tracking-widest uppercase font-['DM_Sans'] mb-1" style={{ color: "var(--text-muted)" }}>
-                  Payment Reference
-                </p>
-                <p className="text-sm font-bold font-['DM_Sans'] font-mono" style={{ color: "var(--accent)" }}>
-                  {ref}
-                </p>
-              </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Link href="/shop"
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] border hover:opacity-70 transition-opacity"
-                style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}>
-                Back to Shop
-              </Link>
-              <a href="mailto:support@fanmid.com"
-                className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-80 transition-opacity"
-                style={{ backgroundColor: "var(--accent)", color: "#000" }}>
-                Contact Support
-              </a>
-            </div>
-          </>
-        )}
-
-      </div>
+      <Suspense fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 size={32} className="animate-spin" style={{ color: "var(--accent)" }} />
+        </div>
+      }>
+        <OrderSuccessContent />
+      </Suspense>
     </main>
   );
 }
