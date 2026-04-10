@@ -9,7 +9,7 @@ const productType = gql`
     price: Float!
     image: String
     stock: Int!
-    category: String!
+    category: Category # ✅ FIXED
     isNew: Boolean
     createdBy: ID
     createdAt: String
@@ -27,7 +27,7 @@ const productType = gql`
       price: Float!
       image: String
       stock: Int!
-      category: String!
+      category: Category! # ✅ FIXED
       isNew: Boolean
     ): Product
 
@@ -38,7 +38,7 @@ const productType = gql`
       price: Float
       image: String
       stock: Int
-      category: String
+     category: ID!   # ✅ CORRECT
       isNew: Boolean
     ): Product
 

@@ -53,9 +53,9 @@ export default function ProductInfo({
   };
 
   const handleWhatsApp = () => {
-    const message = encodeURIComponent(
-      `Hi! I'm interested in *${name}* (${selectedSize ? `Size: ${selectedSize}, ` : ""}Qty: ${quantity}) — $${price.toFixed(2)}. Can you help me with this order?`
-    );
+const message = encodeURIComponent(
+  `Hi! I'm interested in *${name}* (${selectedSize ? `Size: ${selectedSize}, ` : ""}Qty: ${quantity}) — ₦${price.toFixed(2)}. Can you help me with this order?`
+);
     window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
   };
 
@@ -123,14 +123,14 @@ export default function ProductInfo({
           className="text-3xl font-black font-['Playfair_Display']"
           style={{ color: "var(--accent)" }}
         >
-          ${price.toFixed(2)}
+          ₦{price.toFixed(2)}
         </span>
         {originalPrice && (
           <span
             className="text-lg line-through font-['DM_Sans']"
             style={{ color: "var(--text-muted)" }}
           >
-            ${originalPrice.toFixed(2)}
+            ₦{originalPrice.toFixed(2)}
           </span>
         )}
         {discount && (

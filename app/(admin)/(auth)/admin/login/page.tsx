@@ -41,7 +41,6 @@ export default function AdminLoginPage() {
       if (data.login.user.role !== "admin") {
         setError("Access denied. Admin accounts only.");
         document.cookie = "token=; Max-Age=0; path=/"; // clear token
-        localStorage.removeItem("token"); // clear old localStorage token
         return;
       }
       // localStorage.setItem("token", data.login.token);

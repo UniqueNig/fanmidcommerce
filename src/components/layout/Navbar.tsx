@@ -18,10 +18,13 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
+useEffect(() => {
+  const token = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("user_token="))
+    ?.split("=")[1];
+  setIsLoggedIn(!!token);
+}, []);
 
   const accountHref = isLoggedIn ? "/dashboard" : "/login";
 

@@ -8,7 +8,10 @@ type Product = {
   name: string;
   price: number;
   image: string;
-  category: string;
+  category: {
+    name: string;
+    slug: string;
+  };
   isNew?: boolean;
 };
 
@@ -25,7 +28,7 @@ function GridCard({ product }: { product: Product }) {
     <div className="group relative">
       {/* Image */}
       <div
-        className="relative overflow-hidden aspect-[3/4] mb-4"
+        className="relative overflow-hidden aspect-[5/7] mb-4"
         style={{ backgroundColor: "var(--card-bg)" }}
       >
         <img
@@ -48,6 +51,7 @@ function GridCard({ product }: { product: Product }) {
             <Heart size={13} />
           </button>
         </div>
+        
         {/* Badge */}
         {product.isNew && (
           <div
@@ -65,7 +69,7 @@ function GridCard({ product }: { product: Product }) {
             className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']"
             style={{ color: "var(--text-muted)" }}
           >
-            {product.category}
+            {product.category?.name}
           </p>
           <Link href={`/product/${product.id}`}>
             <h3
@@ -80,7 +84,7 @@ function GridCard({ product }: { product: Product }) {
           className="font-bold font-['Playfair_Display'] text-sm"
           style={{ color: "var(--accent)" }}
         >
-          ${product.price.toFixed(2)}
+           ₦{product.price.toFixed(2)}
         </span>
       </div>
     </div>
@@ -119,7 +123,7 @@ function ListCard({ product }: { product: Product }) {
             className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']"
             style={{ color: "var(--text-muted)" }}
           >
-            {product.category}
+            {product.category?.name}
           </p>
           <Link href={`/product/${product.id}`}>
             <h3
@@ -133,7 +137,7 @@ function ListCard({ product }: { product: Product }) {
             className="font-bold font-['Playfair_Display']"
             style={{ color: "var(--accent)" }}
           >
-            ${product.price.toFixed(2)}
+             ₦{product.price.toFixed(2)}
           </span>
         </div>
         <button

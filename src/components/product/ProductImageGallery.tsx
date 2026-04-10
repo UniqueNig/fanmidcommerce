@@ -8,10 +8,7 @@ type ProductImageGalleryProps = {
   productName: string;
 };
 
-export default function ProductImageGallery({
-  images,
-  productName,
-}: ProductImageGalleryProps) {
+export default function ProductImageGallery({ images, productName }: ProductImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
@@ -25,24 +22,19 @@ export default function ProductImageGallery({
 
   return (
     <div className="flex flex-col-reverse md:flex-row gap-4 w-full">
-      {/* Thumbnails — vertical on desktop, horizontal on mobile */}
-      <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[600px] flex-shrink-0">
+      {/* Thumbnails */}
+      <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto md:max-h-[780px] flex-shrink-0">
         {images.map((img, i) => (
           <button
             key={i}
             onClick={() => setActiveIndex(i)}
-            className="relative flex-shrink-0 w-16 h-20 md:w-20 md:h-24 overflow-hidden border-2 transition-all duration-200"
+            className="relative flex-shrink-0 w-20 h-24 md:w-24 md:h-28 overflow-hidden border-2 transition-all duration-200"  // ✅ bigger thumbnails
             style={{
-              borderColor:
-                activeIndex === i ? "var(--accent)" : "var(--border)",
+              borderColor: activeIndex === i ? "var(--accent)" : "var(--border)",
               opacity: activeIndex === i ? 1 : 0.6,
             }}
           >
-            <img
-              src={img}
-              alt={`${productName} view ${i + 1}`}
-              className="w-full h-full object-cover"
-            />
+            <img src={img} alt={`${productName} view ${i + 1}`} className="w-full h-full object-cover" />
           </button>
         ))}
       </div>
@@ -52,8 +44,8 @@ export default function ProductImageGallery({
         className="relative flex-1 overflow-hidden cursor-zoom-in"
         style={{
           backgroundColor: "var(--card-bg)",
-          aspectRatio: "3/4",
-          maxHeight: "600px",
+          aspectRatio: "2/3",        // ✅ taller ratio (was 3/4)
+          maxHeight: "780px",        // ✅ was 600px
         }}
         onMouseEnter={() => setZoomed(true)}
         onMouseLeave={() => setZoomed(false)}
@@ -69,7 +61,6 @@ export default function ProductImageGallery({
           }}
         />
 
-        {/* Zoom hint */}
         {!zoomed && (
           <div
             className="absolute bottom-4 right-4 flex items-center gap-1.5 px-3 py-1.5 text-[10px] tracking-widest uppercase font-['DM_Sans']"
@@ -78,12 +69,10 @@ export default function ProductImageGallery({
               color: "var(--text-muted)",
             }}
           >
-            <ZoomIn size={11} />
-            Hover to zoom
+            <ZoomIn size={11} /> Hover to zoom
           </div>
         )}
 
-        {/* Image counter */}
         <div
           className="absolute top-4 right-4 text-[10px] tracking-widest font-['DM_Sans'] px-2 py-1"
           style={{

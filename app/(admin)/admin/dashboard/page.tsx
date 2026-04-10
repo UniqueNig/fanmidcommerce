@@ -164,7 +164,7 @@ export default function DashboardPage() {
             Recent Orders
           </h3>
           <Link
-            href="/dashboard/orders"
+            href="/admin/orders"
             className="text-xs tracking-widest uppercase font-['DM_Sans'] transition-opacity hover:opacity-60"
             style={{ color: "var(--accent)" }}
           >

@@ -2,9 +2,35 @@
 
 import { X } from "lucide-react";
 
+// type ShopSidebarProps = {
+//   isOpen: boolean;
+//   onClose: () => void;
+//   selectedCategory: string;
+//   setSelectedCategory: (c: string) => void;
+//   priceRange: [number, number];
+//   setPriceRange: (r: [number, number]) => void;
+//   selectedSizes: string[];
+//   toggleSize: (s: string) => void;
+// };
+
+// const CATEGORIES = [
+//   { label: "All", value: "all", count: 148 },
+//   { label: "Tops", value: "tops", count: 42 },
+//   { label: "Bottoms", value: "bottoms", count: 31 },
+//   { label: "Outerwear", value: "outerwear", count: 18 },
+//   { label: "Accessories", value: "accessories", count: 56 },
+// ];
+
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 type ShopSidebarProps = {
   isOpen: boolean;
   onClose: () => void;
+  categories: Category[]; // ✅ NEW
   selectedCategory: string;
   setSelectedCategory: (c: string) => void;
   priceRange: [number, number];
@@ -13,19 +39,13 @@ type ShopSidebarProps = {
   toggleSize: (s: string) => void;
 };
 
-const CATEGORIES = [
-  { label: "All", value: "all", count: 148 },
-  { label: "Tops", value: "tops", count: 42 },
-  { label: "Bottoms", value: "bottoms", count: 31 },
-  { label: "Outerwear", value: "outerwear", count: 18 },
-  { label: "Accessories", value: "accessories", count: 56 },
-];
-
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+const MAX_PRICE = 1000000;
 
 export default function ShopSidebar({
   isOpen,
   onClose,
+  categories,
   selectedCategory,
   setSelectedCategory,
   priceRange,
@@ -74,7 +94,6 @@ export default function ShopSidebar({
         </div>
 
         <div className="p-5 lg:p-0 space-y-8">
-
           {/* Categories */}
           <div>
             <h3
@@ -84,33 +103,46 @@ export default function ShopSidebar({
               Category
             </h3>
             <ul className="space-y-1">
-              {CATEGORIES.map((cat) => (
-                <li key={cat.value}>
+              {/* All */}
+              <li>
+                <button
+                  onClick={() => setSelectedCategory("all")}
+                  className="w-full text-left py-2 px-3 text-sm font-['DM_Sans'] transition-colors"
+                  style={{
+                    backgroundColor:
+                      selectedCategory === "all"
+                        ? "color-mix(in srgb, var(--accent) 12%, transparent)"
+                        : "transparent",
+                    color:
+                      selectedCategory === "all"
+                        ? "var(--accent)"
+                        : "var(--text-secondary)",
+                    fontWeight: selectedCategory === "all" ? "700" : "400",
+                  }}
+                >
+                  All
+                </button>
+              </li>
+
+              {/* Dynamic categories */}
+              {categories.map((cat) => (
+                <li key={cat.id}>
                   <button
-                    onClick={() => setSelectedCategory(cat.value)}
-                    className="w-full flex items-center justify-between py-2 px-3 text-sm font-['DM_Sans'] transition-all duration-200"
+                    onClick={() => setSelectedCategory(cat.slug)}
+                    className="w-full text-left py-2 px-3 text-sm font-['DM_Sans'] transition-colors"
                     style={{
                       backgroundColor:
-                        selectedCategory === cat.value
-                          ? "color-mix(in srgb, var(--accent) 10%, transparent)"
+                        selectedCategory === cat.slug
+                          ? "color-mix(in srgb, var(--accent) 12%, transparent)"
                           : "transparent",
                       color:
-                        selectedCategory === cat.value
+                        selectedCategory === cat.slug
                           ? "var(--accent)"
                           : "var(--text-secondary)",
-                      borderLeft:
-                        selectedCategory === cat.value
-                          ? "2px solid var(--accent)"
-                          : "2px solid transparent",
+                      fontWeight: selectedCategory === cat.slug ? "700" : "400",
                     }}
                   >
-                    <span>{cat.label}</span>
-                    <span
-                      className="text-[10px]"
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {cat.count}
-                    </span>
+                    {cat.name}
                   </button>
                 </li>
               ))}
@@ -120,6 +152,7 @@ export default function ShopSidebar({
           {/* Divider */}
           <div style={{ borderTop: "1px solid var(--border)" }} />
 
+          {/* Price Range */}
           {/* Price Range */}
           <div>
             <h3
@@ -134,32 +167,30 @@ export default function ShopSidebar({
                   className="text-sm font-['DM_Sans'] font-bold"
                   style={{ color: "var(--text-primary)" }}
                 >
-                  ${priceRange[0]}
+                  ₦{priceRange[0].toLocaleString()}
                 </span>
                 <span
                   className="text-sm font-['DM_Sans'] font-bold"
                   style={{ color: "var(--text-primary)" }}
                 >
-                  ${priceRange[1]}
+                  ₦{priceRange[1].toLocaleString()}
                 </span>
               </div>
-              {/* Min slider */}
               <input
                 type="range"
                 min={0}
-                max={500}
+                max={MAX_PRICE}
                 value={priceRange[0]}
                 onChange={(e) =>
                   setPriceRange([Number(e.target.value), priceRange[1]])
                 }
-                className="w-full accent-[--accent] h-0.5 cursor-pointer"
+                className="w-full h-0.5 cursor-pointer"
                 style={{ accentColor: "var(--accent)" }}
               />
-              {/* Max slider */}
               <input
                 type="range"
                 min={0}
-                max={500}
+                max={MAX_PRICE}
                 value={priceRange[1]}
                 onChange={(e) =>
                   setPriceRange([priceRange[0], Number(e.target.value)])
@@ -190,9 +221,7 @@ export default function ShopSidebar({
                     onClick={() => toggleSize(size)}
                     className="w-10 h-10 text-xs font-bold font-['DM_Sans'] border transition-all duration-200"
                     style={{
-                      backgroundColor: active
-                        ? "var(--accent)"
-                        : "transparent",
+                      backgroundColor: active ? "var(--accent)" : "transparent",
                       borderColor: active ? "var(--accent)" : "var(--border)",
                       color: active ? "#000" : "var(--text-secondary)",
                     }}
@@ -211,7 +240,7 @@ export default function ShopSidebar({
           <button
             onClick={() => {
               setSelectedCategory("all");
-              setPriceRange([0, 500]);
+              setPriceRange([0, MAX_PRICE]);
             }}
             className="w-full py-2.5 text-xs tracking-widest uppercase font-['DM_Sans'] border transition-all duration-200 hover:opacity-70"
             style={{

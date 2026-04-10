@@ -1,5 +1,6 @@
+import { categoryResolvers } from "./categoryResolver";
 import { productResolvers } from "./productResolver";
 import { userResolvers } from "./userResolver";
 import { mergeResolvers } from "@graphql-tools/merge";
 
-export const resolvers = mergeResolvers([userResolvers, productResolvers]);
+export const resolvers = mergeResolvers([userResolvers, productResolvers, categoryResolvers]);
