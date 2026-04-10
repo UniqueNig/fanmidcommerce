@@ -17,9 +17,9 @@ const STATS = [
 ];
 
 const TEAM = [
-  { name: "Emmanuel Faniyi", role: "Founder & CEO", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80" },
-  { name: "Chioma Obi", role: "Creative Director", image: "https://images.unsplash.com/photo-1494790108755-2616b332c3eb?w=300&q=80" },
-  { name: "Tunde Alabi", role: "Head of Operations", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&q=80" },
+  { name: "Emmanuel Faniyi", role: "Founder & CEO", image: "https://res.cloudinary.com/deeqdbuup/image/upload/v1775650657/z6bqcdd5muomxuj0x9wd.jpg" },
+  { name: "Chioma Obi", role: "Creative Director", image: "https://res.cloudinary.com/deeqdbuup/image/upload/v1775650657/z6bqcdd5muomxuj0x9wd.jpg" },
+  { name: "Tunde Alabi", role: "Head of Operations", image: "https://res.cloudinary.com/deeqdbuup/image/upload/v1775650657/z6bqcdd5muomxuj0x9wd.jpg" },
 ];
 
 export default function AboutPage() {

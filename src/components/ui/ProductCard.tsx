@@ -55,7 +55,7 @@ export default function ProductCard({
           <p className="var(--text-primary)/40 text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']">
             {category}
           </p>
-          <Link href={`/products/${id}`}>
+          <Link href={`/product/${id}`}>
             <h3 className="var(--text-primary) font-medium hover:text-[#c8a96e] transition-colors font-['DM_Sans'] text-sm">
               {name}
             </h3>
