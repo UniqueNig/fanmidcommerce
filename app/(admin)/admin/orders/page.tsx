@@ -3,12 +3,13 @@
 import { Fragment, useState, useEffect } from "react";
 import { Search, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 
+// Update the query:
 const GET_ORDERS = `
   query {
     orders {
       id
-      shippingAddress { name email }
-      items { name quantity price }
+      shippingAddress { name email phone address city state }
+      items { name quantity price image }
       totalAmount
       status
       isPaid
@@ -17,6 +18,19 @@ const GET_ORDERS = `
     }
   }
 `;
+
+// Update the types:
+type OrderItem = { name: string; quantity: number; price: number; image?: string };
+type Order = {
+  id: string;
+  shippingAddress: { name: string; email: string; phone: string; address: string; city: string; state: string };
+  items: OrderItem[];
+  totalAmount: number;
+  status: string;
+  isPaid: boolean;
+  paymentReference?: string;
+  createdAt: string;
+};
 
 const UPDATE_STATUS = `
   mutation UpdateOrderStatus($id: ID!, $status: String!) {
@@ -27,17 +41,17 @@ const UPDATE_STATUS = `
   }
 `;
 
-type OrderItem = { name: string; quantity: number; price: number };
-type Order = {
-  id: string;
-  shippingAddress: { name: string; email: string };
-  items: OrderItem[];
-  totalAmount: number;
-  status: string;
-  isPaid: boolean;
-  paymentReference?: string;
-  createdAt: string;
-};
+// type OrderItem = { name: string; quantity: number; price: number };
+// type Order = {
+//   id: string;
+//   shippingAddress: { name: string; email: string };
+//   items: OrderItem[];
+//   totalAmount: number;
+//   status: string;
+//   isPaid: boolean;
+//   paymentReference?: string;
+//   createdAt: string;
+// };
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   Delivered: {
@@ -328,81 +342,90 @@ export default function AdminOrdersPage() {
                           </button>
                         </td>
                       </tr>
-                      {expanded && (
-                        <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                          <td
-                            colSpan={7}
-                            className="px-5 py-4"
-                            style={{
-                              backgroundColor:
-                                "color-mix(in srgb, var(--accent) 3%, transparent)",
-                            }}
-                          >
-                            <div className="space-y-3">
-                              {/* Items breakdown */}
-                              <div>
-                                <p
-                                  className="text-[10px] tracking-widest uppercase font-bold mb-2 font-['DM_Sans']"
-                                  style={{ color: "var(--text-muted)" }}
-                                >
-                                  Items Ordered
-                                </p>
-                                <div className="space-y-1">
-                                  {order.items.map((item, i) => (
-                                    <div
-                                      key={i}
-                                      className="flex justify-between text-sm font-['DM_Sans']"
-                                    >
-                                      <span
-                                        style={{ color: "var(--text-primary)" }}
-                                      >
-                                        {item.name} × {item.quantity}
-                                      </span>
-                                      <span
-                                        style={{
-                                          color: "var(--text-secondary)",
-                                        }}
-                                      >
-                                        ₦
-                                        {(
-                                          item.price * item.quantity
-                                        ).toLocaleString()}
-                                      </span>
-                                      <span
-                                        style={{
-                                          color: "var(--text-secondary)",
-                                        }}
-                                      >
-                                        ₦
-                                        {(
-                                          item.price * item.quantity
-                                        ).toLocaleString()}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                              {/* Payment ref */}
-                              {order.paymentReference && (
-                                <div>
-                                  <p
-                                    className="text-[10px] tracking-widest uppercase font-bold mb-1 font-['DM_Sans']"
-                                    style={{ color: "var(--text-muted)" }}
-                                  >
-                                    Payment Reference
-                                  </p>
-                                  <p
-                                    className="text-xs font-mono font-['DM_Sans']"
-                                    style={{ color: "var(--accent)" }}
-                                  >
-                                    {order.paymentReference}
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      )}
+{expanded && (
+  <tr style={{ borderBottom: "1px solid var(--border)" }}>
+    <td colSpan={7} className="px-5 py-4"
+      style={{ backgroundColor: "color-mix(in srgb, var(--accent) 3%, transparent)" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Items with images */}
+        <div>
+          <p className="text-[10px] tracking-widest uppercase font-bold mb-3 font-['DM_Sans']"
+            style={{ color: "var(--text-muted)" }}>
+            Items Ordered
+          </p>
+          <div className="space-y-2">
+            {order.items.map((item, i) => (
+              <div key={i} className="flex items-center gap-3">
+                {item.image ? (
+                  <img src={item.image} alt={item.name}
+                    className="w-10 h-12 object-cover flex-shrink-0"
+                    style={{ backgroundColor: "var(--card-bg)" }} />
+                ) : (
+                  <div className="w-10 h-12 flex-shrink-0"
+                    style={{ backgroundColor: "var(--border)" }} />
+                )}
+                <div className="flex-1 flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>
+                      {item.name}
+                    </p>
+                    <p className="text-[11px] font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+                      Qty: {item.quantity}
+                    </p>
+                  </div>
+                  <span className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                    ₦{(item.price * item.quantity).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Shipping address + payment ref */}
+        <div className="space-y-4">
+          <div>
+            <p className="text-[10px] tracking-widest uppercase font-bold mb-2 font-['DM_Sans']"
+              style={{ color: "var(--text-muted)" }}>
+              Shipping Address
+            </p>
+            <div className="space-y-0.5">
+              <p className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>
+                {order.shippingAddress.name}
+              </p>
+              <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                {order.shippingAddress.email}
+              </p>
+              <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                {order.shippingAddress.phone}
+              </p>
+              <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                {order.shippingAddress.address}
+              </p>
+              <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                {order.shippingAddress.city}, {order.shippingAddress.state}
+              </p>
+            </div>
+          </div>
+
+          {order.paymentReference && (
+            <div>
+              <p className="text-[10px] tracking-widest uppercase font-bold mb-1 font-['DM_Sans']"
+                style={{ color: "var(--text-muted)" }}>
+                Payment Reference
+              </p>
+              <p className="text-xs font-mono font-['DM_Sans']" style={{ color: "var(--accent)" }}>
+                {order.paymentReference}
+              </p>
+            </div>
+          )}
+        </div>
+
+      </div>
+    </td>
+  </tr>
+)}
                     </Fragment>
                   );
                 })}

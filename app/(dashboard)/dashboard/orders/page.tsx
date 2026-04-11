@@ -18,6 +18,7 @@ interface OrderItem {
   name: string;
   quantity: number;
   price: number;
+  image?: string;
 }
 
 interface Order {
@@ -40,6 +41,7 @@ const GET_MY_ORDERS = gql`
         name
         quantity
         price
+        image
       }
       totalAmount
       status
@@ -86,37 +88,60 @@ export default function OrdersPage() {
   const { data, loading } = useQuery<GetMyOrdersResponse>(GET_MY_ORDERS);
   const orders = data?.myOrders ?? [];
 
-  const filtered = filter === "All" ? orders : orders.filter((o) => o.status === filter);
+  const filtered =
+    filter === "All" ? orders : orders.filter((o) => o.status === filter);
 
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h2 className="text-2xl font-black font-['Playfair_Display']" style={{ color: "var(--text-primary)" }}>
+        <h2
+          className="text-2xl font-black font-['Playfair_Display']"
+          style={{ color: "var(--text-primary)" }}
+        >
           My Orders
         </h2>
-        <p className="text-sm font-['DM_Sans'] mt-1" style={{ color: "var(--text-muted)" }}>
+        <p
+          className="text-sm font-['DM_Sans'] mt-1"
+          style={{ color: "var(--text-muted)" }}
+        >
           {orders.length} total order{orders.length !== 1 ? "s" : ""}
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2">
         {STATUS_FILTERS.map((s) => (
-          <button key={s} onClick={() => setFilter(s)}
+          <button
+            key={s}
+            onClick={() => setFilter(s)}
             className="px-4 py-1.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] border transition-all duration-200"
             style={{
               backgroundColor: filter === s ? "var(--accent)" : "transparent",
               borderColor: filter === s ? "var(--accent)" : "var(--border)",
               color: filter === s ? "#000" : "var(--text-secondary)",
-            }}>
+            }}
+          >
             {s}
           </button>
         ))}
       </div>
 
-      <div className="border overflow-hidden" style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border)" }}>
-        <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-3 border-b" style={{ borderColor: "var(--border)" }}>
+      <div
+        className="border overflow-hidden"
+        style={{
+          backgroundColor: "var(--card-bg)",
+          borderColor: "var(--border)",
+        }}
+      >
+        <div
+          className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 px-6 py-3 border-b"
+          style={{ borderColor: "var(--border)" }}
+        >
           {["Product", "Order ID", "Date", "Amount", "Status"].map((h) => (
-            <p key={h} className="text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+            <p
+              key={h}
+              className="text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans']"
+              style={{ color: "var(--text-muted)" }}
+            >
               {h}
             </p>
           ))}
@@ -125,13 +150,27 @@ export default function OrdersPage() {
         {/* ← loading state */}
         {loading ? (
           <div className="flex items-center justify-center py-16 gap-3">
-            <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
-            <p className="text-sm font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>Loading orders...</p>
+            <div
+              className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
+              style={{
+                borderColor: "var(--accent)",
+                borderTopColor: "transparent",
+              }}
+            />
+            <p
+              className="text-sm font-['DM_Sans']"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Loading orders...
+            </p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <Package size={32} style={{ color: "var(--text-muted)" }} />
-            <p className="text-sm font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+            <p
+              className="text-sm font-['DM_Sans']"
+              style={{ color: "var(--text-muted)" }}
+            >
               No {filter === "All" ? "" : filter.toLowerCase()} orders found
             </p>
           </div>
@@ -144,78 +183,180 @@ export default function OrdersPage() {
               const shortId = `#${order.id.slice(-6).toUpperCase()}`;
 
               return (
-                <li key={order.id} style={{ borderBottom: "1px solid var(--border)" }}>
+                <li
+                  key={order.id}
+                  style={{ borderBottom: "1px solid var(--border)" }}
+                >
                   <button
                     className="w-full text-left px-6 py-4 hover:opacity-80 transition-opacity"
                     onClick={() => setExpandedId(expanded ? null : order.id)}
                   >
                     <div className="hidden md:grid grid-cols-[2fr_1fr_1fr_1fr_auto] gap-4 items-center">
                       <div>
-                        <p className="text-sm font-medium font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>
+                        <p
+                          className="text-sm font-medium font-['DM_Sans']"
+                          style={{ color: "var(--text-primary)" }}
+                        >
                           {firstItem?.name ?? "Order"}
                           {order.items.length > 1 && (
-                            <span className="text-xs ml-2" style={{ color: "var(--text-muted)" }}>
+                            <span
+                              className="text-xs ml-2"
+                              style={{ color: "var(--text-muted)" }}
+                            >
                               +{order.items.length - 1} more
                             </span>
                           )}
                         </p>
-                        <p className="text-[11px] font-['DM_Sans'] mt-0.5" style={{ color: "var(--text-muted)" }}>
-                          {order.items.reduce((sum, i) => sum + i.quantity, 0)} items total
+                        <p
+                          className="text-[11px] font-['DM_Sans'] mt-0.5"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {order.items.reduce((sum, i) => sum + i.quantity, 0)}{" "}
+                          items total
                         </p>
                       </div>
-                      <p className="text-xs font-bold font-['DM_Sans']" style={{ color: "var(--accent)" }}>{shortId}</p>
-                      <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
-                        {new Date(order.createdAt).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}
+                      <p
+                        className="text-xs font-bold font-['DM_Sans']"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        {shortId}
                       </p>
-                      <p className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>
+                      <p
+                        className="text-xs font-['DM_Sans']"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
+                        {new Date(order.createdAt).toLocaleDateString("en-NG", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                      <p
+                        className="text-sm font-bold font-['DM_Sans']"
+                        style={{ color: "var(--text-primary)" }}
+                      >
                         ₦{order.totalAmount.toLocaleString()}
                       </p>
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
-                          style={STATUS_STYLES[order.status] ?? STATUS_STYLES["Pending"]}>
+                        <span
+                          className="text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
+                          style={
+                            STATUS_STYLES[order.status] ??
+                            STATUS_STYLES["Pending"]
+                          }
+                        >
                           {order.status}
                         </span>
-                        {expanded
-                          ? <ChevronUp size={13} style={{ color: "var(--text-muted)" }} />
-                          : <ChevronDown size={13} style={{ color: "var(--text-muted)" }} />}
+                        {expanded ? (
+                          <ChevronUp
+                            size={13}
+                            style={{ color: "var(--text-muted)" }}
+                          />
+                        ) : (
+                          <ChevronDown
+                            size={13}
+                            style={{ color: "var(--text-muted)" }}
+                          />
+                        )}
                       </div>
                     </div>
 
                     {/* Mobile view */}
                     <div className="md:hidden flex items-center justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium font-['DM_Sans'] truncate" style={{ color: "var(--text-primary)" }}>
+                        <p
+                          className="text-sm font-medium font-['DM_Sans'] truncate"
+                          style={{ color: "var(--text-primary)" }}
+                        >
                           {firstItem?.name ?? "Order"}
                         </p>
-                        <p className="text-xs font-['DM_Sans'] mt-0.5" style={{ color: "var(--text-muted)" }}>
-                          {shortId} · {new Date(order.createdAt).toLocaleDateString("en-NG", { day: "numeric", month: "short" })}
+                        <p
+                          className="text-xs font-['DM_Sans'] mt-0.5"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          {shortId} ·{" "}
+                          {new Date(order.createdAt).toLocaleDateString(
+                            "en-NG",
+                            { day: "numeric", month: "short" },
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 font-['DM_Sans']"
-                          style={STATUS_STYLES[order.status] ?? STATUS_STYLES["Pending"]}>
+                        <span
+                          className="text-[10px] font-bold tracking-widest uppercase px-2 py-1 font-['DM_Sans']"
+                          style={
+                            STATUS_STYLES[order.status] ??
+                            STATUS_STYLES["Pending"]
+                          }
+                        >
                           {order.status}
                         </span>
-                        <p className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>
+                        <p
+                          className="text-sm font-bold font-['DM_Sans']"
+                          style={{ color: "var(--text-primary)" }}
+                        >
                           ₦{order.totalAmount.toLocaleString()}
                         </p>
-                        {expanded ? <ChevronUp size={13} style={{ color: "var(--text-muted)" }} /> : <ChevronDown size={13} style={{ color: "var(--text-muted)" }} />}
+                        {expanded ? (
+                          <ChevronUp
+                            size={13}
+                            style={{ color: "var(--text-muted)" }}
+                          />
+                        ) : (
+                          <ChevronDown
+                            size={13}
+                            style={{ color: "var(--text-muted)" }}
+                          />
+                        )}
                       </div>
                     </div>
                   </button>
 
                   {expanded && (
-                    <div className="px-6 pb-4 pt-2 border-t" style={{ borderColor: "var(--border)", backgroundColor: "color-mix(in srgb, var(--accent) 3%, transparent)" }}>
+                    <div
+                      className="px-6 pb-4 pt-2 border-t"
+                      style={{
+                        borderColor: "var(--border)",
+                        backgroundColor:
+                          "color-mix(in srgb, var(--accent) 3%, transparent)",
+                      }}
+                    >
                       <div className="space-y-2">
                         {order.items.map((item, i) => (
-                          <div key={i} className="flex justify-between text-sm font-['DM_Sans']">
-                            <span style={{ color: "var(--text-primary)" }}>{item.name} × {item.quantity}</span>
-                            <span style={{ color: "var(--text-secondary)" }}>₦{(item.price * item.quantity).toLocaleString()}</span>
+                          <div key={i} className="flex items-center gap-3">
+                            {item.image ? (
+                              <img
+                                src={item.image}
+                                alt={item.name}
+                                className="w-10 h-12 object-cover flex-shrink-0"
+                                style={{ backgroundColor: "var(--card-bg)" }}
+                              />
+                            ) : (
+                              <div
+                                className="w-10 h-12 flex-shrink-0"
+                                style={{ backgroundColor: "var(--border)" }}
+                              />
+                            )}
+                            <div className="flex-1 flex justify-between">
+                              <span style={{ color: "var(--text-primary)" }}>
+                                {item.name} × {item.quantity}
+                              </span>
+                              <span style={{ color: "var(--text-secondary)" }}>
+                                ₦{(item.price * item.quantity).toLocaleString()}
+                              </span>
+                            </div>
                           </div>
                         ))}
-                        <div className="flex justify-between font-bold text-sm font-['DM_Sans'] border-t pt-2" style={{ borderColor: "var(--border)" }}>
-                          <span style={{ color: "var(--text-primary)" }}>Total</span>
-                          <span style={{ color: "var(--accent)" }}>₦{order.totalAmount.toLocaleString()}</span>
+                        <div
+                          className="flex justify-between font-bold text-sm font-['DM_Sans'] border-t pt-2"
+                          style={{ borderColor: "var(--border)" }}
+                        >
+                          <span style={{ color: "var(--text-primary)" }}>
+                            Total
+                          </span>
+                          <span style={{ color: "var(--accent)" }}>
+                            ₦{order.totalAmount.toLocaleString()}
+                          </span>
                         </div>
                       </div>
                     </div>
