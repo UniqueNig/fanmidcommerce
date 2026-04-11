@@ -489,7 +489,7 @@ export default function AdminCustomersPage() {
                         className="font-bold font-['DM_Sans'] text-sm"
                         style={{ color: "var(--accent)" }}
                       >
-                        ${(customer.spent ?? 0).toFixed(2)}
+                        ₦{(customer.spent ?? 0).toFixed(2)}
                       </span>
                     </td>
 
