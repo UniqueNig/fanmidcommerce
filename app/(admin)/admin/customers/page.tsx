@@ -176,7 +176,7 @@ function UserDetailModal({
                 : "—",
             },
             { label: "Total Orders", value: String(user.orders ?? 0) },
-            { label: "Total Spent", value: `$${(user.spent ?? 0).toFixed(2)}` },
+            { label: "Total Spent", value: `₦${(user.spent ?? 0).toFixed(2)}` },
           ].map(({ label, value }) => (
             <div key={label}>
               <p
