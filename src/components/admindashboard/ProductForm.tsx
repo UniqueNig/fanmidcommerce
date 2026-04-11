@@ -6,6 +6,7 @@ import { ArrowLeft, Save, Upload, Loader2 } from "lucide-react";
 import Link from "next/link";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client/react";
+import { useApolloClient } from "@apollo/client/react";
 
 // ── GraphQL ────────────────────────────────────────────────────────────────
 const GET_CATEGORIES = gql`
@@ -113,40 +114,50 @@ const inputStyle = (extra = {}) => ({
 const labelClass =
   "text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans'] block mb-1.5";
 
-export default function ProductForm({ initialData = {}, mode, productId }: ProductFormProps) {
+export default function ProductForm({
+  initialData = {},
+  mode,
+  productId,
+}: ProductFormProps) {
   const router = useRouter();
+  const apolloClient = useApolloClient();
 
   const [form, setForm] = useState({
-    name:        initialData.name        ?? "",
+    name: initialData.name ?? "",
     description: initialData.description ?? "",
-    price:       initialData.price       ?? "",
-    stock:       initialData.stock       ?? "",
-    categoryId:  initialData.categoryId  ?? "",   // ✅ stores the category _id
-    image:       initialData.image       ?? "",
-    isNew:       initialData.isNew       ?? false,
+    price: initialData.price ?? "",
+    stock: initialData.stock ?? "",
+    categoryId: initialData.categoryId ?? "", // ✅ stores the category _id
+    image: initialData.image ?? "",
+    isNew: initialData.isNew ?? false,
   });
   const [saving, setSaving] = useState(false);
-  const [saved,  setSaved]  = useState(false);
+  const [saved, setSaved] = useState(false);
 
   // ── Fetch categories from backend ──────────────────────────────────────
-  const { data: catData, loading: catLoading } = useQuery<{ categories: Category[] }>(
-    GET_CATEGORIES
-  );
+  const { data: catData, loading: catLoading } = useQuery<{
+    categories: Category[];
+  }>(GET_CATEGORIES);
   const categories: Category[] = catData?.categories ?? [];
 
-  const [updateProduct] = useMutation(UPDATE_PRODUCT, { refetchQueries: ["GetProducts"] });
-  const [createProduct] = useMutation(CREATE_PRODUCT, { refetchQueries: ["GetProducts"] });
+  const [updateProduct] = useMutation(UPDATE_PRODUCT, {
+    refetchQueries: ["GetProducts"],
+  });
+  const [createProduct] = useMutation(CREATE_PRODUCT, {
+    refetchQueries: ["GetProducts"],
+  });
 
-  const update = (key: string, val: any) => setForm((f) => ({ ...f, [key]: val }));
+  const update = (key: string, val: any) =>
+    setForm((f) => ({ ...f, [key]: val }));
 
   const uploadImage = async (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", "fanmid_products");
 
-    const res  = await fetch(
+    const res = await fetch(
       `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      { method: "POST", body: formData }
+      { method: "POST", body: formData },
     );
     const data = await res.json();
     return data.secure_url;
@@ -158,13 +169,13 @@ export default function ProductForm({ initialData = {}, mode, productId }: Produ
 
     try {
       const variables = {
-        name:        form.name,
+        name: form.name,
         description: form.description,
-        price:       parseFloat(form.price),
-        stock:       parseInt(form.stock),
-        category:    form.categoryId,   // ✅ sending the _id
-        image:       form.image,
-        isNew:       form.isNew,
+        price: parseFloat(form.price),
+        stock: parseInt(form.stock),
+        category: form.categoryId, // ✅ sending the _id
+        image: form.image,
+        isNew: form.isNew,
       };
 
       if (mode === "edit" && productId) {
@@ -172,7 +183,7 @@ export default function ProductForm({ initialData = {}, mode, productId }: Produ
       } else {
         await createProduct({ variables });
       }
-
+      await apolloClient.resetStore();
       setSaved(true);
       setTimeout(() => router.push("/admin/products"), 800);
     } catch (err) {
@@ -185,17 +196,25 @@ export default function ProductForm({ initialData = {}, mode, productId }: Produ
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Back */}
-      <Link href="/admin/products"
+      <Link
+        href="/admin/products"
         className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-['DM_Sans'] hover:opacity-60 transition-opacity"
-        style={{ color: "var(--text-muted)" }}>
+        style={{ color: "var(--text-muted)" }}
+      >
         <ArrowLeft size={12} /> Back to Products
       </Link>
 
       <div>
-        <h2 className="text-2xl font-black font-['Playfair_Display']" style={{ color: "var(--text-primary)" }}>
+        <h2
+          className="text-2xl font-black font-['Playfair_Display']"
+          style={{ color: "var(--text-primary)" }}
+        >
           {mode === "add" ? "Add New Product" : "Edit Product"}
         </h2>
-        <p className="text-sm font-['DM_Sans'] mt-1" style={{ color: "var(--text-muted)" }}>
+        <p
+          className="text-sm font-['DM_Sans'] mt-1"
+          style={{ color: "var(--text-muted)" }}
+        >
           {mode === "add"
             ? "Fill in the details to add a new product to the store."
             : "Update the product details below."}
@@ -204,18 +223,41 @@ export default function ProductForm({ initialData = {}, mode, productId }: Produ
 
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Image */}
-        <div className="border p-6" style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border)" }}>
-          <label className={labelClass} style={{ color: "var(--text-muted)" }}>Product Image</label>
+        <div
+          className="border p-6"
+          style={{
+            backgroundColor: "var(--card-bg)",
+            borderColor: "var(--border)",
+          }}
+        >
+          <label className={labelClass} style={{ color: "var(--text-muted)" }}>
+            Product Image
+          </label>
           <div className="flex gap-4 items-start">
-            <div className="w-24 h-28 flex-shrink-0 overflow-hidden border"
-              style={{ borderColor: "var(--border)", backgroundColor: "var(--bg-secondary)" }}>
-              {form.image
-                ? <img src={form.image} alt="preview" className="w-full h-full object-cover" />
-                : <div className="w-full h-full flex items-center justify-center">
-                    <Upload size={20} style={{ color: "var(--text-muted)" }} />
-                  </div>}
+            <div
+              className="w-24 h-28 flex-shrink-0 overflow-hidden border"
+              style={{
+                borderColor: "var(--border)",
+                backgroundColor: "var(--bg-secondary)",
+              }}
+            >
+              {form.image ? (
+                <img
+                  src={form.image}
+                  alt="preview"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Upload size={20} style={{ color: "var(--text-muted)" }} />
+                </div>
+              )}
             </div>
-            <input type="file" accept="image/*" className={inputClass} style={inputStyle()}
+            <input
+              type="file"
+              accept="image/*"
+              className={inputClass}
+              style={inputStyle()}
               onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (!file) return;
@@ -228,71 +270,168 @@ export default function ProductForm({ initialData = {}, mode, productId }: Produ
                 } finally {
                   setSaving(false);
                 }
-              }} />
-            {saving && <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>Uploading...</p>}
+              }}
+            />
+            {saving && (
+              <p
+                className="text-xs font-['DM_Sans']"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Uploading...
+              </p>
+            )}
           </div>
         </div>
 
         {/* Basic info */}
-        <div className="border p-6 space-y-5" style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border)" }}>
-          <h3 className="text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans']"
-            style={{ color: "var(--text-muted)" }}>Basic Information</h3>
+        <div
+          className="border p-6 space-y-5"
+          style={{
+            backgroundColor: "var(--card-bg)",
+            borderColor: "var(--border)",
+          }}
+        >
+          <h3
+            className="text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans']"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Basic Information
+          </h3>
 
           <div>
-            <label className={labelClass} style={{ color: "var(--text-muted)" }}>Product Name *</label>
-            <input required className={inputClass} style={inputStyle()} value={form.name}
-              onChange={(e) => update("name", e.target.value)} placeholder="e.g. Minimalist Leather Jacket" />
+            <label
+              className={labelClass}
+              style={{ color: "var(--text-muted)" }}
+            >
+              Product Name *
+            </label>
+            <input
+              required
+              className={inputClass}
+              style={inputStyle()}
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              placeholder="e.g. Minimalist Leather Jacket"
+            />
           </div>
 
           <div>
-            <label className={labelClass} style={{ color: "var(--text-muted)" }}>Description *</label>
-            <textarea required rows={4} className={inputClass} style={inputStyle({ resize: "none" })}
-              value={form.description} onChange={(e) => update("description", e.target.value)}
-              placeholder="Describe the product in detail..." />
+            <label
+              className={labelClass}
+              style={{ color: "var(--text-muted)" }}
+            >
+              Description *
+            </label>
+            <textarea
+              required
+              rows={4}
+              className={inputClass}
+              style={inputStyle({ resize: "none" })}
+              value={form.description}
+              onChange={(e) => update("description", e.target.value)}
+              placeholder="Describe the product in detail..."
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             {/* ✅ Category now fetched from backend */}
             <div>
-              <label className={labelClass} style={{ color: "var(--text-muted)" }}>Category *</label>
-              <select required className={inputClass} style={inputStyle()}
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-muted)" }}
+              >
+                Category *
+              </label>
+              <select
+                required
+                className={inputClass}
+                style={inputStyle()}
                 value={form.categoryId}
                 onChange={(e) => update("categoryId", e.target.value)}
-                disabled={catLoading}>
+                disabled={catLoading}
+              >
                 <option value="">
                   {catLoading ? "Loading categories..." : "Select category"}
                 </option>
                 {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className={labelClass} style={{ color: "var(--text-muted)" }}>Price (₦) *</label>
-              <input required type="number" step="0.01" min="0" className={inputClass} style={inputStyle()}
-                value={form.price} onChange={(e) => update("price", e.target.value)} placeholder="0.00" />
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-muted)" }}
+              >
+                Price (₦) *
+              </label>
+              <input
+                required
+                type="number"
+                step="0.01"
+                min="0"
+                className={inputClass}
+                style={inputStyle()}
+                value={form.price}
+                onChange={(e) => update("price", e.target.value)}
+                placeholder="0.00"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelClass} style={{ color: "var(--text-muted)" }}>Stock Quantity *</label>
-              <input required type="number" min="0" className={inputClass} style={inputStyle()}
-                value={form.stock} onChange={(e) => update("stock", e.target.value)} placeholder="0" />
+              <label
+                className={labelClass}
+                style={{ color: "var(--text-muted)" }}
+              >
+                Stock Quantity *
+              </label>
+              <input
+                required
+                type="number"
+                min="0"
+                className={inputClass}
+                style={inputStyle()}
+                value={form.stock}
+                onChange={(e) => update("stock", e.target.value)}
+                placeholder="0"
+              />
             </div>
             <div className="flex flex-col justify-end">
               <label className="flex items-center gap-3 cursor-pointer">
                 <div className="relative">
-                  <input type="checkbox" checked={form.isNew}
-                    onChange={(e) => update("isNew", e.target.checked)} className="sr-only" />
-                  <div className="w-10 h-5 rounded-full transition-colors"
-                    style={{ backgroundColor: form.isNew ? "var(--accent)" : "var(--border)" }}>
-                    <div className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
-                      style={{ transform: form.isNew ? "translateX(20px)" : "translateX(0)" }} />
+                  <input
+                    type="checkbox"
+                    checked={form.isNew}
+                    onChange={(e) => update("isNew", e.target.checked)}
+                    className="sr-only"
+                  />
+                  <div
+                    className="w-10 h-5 rounded-full transition-colors"
+                    style={{
+                      backgroundColor: form.isNew
+                        ? "var(--accent)"
+                        : "var(--border)",
+                    }}
+                  >
+                    <div
+                      className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
+                      style={{
+                        transform: form.isNew
+                          ? "translateX(20px)"
+                          : "translateX(0)",
+                      }}
+                    />
                   </div>
                 </div>
-                <span className="text-sm font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                <span
+                  className="text-sm font-['DM_Sans']"
+                  style={{ color: "var(--text-secondary)" }}
+                >
                   Mark as New
                 </span>
               </label>
@@ -302,16 +441,37 @@ export default function ProductForm({ initialData = {}, mode, productId }: Produ
 
         {/* Actions */}
         <div className="flex gap-3">
-          <Link href="/admin/products"
+          <Link
+            href="/admin/products"
             className="px-6 py-3.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] border hover:opacity-70 transition-opacity"
-            style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}>
+            style={{
+              borderColor: "var(--border)",
+              color: "var(--text-secondary)",
+            }}
+          >
             Cancel
           </Link>
-          <button type="submit" disabled={saving || saved}
+          <button
+            type="submit"
+            disabled={saving || saved}
             className="flex items-center gap-2 px-8 py-3.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-80 transition-all disabled:opacity-60"
-            style={{ backgroundColor: saved ? "#22c55e" : "var(--accent)", color: "#000" }}>
-            {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
-            {saved ? "Saved!" : saving ? "Saving..." : mode === "add" ? "Add Product" : "Save Changes"}
+            style={{
+              backgroundColor: saved ? "#22c55e" : "var(--accent)",
+              color: "#000",
+            }}
+          >
+            {saving ? (
+              <Loader2 size={13} className="animate-spin" />
+            ) : (
+              <Save size={13} />
+            )}
+            {saved
+              ? "Saved!"
+              : saving
+                ? "Saving..."
+                : mode === "add"
+                  ? "Add Product"
+                  : "Save Changes"}
           </button>
         </div>
       </form>

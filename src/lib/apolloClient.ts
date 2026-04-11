@@ -19,8 +19,8 @@ const authLink = setContext((_, { headers }) => {
     window.location.pathname.startsWith("/admin");
 
   const token = isAdminRoute
-    ? getCookie("admin_token")           // admin pages → admin token only
-    : getCookie("user_token");           // all other pages → user token only
+    ? getCookie("admin_token") // admin pages → admin token only
+    : getCookie("user_token"); // all other pages → user token only
 
   return {
     headers: {
@@ -32,5 +32,15 @@ const authLink = setContext((_, { headers }) => {
 
 export const client = new ApolloClient({
   link: authLink.concat(httpLink),
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          products: {
+            merge: false, // ← don't merge, always replace with fresh data
+          },
+        },
+      },
+    },
+  }),
 });

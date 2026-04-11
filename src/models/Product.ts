@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-// import User from "./User";
 
 const productSchema = new mongoose.Schema(
   {
@@ -8,20 +7,20 @@ const productSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     image: { type: String },
     stock: { type: Number, required: true },
-    // category:    { type: String, required: true },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "fanmidcommerce-categories",
       required: true,
     },
-    isNew: { type: Boolean, default: false }, // 👈 ADD THIS
+    isNew: { type: Boolean, default: false },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "fanmidcommerce-users",
     },
-    createdAt: { type: Date, default: Date.now },
+    // ← remove the manual createdAt field, timestamps handles it
   },
   {
+    timestamps: true, // ← adds createdAt + updatedAt automatically
     toJSON: {
       virtuals: true,
       transform: (_doc: any, ret: any) => {

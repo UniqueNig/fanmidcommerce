@@ -10,7 +10,10 @@ async function getUserStats(userId: string) {
     // Find all orders belonging to this user
     const userOrders = await orderModel.find({ user: userId });
     const orders = userOrders.length;
-    const spent = userOrders.reduce((sum: number, o: any) => sum + (o.totalAmount ?? 0), 0);
+    const spent = userOrders.reduce(
+      (sum: number, o: any) => sum + (o.totalAmount ?? 0),
+      0,
+    );
     return { orders, spent };
   } catch {
     // If Order model doesn't exist yet, return 0s gracefully
@@ -66,9 +69,21 @@ export const userResolvers = {
     me: async (_: unknown, __: unknown, context: any) => {
       await connectDB();
       if (!context.user) throw new Error("Not authenticated");
-      const user = await userModel.findById(context.user.id).select("-password");
+      const user = await userModel
+        .findById(context.user.id)
+        .select("-password");
       if (!user) throw new Error("User not found");
       return formatUser(user);
+    },
+
+    admins: async (_: unknown, __: unknown, context: any) => {
+      await connectDB();
+      if (!context.user || !["admin", "superadmin"].includes(context.user.role))
+        throw new Error("Unauthorized");
+      const adminUsers = await userModel
+      .find({ role: { $in: ["admin", "superadmin"] } })
+        .select("-password");
+      return adminUsers.map(formatUser);
     },
   },
 
@@ -76,8 +91,18 @@ export const userResolvers = {
     register: async (
       _: unknown,
       {
-        name, email, phone, address, password,
-      }: { name: string; email: string; phone?: string; address?: string; password: string },
+        name,
+        email,
+        phone,
+        address,
+        password,
+      }: {
+        name: string;
+        email: string;
+        phone?: string;
+        address?: string;
+        password: string;
+      },
     ) => {
       await connectDB();
       const existingUser = await userModel.findOne({ email });
@@ -85,7 +110,10 @@ export const userResolvers = {
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await userModel.create({
-        name, email, phone, address,
+        name,
+        email,
+        phone,
+        address,
         password: hashedPassword,
         role: "user",
         status: "Active",
@@ -105,23 +133,33 @@ export const userResolvers = {
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) throw new Error("Invalid credentials");
 
-      const token = generateToken(user);
+     const token = generateToken({ _id: user._id.toString(), role: user.role });
       return { token, user: formatUser(user) };
     },
 
     updateUser: async (
       _: unknown,
-      { id, name, email, phone, address }: {
-        id: string; name?: string; email?: string; phone?: string; address?: string;
+      {
+        id,
+        name,
+        email,
+        phone,
+        address,
+      }: {
+        id: string;
+        name?: string;
+        email?: string;
+        phone?: string;
+        address?: string;
       },
     ) => {
       await connectDB();
       const user = await userModel.findById(id);
       if (!user) throw new Error("User not found");
 
-      if (name    !== undefined) user.name    = name;
-      if (email   !== undefined) user.email   = email;
-      if (phone   !== undefined) user.phone   = phone;
+      if (name !== undefined) user.name = name;
+      if (email !== undefined) user.email = email;
+      if (phone !== undefined) user.phone = phone;
       if (address !== undefined) user.address = address;
 
       await user.save();
@@ -130,8 +168,16 @@ export const userResolvers = {
 
     updateProfile: async (
       _: unknown,
-      { name, email, phone, address }: {
-        name: string; email: string; phone?: string; address?: string;
+      {
+        name,
+        email,
+        phone,
+        address,
+      }: {
+        name: string;
+        email: string;
+        phone?: string;
+        address?: string;
       },
       context: any,
     ) => {
@@ -141,9 +187,9 @@ export const userResolvers = {
       const user = await userModel.findById(context.user.id);
       if (!user) throw new Error("User not found");
 
-      user.name  = name;
+      user.name = name;
       user.email = email;
-      if (phone   !== undefined) user.phone   = phone;
+      if (phone !== undefined) user.phone = phone;
       if (address !== undefined) user.address = address;
 
       await user.save();
@@ -157,21 +203,24 @@ export const userResolvers = {
       context: any,
     ) => {
       await connectDB();
-      if (!context.user || context.user.role !== "admin") {
+      if (!context.user || !["admin", "superadmin"].includes(context.user.role)) {
         throw new Error("Unauthorized");
       }
 
       const user = await userModel.findById(id);
       if (!user) throw new Error("User not found");
 
-      user.status = status;
+(user as any).status = status;
       await user.save();
       return formatUser(user);
     },
 
     changePassword: async (
       _: unknown,
-      { currentPassword, newPassword }: { currentPassword: string; newPassword: string },
+      {
+        currentPassword,
+        newPassword,
+      }: { currentPassword: string; newPassword: string },
       context: any,
     ) => {
       await connectDB();
@@ -204,6 +253,35 @@ export const userResolvers = {
       const deletedUser = await userModel.findByIdAndDelete(context.user.id);
       if (!deletedUser) throw new Error("User not found");
       return true;
+    },
+
+    createAdmin: async (
+      _: unknown,
+      {
+        name,
+        email,
+        password,
+        role,
+      }: { name: string; email: string; password: string; role?: string },
+      context: any,
+    ) => {
+      await connectDB();
+if (!context.user || !["admin", "superadmin"].includes(context.user.role))
+  throw new Error("Unauthorized");
+
+      const existing = await userModel.findOne({ email });
+      if (existing) throw new Error("User with this email already exists");
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = await userModel.create({
+        name,
+        email,
+        password: hashedPassword,
+        role: role === "superadmin" ? "superadmin" : "admin", // ← use passed role
+        status: "Active",
+      });
+
+      return formatUser(newUser);
     },
   },
 };

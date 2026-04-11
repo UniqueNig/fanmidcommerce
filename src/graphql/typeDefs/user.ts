@@ -8,12 +8,11 @@ const userType = gql`
     phone: String
     address: String
     role: String
-    status: String        # "Active" | "Inactive"
-    createdAt: String!    # used as "joined"
-
+    status: String # "Active" | "Inactive"
+    createdAt: String! # used as "joined"
     # Computed fields — resolved by counting user's orders
-    orders: Int           # total number of orders placed
-    spent: Float          # total amount spent across all orders
+    orders: Int # total number of orders placed
+    spent: Float # total amount spent across all orders
   }
 
   type AuthPayload {
@@ -25,6 +24,7 @@ const userType = gql`
     users: [User]
     user(id: ID!): User
     me: User
+    admins: [User]
   }
 
   type Mutation {
@@ -53,11 +53,17 @@ const userType = gql`
       address: String
     ): User
 
-    updateUserStatus(id: ID!, status: String!): User   # admin toggle Active/Inactive
-
+    updateUserStatus(id: ID!, status: String!): User # admin toggle Active/Inactive
     changePassword(currentPassword: String!, newPassword: String!): Boolean!
 
     deleteUser(id: ID!): User
+    # Inside Mutation type, add:
+    createAdmin(
+      name: String!
+      email: String!
+      password: String!
+      role: String
+    ): User
 
     deleteAccount: Boolean!
   }

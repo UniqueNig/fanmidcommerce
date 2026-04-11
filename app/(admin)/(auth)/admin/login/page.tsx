@@ -37,27 +37,23 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [error, setError] = useState("");
   const [login, { loading }] = useMutation<LoginResponse>(LOGIN_MUTATION, {
-    onCompleted: (data) => {
-      if (data.login.user.role !== "admin") {
-        setError("Access denied. Admin accounts only.");
-        document.cookie = "token=; Max-Age=0; path=/"; // clear token
-        return;
-      }
-      // localStorage.setItem("token", data.login.token);
-      const isProduction = process.env.NODE_ENV === "production";
+onCompleted: (data) => {
+  if (!["admin", "superadmin"].includes(data.login.user.role)) {
+    setError("Access denied. Admin accounts only.");
+    return;
+  }
 
-      // Determine cookie name
-      const cookieName =
-        data.login.user.role === "admin" ? "admin_token" : "user_token";
+  const isProduction = process.env.NODE_ENV === "production";
 
-      // Clear previous token of the same role
-      document.cookie = `${cookieName}=; Max-Age=0; path=/`;
+  // Clear any old tokens
+  document.cookie = "admin_token=; Max-Age=0; path=/";
 
-      // Store new token
-      document.cookie = `${cookieName}=${data.login.token}; path=/; max-age=604800; SameSite=Strict;${isProduction ? " Secure;" : ""}`;
-      router.push("/admin/dashboard");
-      router.refresh(); // 🔥 force new request with fresh cookie
-    },
+  // Always set admin_token for both admin and superadmin
+  document.cookie = `admin_token=${data.login.token}; path=/; max-age=604800; SameSite=Strict;${isProduction ? " Secure;" : ""}`;
+
+  router.push("/admin/dashboard");
+  router.refresh();
+},
     onError: (err) => {
       setError(
         err.message?.includes("Invalid credentials")

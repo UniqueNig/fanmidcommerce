@@ -4,6 +4,7 @@ import userType from "./user";
 import productType from "./product";
 import categoryType from "./category";
 import orderType from "./order";
+import settingsType from "./settings";
 
 // import orderType from "./order";
 
@@ -11,6 +12,7 @@ export const typeDefs = mergeTypeDefs([
   userType,
   productType,
   categoryType,
-  orderType
+  orderType,
+  settingsType
   //   orderType,
 ]);

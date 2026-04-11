@@ -22,6 +22,7 @@ const GET_PRODUCTS = gql`
       stock
       image
       isNew
+       createdAt
     }
   }
 `;
@@ -43,6 +44,7 @@ interface ProductsData {
     stock: number;
     image: string;
     isNew: boolean;
+     createdAt: string;
   }[];
 }
 
@@ -56,7 +58,7 @@ export default function AdminProductsPage() {
   const { data, loading, error, refetch } = useQuery<ProductsData>(
     GET_PRODUCTS,
     {
-      fetchPolicy: "cache-and-network",
+      fetchPolicy: "network-only",
     },
   );
 

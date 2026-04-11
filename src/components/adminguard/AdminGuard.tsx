@@ -22,7 +22,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
       const payload = JSON.parse(atob(token.split(".")[1]));
       const now = Date.now();
 
-      if (payload.role !== "admin" || payload.exp * 1000 < now) {
+      if (!["admin", "superadmin"].includes(payload.role) || payload.exp * 1000 < now) {
         document.cookie = `${tokenName}=; Max-Age=0; path=/`;
         router.push("/admin/login");
         return;

@@ -64,7 +64,7 @@ export const orderResolvers = {
   Query: {
     orders: async (_: unknown, __: unknown, context: any) => {
       await connectDB();
-      if (!context.user || context.user.role !== "admin")
+      if (!context.user || !["admin", "superadmin"].includes(context.user.role))
         throw new Error("Unauthorized");
       const orders = await orderModel.find().sort({ createdAt: -1 });
       return orders.map(formatOrder);
@@ -72,7 +72,7 @@ export const orderResolvers = {
 
     order: async (_: unknown, { id }: { id: string }, context: any) => {
       await connectDB();
-      if (!context.user || context.user.role !== "admin")
+      if (!context.user || !["admin", "superadmin"].includes(context.user.role))
         throw new Error("Unauthorized");
       const order = await orderModel.findById(id);
       if (!order) throw new Error("Order not found");
@@ -255,7 +255,7 @@ export const orderResolvers = {
       context: any,
     ) => {
       await connectDB();
-      if (!context.user || context.user.role !== "admin")
+      if (!context.user || !["admin", "superadmin"].includes(context.user.role))
         throw new Error("Unauthorized");
       const order = await orderModel.findById(id);
       if (!order) throw new Error("Order not found");

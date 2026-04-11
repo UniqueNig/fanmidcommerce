@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin", "superadmin"],
       default: "user",
     },
 
@@ -45,5 +45,8 @@ const userSchema = new mongoose.Schema(
 const userModel =
   mongoose.models["fanmidcommerce-users"] ||
   mongoose.model("fanmidcommerce-users", userSchema);
+
+// delete mongoose.models["fanmidcommerce-users"];
+// const userModel = mongoose.model("fanmidcommerce-users", userSchema);
 
 export default userModel;
