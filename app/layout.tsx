@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Provider from "@/src/components/ApolloProvider";
+import ThemeStyle from "@/src/themes/ThemeStyle";
 import { siteConfig } from "@/src/config/site";
 import { CartProvider } from "@/src/context/CartContext";
 import { ToastProvider } from "@/src/context/ToastContext";
@@ -56,13 +57,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme={siteConfig.theme} suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
+        {/* Inject the active theme's colour palette as CSS variables. */}
+        <ThemeStyle />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
