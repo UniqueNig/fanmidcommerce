@@ -167,7 +167,15 @@ product/team image uploaders use it.
 
 1. Deploy to Vercel (shipping methods, team, and testimonials auto-seed on first
    load).
-2. Create the first **admin** account (see `DEPLOY.md` §6).
+2. Create the first **admin** with the bundled script (the public sign-up only
+   makes normal users):
+
+   ```bash
+   npm run create:admin -- "Full Name" you@store.com "StrongPassword123"
+   ```
+
+   It reads `MONGO_DB_URI` from `.env.local` and creates a superadmin you can log
+   in with right away. (More details in `DEPLOY.md` §6.)
 3. Log in at `/admin/login` and add the client's real **categories** and
    **products** (with photos, sizes/colours, stock).
 

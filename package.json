@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "backfill:slugs": "node scripts/backfill-product-slugs.mjs"
+    "backfill:slugs": "node scripts/backfill-product-slugs.mjs",
+    "create:admin": "node scripts/create-admin.mjs"
   },
   "dependencies": {
     "@apollo/client": "^4.1.6",

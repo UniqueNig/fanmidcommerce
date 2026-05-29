@@ -40,8 +40,19 @@ A repeatable checklist for deploying this store (and future client copies) to Ve
 - Create your real **categories** and **products** in the admin before launch.
 
 ## 6. Admin account
-- There is no public admin signup. Create the first admin directly, e.g. via a one-off script or the `createAdmin` mutation (run while authenticated as an existing admin).
-- For a brand-new DB, insert one admin user manually (hash the password with bcrypt) or temporarily seed one.
+- There is no public admin signup (the sign-up form always creates a normal
+  "user"), and the in-app "Add admin" needs an existing admin. So create the
+  FIRST admin with the bundled script:
+
+  ```bash
+  npm run create:admin -- "Full Name" you@store.com "StrongPassword123"
+  # add a 4th arg "admin" for a regular admin; default is superadmin
+  ```
+
+  It reads `MONGO_DB_URI` from `.env.local`, bcrypt-hashes the password, and
+  creates (or promotes) that user to admin. Re-running with an existing email
+  resets that account's password — handy if you forget it.
+- After that, add any other admins from **/admin** (Admins page) — no script needed.
 - Log in at `/admin/login`. Admin routes are protected by middleware + per-resolver role checks.
 
 ## 7. Final pre-launch smoke test
