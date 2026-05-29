@@ -16,6 +16,8 @@ A repeatable checklist for deploying this store (and future client copies) to Ve
 | `RESEND_FROM` | `Your Shop <noreply@yourdomain.com>` — needs a verified domain (see §3). |
 | `EMAIL_OVERRIDE` | **Leave UNSET in production** so mail reaches real customers. Only set in sandbox/testing. |
 | `CONTACT_EMAIL` | (Optional) where /contact messages go, e.g. `support@yourdomain.com`. |
+| `UPSTASH_REDIS_REST_URL` | **(Optional)** Shared rate limiter. Without it, an in-memory fallback is used — nothing breaks. See §8. |
+| `UPSTASH_REDIS_REST_TOKEN` | **(Optional)** Pairs with the URL above. See §8. |
 
 > Tip: set the same vars locally in `.env.local` for testing. `NEXT_PUBLIC_*` vars are exposed to the browser — never put secrets in them.
 
@@ -50,15 +52,37 @@ A repeatable checklist for deploying this store (and future client copies) to Ve
 - [ ] Leave a product review as a verified buyer.
 - [ ] Check `/sitemap.xml` and `/robots.txt` return your live domain.
 - [ ] Verify `/admin` is blocked when logged out.
+- [ ] Set a product's stock to 0, open its page, submit the "Notify me when back in stock" form; then restock it (set stock > 0 and save) and confirm the email arrives (see §9).
+
+## 8. Rate limiting (optional — Upstash Redis)
+The contact form, newsletter signup, and back-in-stock form are rate-limited to block bots/spam.
+- **Default:** an in-memory limiter (per serverless instance). Works out of the box, no setup. Resets on cold start — fine for casual spam.
+- **Stronger (shared across all instances):** set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`.
+  1. Create a free database at <https://upstash.com> → open the **REST API** section.
+  2. Copy the REST URL + REST token into those two env vars (Vercel **and** local `.env.local`).
+  3. Redeploy. The app auto-detects them; if they're missing or unreachable it silently falls back to the in-memory limiter — nothing breaks.
+
+## 9. Back-in-stock alerts (automatic)
+- When a product (or a specific size) is sold out, customers see a "Notify me when back in stock" form on the product page.
+- Their request is saved. When an **admin edits that product and stock goes from 0 → in stock** (overall, or for that size) and saves, everyone waiting is **emailed automatically**, then their alert is cleared.
+- No extra setup — it just needs working email (Resend, §3).
+
+## 10. Analytics (optional)
+- `@vercel/analytics` is wired in. **Page views** work automatically once deployed.
+- **Custom events** (add-to-cart, begin-checkout, purchase) require **Web Analytics enabled** on the Vercel project (Project → Analytics → Enable).
+- View everything in Vercel → Project → **Analytics**.
 
 ## Done since first draft
 - ✅ Paystack **webhook** (`/api/paystack/webhook`) — guaranteed, race-safe order finalization.
 - ✅ **Order confirmation email** to the customer.
 - ✅ **Forgot/reset password** flow (`/forgot-password`, `/reset-password`).
-- ✅ **Spam protection** — honeypots + in-memory rate limit on contact & newsletter.
+- ✅ **Spam protection** — honeypots + rate limiting (shared via Upstash when configured, §8).
 - ✅ **Related products** on the product page; **enriched order detail** in the dashboard.
+- ✅ **Analytics** (Vercel) — page views + add-to-cart/checkout/purchase events (§10).
+- ✅ **Back-in-stock alerts** — auto-email waiters on restock (§9).
+- ✅ **Server-side search + pagination** — shop & search filter/sort/page in the DB (scales to large catalogs).
+- ✅ **Product variants** — colours (each with own images) + per-size stock + multi-image gallery.
 
 ## Remaining (optional, later)
-- Analytics (Vercel/GA), back-in-stock notifications.
-- Server-side search + pagination for large catalogs.
-- Hard rate-limiting via a shared store (Upstash Redis) — current limiter is per-instance.
+- Google Analytics (in addition to Vercel), richer reporting.
+- Internationalization / multi-currency.
