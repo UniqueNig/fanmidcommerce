@@ -208,6 +208,7 @@ export const productResolvers = {
         "isNew",
         "sizes",
         "sizeStock",
+        "colors",
         "sizeGuide",
         "materials",
         "sizingFit",

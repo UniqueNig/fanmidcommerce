@@ -79,7 +79,13 @@ export function renderOrderEmail(order: any): string {
         </td>
         <td valign="middle" style="padding:10px 12px;color:#eaeaea;font-size:14px;line-height:1.4;">
           ${i.name}<br/>
-          <span style="color:#888888;font-size:12px;">Qty ${i.quantity}</span>
+          <span style="color:#888888;font-size:12px;">${[
+            i.color && `Colour: ${i.color}`,
+            i.size && `Size: ${i.size}`,
+            `Qty ${i.quantity}`,
+          ]
+            .filter(Boolean)
+            .join(" &nbsp;·&nbsp; ")}</span>
         </td>
         <td valign="middle" align="right" style="padding:10px 0;color:#eaeaea;font-size:14px;white-space:nowrap;">
           ${naira(i.price * i.quantity)}

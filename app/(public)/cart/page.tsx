@@ -104,7 +104,7 @@ export default function CartPage() {
           <div className="border-t" style={{ borderColor: "var(--border)" }}>
             {items.map((item) => (
               <div
-                key={item.id}
+                key={`${item.id}-${item.size}-${item.color ?? ""}`}
                 className="flex gap-5 py-6 border-b"
                 style={{ borderColor: "var(--border)" }}
               >
@@ -144,17 +144,19 @@ export default function CartPage() {
                       >
                         {item.name}
                       </h3>
-                      {item.size && (
+                      {(item.size || item.color) && (
                         <p
                           className="text-xs font-['DM_Sans'] mt-1"
                           style={{ color: "var(--text-muted)" }}
                         >
-                          Size: {item.size}
+                          {[item.color && `Colour: ${item.color}`, item.size && `Size: ${item.size}`]
+                            .filter(Boolean)
+                            .join("  ·  ")}
                         </p>
                       )}
                     </div>
                     <button
-                      onClick={() => removeItem(item.id, item.size)}
+                      onClick={() => removeItem(item.id, item.size, item.color)}
                       className="transition-opacity hover:opacity-60 flex-shrink-0"
                       style={{ color: "var(--text-muted)" }}
                     >
@@ -167,7 +169,7 @@ export default function CartPage() {
                       style={{ borderColor: "var(--border)" }}
                     >
                       <button
-                        onClick={() => updateQty(item.id, item.size, -1)}
+                        onClick={() => updateQty(item.id, item.size, -1, item.color)}
                         className="w-8 h-8 flex items-center justify-center hover:opacity-60 transition-opacity"
                         style={{ color: "var(--text-secondary)" }}
                       >
@@ -183,7 +185,7 @@ export default function CartPage() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQty(item.id, item.size, 1)}
+                        onClick={() => updateQty(item.id, item.size, 1, item.color)}
                         disabled={
                           !!item.maxStock && item.quantity >= item.maxStock
                         }

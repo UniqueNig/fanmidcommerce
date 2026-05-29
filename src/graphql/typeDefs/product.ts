@@ -12,6 +12,18 @@ const productType = gql`
     stock: Int!
   }
 
+  type Color {
+    name: String!
+    hex: String
+    images: [String]
+  }
+
+  input ColorInput {
+    name: String!
+    hex: String
+    images: [String]
+  }
+
   type Product {
     id: ID!
     name: String!
@@ -23,6 +35,7 @@ const productType = gql`
     stock: Int!
     sizes: [String]
     sizeStock: [SizeStock]
+    colors: [Color]
     sizeGuide: String
     materials: String
     sizingFit: String
@@ -69,6 +82,7 @@ const productType = gql`
       stock: Int!
       sizes: [String]
       sizeStock: [SizeStockInput]
+      colors: [ColorInput]
       sizeGuide: String
       materials: String
       sizingFit: String
@@ -88,6 +102,7 @@ const productType = gql`
       stock: Int
       sizes: [String]
       sizeStock: [SizeStockInput]
+      colors: [ColorInput]
       sizeGuide: String
       materials: String
       sizingFit: String

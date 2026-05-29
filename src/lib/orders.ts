@@ -23,6 +23,7 @@ export type OrderItemInput = {
   price?: number;
   quantity: number;
   size?: string;
+  color?: string;
 };
 
 export type ShippingAddress = {
@@ -94,6 +95,7 @@ export async function recomputeOrderPricing(
       price: p.price,
       quantity,
       size: i.size ?? "",
+      color: i.color ?? "",
     };
   });
 

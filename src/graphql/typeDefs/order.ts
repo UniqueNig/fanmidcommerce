@@ -8,6 +8,7 @@ const orderType = gql`
     price: Float!
     quantity: Int!
     size: String
+    color: String
   }
 
   type ShippingAddress {
@@ -46,6 +47,7 @@ const orderType = gql`
     price: Float!
     quantity: Int!
     size: String
+    color: String
   }
 
   input ShippingAddressInput {

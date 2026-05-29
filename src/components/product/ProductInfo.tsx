@@ -26,6 +26,11 @@ type ProductInfoProps = {
   sizeStock?: { size: string; stock: number }[];
   sizeGuide?: "clothing" | "footwear" | "none";
   whatsappNumber: string;
+  // Colour options (each with its own gallery images). Selection is owned by
+  // the ProductDetailClient wrapper so the gallery can swap in sync.
+  colors?: { name: string; hex: string; images: string[] }[];
+  selectedColor?: string | null;
+  onColorChange?: (name: string) => void;
 };
 
 const GUARANTEES = [
@@ -37,6 +42,7 @@ const GUARANTEES = [
 export default function ProductInfo({
   id, slug, name, price, originalPrice, description, category, image,
   isNew, inStock, stockCount, sizes, sizeStock, sizeGuide = "clothing", whatsappNumber,
+  colors, selectedColor, onColorChange,
 }: ProductInfoProps) {
   const { addItem } = useCart();
   const { has, toggle } = useWishlist();
@@ -59,10 +65,14 @@ export default function ProductInfo({
       : 0
     : stockCount ?? 0;
   const anySizeAvailable = sized ? sizeStock!.some((s) => s.stock > 0) : inStock;
-  // Available to add: a chosen size must have stock; non-sized uses product stock.
-  const canBuy = sized
-    ? !!selectedSize && selectedStock > 0
-    : inStock;
+  // Colours, if any, must be picked before adding to cart.
+  const colorList = colors ?? [];
+  const hasColors = colorList.length > 0;
+  const colorChosen = !hasColors || !!selectedColor;
+  // Available to add: a chosen size must have stock; non-sized uses product
+  // stock; and a colour must be chosen when colours exist.
+  const canBuy =
+    colorChosen && (sized ? !!selectedSize && selectedStock > 0 : inStock);
   const maxForQty = sized ? selectedStock : stockCount ?? 0;
 
   const discount = originalPrice
@@ -72,10 +82,16 @@ export default function ProductInfo({
   const handleAddToCart = () => {
     const size = selectedSize ?? (sizeList.length === 0 ? "One Size" : null);
     if (!size) return; // sizes exist but none selected
+    if (hasColors && !selectedColor) return; // colours exist but none selected
     if (sized ? selectedStock <= 0 : !inStock) return;
 
+    // Snapshot the colour's first image so the cart shows the right variant.
+    const colorImage =
+      colorList.find((c) => c.name === selectedColor)?.images[0] || null;
+
     addItem({
-      id, name, price, image: image || null, category, size, quantity,
+      id, name, price, image: colorImage ?? image ?? null, category, size,
+      color: selectedColor ?? "", quantity,
       maxStock: sized ? selectedStock : stockCount,
     });
     setAddedToCart(true);
@@ -84,7 +100,7 @@ export default function ProductInfo({
 
   const handleWhatsApp = () => {
     const message = encodeURIComponent(
-      `Hi! I'm interested in *${name}* (${selectedSize ? `Size: ${selectedSize}, ` : ""}Qty: ${quantity}) — ₦${price.toLocaleString()}. Can you help me with this order?`,
+      `Hi! I'm interested in *${name}* (${selectedColor ? `Colour: ${selectedColor}, ` : ""}${selectedSize ? `Size: ${selectedSize}, ` : ""}Qty: ${quantity}) — ₦${price.toLocaleString()}. Can you help me with this order?`,
     );
     window.open(`https://wa.me/${whatsappNumber}?text=${message}`, "_blank");
   };
@@ -190,6 +206,44 @@ export default function ProductInfo({
         {description}
       </p>
 
+      {/* Colour selector */}
+      {hasColors && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-[10px] tracking-[0.25em] uppercase font-bold font-['DM_Sans']"
+              style={{ color: "var(--text-muted)" }}>
+              Colour
+              {selectedColor
+                ? <span className="ml-2 normal-case tracking-normal" style={{ color: "var(--text-secondary)" }}>— {selectedColor}</span>
+                : <span className="ml-2 text-red-400 normal-case tracking-normal">— please select</span>}
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-2.5">
+            {colorList.map((c) => {
+              const active = selectedColor === c.name;
+              return (
+                <button
+                  key={c.name}
+                  onClick={() => onColorChange?.(c.name)}
+                  title={c.name}
+                  aria-label={c.name}
+                  className="w-9 h-9 rounded-full border-2 transition-all duration-200 flex items-center justify-center"
+                  style={{
+                    borderColor: active ? "var(--accent)" : "var(--border)",
+                    padding: 2,
+                  }}
+                >
+                  <span
+                    className="w-full h-full rounded-full block"
+                    style={{ backgroundColor: c.hex || "var(--bg-secondary)" }}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Size selector */}
       {sizeList.length > 0 && (
         <div>
@@ -268,7 +322,7 @@ export default function ProductInfo({
       <div className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={handleAddToCart}
-          disabled={!canBuy || (sizeList.length > 0 && !selectedSize)}
+          disabled={!canBuy || (sizeList.length > 0 && !selectedSize) || (hasColors && !selectedColor)}
           className="flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ backgroundColor: addedToCart ? "#22c55e" : "var(--accent)", color: "#000" }}
         >

@@ -9,7 +9,7 @@ const GET_ORDERS = `
     orders {
       id
       shippingAddress { name email phone address city state }
-      items { name quantity price image }
+      items { name quantity price image size color }
       totalAmount
       status
       isPaid
@@ -20,7 +20,7 @@ const GET_ORDERS = `
 `;
 
 // Update the types:
-type OrderItem = { name: string; quantity: number; price: number; image?: string };
+type OrderItem = { name: string; quantity: number; price: number; image?: string; size?: string; color?: string };
 type Order = {
   id: string;
   shippingAddress: { name: string; email: string; phone: string; address: string; city: string; state: string };
@@ -371,7 +371,9 @@ export default function AdminOrdersPage() {
                       {item.name}
                     </p>
                     <p className="text-[11px] font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
-                      Qty: {item.quantity}
+                      {[item.color && `Colour: ${item.color}`, item.size && `Size: ${item.size}`, `Qty: ${item.quantity}`]
+                        .filter(Boolean)
+                        .join("  ·  ")}
                     </p>
                   </div>
                   <span className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>

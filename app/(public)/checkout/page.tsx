@@ -283,6 +283,7 @@ fetch("/api/paystack/initialize", {
           price: i.price,
           quantity: i.quantity,
           size: i.size,
+          color: i.color ?? "",
         }))),
       },
     }),
@@ -300,6 +301,7 @@ fetch("/api/paystack/initialize", {
             price: i.price,
             quantity: i.quantity,
             size: i.size,
+            color: i.color ?? "",
           })),
           shippingAddress: {
             name: form.name,
@@ -551,7 +553,7 @@ fetch("/api/paystack/initialize", {
               </h2>
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={item.id} className="flex gap-3">
+                  <div key={`${item.id}-${item.size}-${item.color ?? ""}`} className="flex gap-3">
                     <div className="relative flex-shrink-0 w-14 h-16">
                       {item.image ? (
   <Image src={item.image} alt={item.name} fill sizes="56px" className="object-cover" />
@@ -566,7 +568,11 @@ fetch("/api/paystack/initialize", {
                     <div className="flex-1 flex justify-between items-start">
                       <div>
                         <p className="text-xs font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>{item.name}</p>
-                        {item.size && <p className="text-[11px] font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>Size: {item.size}</p>}
+                        {(item.size || item.color) && (
+                          <p className="text-[11px] font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+                            {[item.color && `Colour: ${item.color}`, item.size && `Size: ${item.size}`].filter(Boolean).join(" · ")}
+                          </p>
+                        )}
                       </div>
                       <p className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>
                         ₦{(item.price * item.quantity).toLocaleString()}

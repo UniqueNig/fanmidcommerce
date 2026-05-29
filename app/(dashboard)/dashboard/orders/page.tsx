@@ -19,6 +19,8 @@ interface OrderItem {
   quantity: number;
   price: number;
   image?: string;
+  size?: string;
+  color?: string;
 }
 
 interface Order {
@@ -54,6 +56,8 @@ const GET_MY_ORDERS = gql`
         quantity
         price
         image
+        size
+        color
       }
       subtotal
       discount
@@ -364,6 +368,13 @@ export default function OrdersPage() {
                             <div className="flex-1 flex justify-between">
                               <span style={{ color: "var(--text-primary)" }}>
                                 {item.name} × {item.quantity}
+                                {(item.color || item.size) && (
+                                  <span className="block text-[11px]" style={{ color: "var(--text-muted)" }}>
+                                    {[item.color && `Colour: ${item.color}`, item.size && `Size: ${item.size}`]
+                                      .filter(Boolean)
+                                      .join("  ·  ")}
+                                  </span>
+                                )}
                               </span>
                               <span style={{ color: "var(--text-secondary)" }}>
                                 ₦{(item.price * item.quantity).toLocaleString()}

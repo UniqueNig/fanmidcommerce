@@ -4,8 +4,7 @@ import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
-import ProductImageGallery from "@/src/components/product/ProductImageGallery";
-import ProductInfo from "@/src/components/product/ProductInfo";
+import ProductDetailClient from "@/src/components/product/ProductDetailClient";
 import ProductReviews from "@/src/components/product/ProductReviews";
 import ProductCard from "@/src/components/ui/ProductCard";
 import { getProductBySlug, getRelatedProducts } from "@/src/lib/data/products";
@@ -149,36 +148,30 @@ export default async function ProductDetailPage({
           ))}
         </nav>
 
-        {/* Main content */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
-          {/* Left — image gallery */}
-          <div className="w-full">
-            <ProductImageGallery
-              images={product.images}
-              productName={product.name}
-            />
-          </div>
-
-          {/* Right — product info */}
-          <div className="w-full lg:sticky lg:top-28 lg:self-start">
-            <ProductInfo
-              id={product.id}
-              slug={product.slug ?? undefined}
-              name={product.name}
-              price={product.price}
-              description={product.description}
-              image={product.image ?? ""}
-              category={product.category?.name ?? "Uncategorized"}
-              isNew={product.isNew}
-              inStock={inStock}
-              stockCount={product.stock}
-              sizes={product.sizes} // real sizes from the product (empty = no size selector)
-              sizeStock={product.sizeStock} // per-size availability
-              sizeGuide={(product.sizeGuide as "clothing" | "footwear" | "none") || "clothing"}
-              whatsappNumber={store.whatsapp || "2348134879924"} // from store settings
-            />
-          </div>
-        </div>
+        {/* Main content — gallery + info coordinated by a client wrapper so a
+            chosen colour can swap the gallery images. */}
+        <ProductDetailClient
+          baseImages={product.images}
+          productName={product.name}
+          colors={product.colors}
+          info={{
+            id: product.id,
+            slug: product.slug ?? undefined,
+            name: product.name,
+            price: product.price,
+            description: product.description,
+            image: product.image ?? "",
+            category: product.category?.name ?? "Uncategorized",
+            isNew: product.isNew,
+            inStock,
+            stockCount: product.stock,
+            sizes: product.sizes, // real sizes (empty = no size selector)
+            sizeStock: product.sizeStock, // per-size availability
+            sizeGuide:
+              (product.sizeGuide as "clothing" | "footwear" | "none") || "clothing",
+            whatsappNumber: store.whatsapp || "2348134879924", // from store settings
+          }}
+        />
 
         {/* Product details */}
         <div

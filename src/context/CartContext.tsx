@@ -17,6 +17,7 @@ export type CartItem = {
   price: number;
   image: string | null;
   size: string;
+  color?: string;    // chosen colour (empty when the product has no colours)
   quantity: number;
   category: string;
   maxStock?: number; // available units; caps how many can be added
@@ -27,14 +28,23 @@ type CartContextType = {
   totalItems: number;
   subtotal: number;
   addItem: (item: Omit<CartItem, "quantity"> & { quantity?: number }) => void;
-  removeItem: (id: string, size: string) => void;
-  updateQty: (id: string, size: string, delta: number) => void;
+  removeItem: (id: string, size: string, color?: string) => void;
+  updateQty: (id: string, size: string, delta: number, color?: string) => void;
   clearCart: () => void;
 };
 
 const CartContext = createContext<CartContextType | null>(null);
 
 const STORAGE_KEY = "fanmid_cart";
+
+// A cart line is unique per product + size + colour, so the same product in two
+// colours (or sizes) sits on its own line.
+const sameLine = (
+  i: CartItem,
+  id: string,
+  size: string,
+  color?: string,
+) => i.id === id && i.size === size && (i.color ?? "") === (color ?? "");
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
@@ -72,8 +82,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addItem = useCallback(
     (incoming: Omit<CartItem, "quantity"> & { quantity?: number }) => {
       // Decide the feedback message from the CURRENT cart state.
-      const existing = itemsRef.current.find(
-        (i) => i.id === incoming.id && i.size === incoming.size,
+      const existing = itemsRef.current.find((i) =>
+        sameLine(i, incoming.id, incoming.size, incoming.color),
       );
       const cap = incoming.maxStock ?? existing?.maxStock;
       const atMax =
@@ -83,13 +93,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         existing.quantity >= cap;
 
       setItems((prev) => {
-        const exists = prev.find(
-          (i) => i.id === incoming.id && i.size === incoming.size,
+        const exists = prev.find((i) =>
+          sameLine(i, incoming.id, incoming.size, incoming.color),
         );
         if (exists) {
           const c = incoming.maxStock ?? exists.maxStock;
           return prev.map((i) =>
-            i.id === incoming.id && i.size === incoming.size
+            sameLine(i, incoming.id, incoming.size, incoming.color)
               ? {
                   ...i,
                   maxStock: c,
@@ -116,14 +126,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [toast],
   );
 
-  const removeItem = useCallback((id: string, size: string) => {
-    setItems((prev) => prev.filter((i) => !(i.id === id && i.size === size)));
+  const removeItem = useCallback((id: string, size: string, color?: string) => {
+    setItems((prev) => prev.filter((i) => !sameLine(i, id, size, color)));
   }, []);
 
-  const updateQty = useCallback((id: string, size: string, delta: number) => {
+  const updateQty = useCallback(
+    (id: string, size: string, delta: number, color?: string) => {
     setItems((prev) =>
       prev.map((i) => {
-        if (!(i.id === id && i.size === size)) return i;
+        if (!sameLine(i, id, size, color)) return i;
         let next = Math.max(1, i.quantity + delta);
         if (typeof i.maxStock === "number" && i.maxStock > 0) {
           next = Math.min(next, i.maxStock);
@@ -131,7 +142,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return { ...i, quantity: next };
       }),
     );
-  }, []);
+    },
+    [],
+  );
 
   const clearCart = useCallback(() => {
     setItems([]);

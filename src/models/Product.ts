@@ -21,6 +21,18 @@ const productSchema = new mongoose.Schema(
       type: [{ size: { type: String }, stock: { type: Number, default: 0 } }],
       default: [],
     },
+    // Colour options, each with its own image(s). Selecting a colour swaps the
+    // gallery. Stock is tracked per size (not per colour).
+    colors: {
+      type: [
+        {
+          name: { type: String },
+          hex: { type: String, default: "" },
+          images: { type: [String], default: [] },
+        },
+      ],
+      default: [],
+    },
     // Optional size options (e.g. ["S","M","L"]). Empty = no size selection.
     sizes: { type: [String], default: [] },
     // Which size-guide chart to show: clothing, footwear, or none.

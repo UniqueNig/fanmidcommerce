@@ -23,6 +23,7 @@ export type ProductDetail = {
   isNew: boolean;
   sizes: string[];
   sizeStock: { size: string; stock: number }[];
+  colors: { name: string; hex: string; images: string[] }[];
   sizeGuide: string;
   materials: string;
   sizingFit: string;
@@ -72,6 +73,13 @@ export async function getProductBySlug(
     sizes: Array.isArray(doc.sizes) ? doc.sizes : [],
     sizeStock: Array.isArray(doc.sizeStock)
       ? doc.sizeStock.map((s: any) => ({ size: s.size, stock: s.stock ?? 0 }))
+      : [],
+    colors: Array.isArray(doc.colors)
+      ? doc.colors.map((c: any) => ({
+          name: c.name,
+          hex: c.hex ?? "",
+          images: Array.isArray(c.images) ? c.images : [],
+        }))
       : [],
     sizeGuide: doc.sizeGuide ?? "clothing",
     materials: doc.materials ?? "",

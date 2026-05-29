@@ -27,8 +27,11 @@ const UPDATE_PRODUCT = gql`
     $description: String
     $price: Float
     $image: String
+    $images: [String]
     $stock: Int
     $sizes: [String]
+    $sizeStock: [SizeStockInput]
+    $colors: [ColorInput]
     $sizeGuide: String
     $materials: String
     $sizingFit: String
@@ -43,8 +46,11 @@ const UPDATE_PRODUCT = gql`
       description: $description
       price: $price
       image: $image
+      images: $images
       stock: $stock
       sizes: $sizes
+      sizeStock: $sizeStock
+      colors: $colors
       sizeGuide: $sizeGuide
       materials: $materials
       sizingFit: $sizingFit
@@ -74,8 +80,11 @@ const CREATE_PRODUCT = gql`
     $description: String!
     $price: Float!
     $image: String
+    $images: [String]
     $stock: Int!
     $sizes: [String]
+    $sizeStock: [SizeStockInput]
+    $colors: [ColorInput]
     $sizeGuide: String
     $materials: String
     $sizingFit: String
@@ -89,8 +98,11 @@ const CREATE_PRODUCT = gql`
       description: $description
       price: $price
       image: $image
+      images: $images
       stock: $stock
       sizes: $sizes
+      sizeStock: $sizeStock
+      colors: $colors
       sizeGuide: $sizeGuide
       materials: $materials
       sizingFit: $sizingFit
@@ -125,6 +137,7 @@ type ProductFormProps = {
     stock?: string;
     sizes?: string[];
     sizeStock?: { size: string; stock: number }[];
+    colors?: { name: string; hex: string; images: string[] }[];
     sizeGuide?: string;
     materials?: string;
     sizingFit?: string;
@@ -139,6 +152,10 @@ type ProductFormProps = {
 
 const inputClass =
   "w-full px-4 py-3 text-sm font-['DM_Sans'] outline-none border transition-all";
+// Same as inputClass but WITHOUT w-full — for inputs inside a flex row, where
+// w-full fights flex-1/w-28 and collapses the field to an unclickable sliver.
+const fieldClass =
+  "px-4 py-3 text-sm font-['DM_Sans'] outline-none border transition-all";
 const inputStyle = (extra = {}) => ({
   backgroundColor: "var(--bg-primary)",
   borderColor: "var(--border)",
@@ -179,6 +196,16 @@ export default function ProductForm({
   // Per-size stock rows. Empty = a non-sized product (uses the single Stock field).
   const [sizeRows, setSizeRows] = useState<{ size: string; stock: string }[]>(
     (initialData.sizeStock ?? []).map((s) => ({ size: s.size, stock: String(s.stock) })),
+  );
+  // Colour options, each with its own image(s). Empty = no colour picker shown.
+  const [colorRows, setColorRows] = useState<
+    { name: string; hex: string; images: string[] }[]
+  >(
+    (initialData.colors ?? []).map((c) => ({
+      name: c.name,
+      hex: c.hex || "#000000",
+      images: c.images ?? [],
+    })),
   );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -237,6 +264,15 @@ export default function ProductForm({
         .filter((r) => r.size);
       const sized = sizeStock.length > 0;
 
+      // Colour rows → [{name, hex, images}]. Nameless rows are dropped.
+      const colors = colorRows
+        .map((c) => ({
+          name: c.name.trim(),
+          hex: c.hex || "",
+          images: c.images.filter(Boolean),
+        }))
+        .filter((c) => c.name);
+
       const variables = {
         name: form.name,
         slug: form.slug, // backend slugifies + guarantees uniqueness
@@ -247,6 +283,7 @@ export default function ProductForm({
           ? sizeStock.reduce((s, r) => s + r.stock, 0)
           : parseInt(form.stock) || 0,
         sizeStock,
+        colors,
         sizeGuide: form.sizeGuide,
         materials: form.materials,
         sizingFit: form.sizingFit,
@@ -370,7 +407,12 @@ export default function ProductForm({
             </label>
           </div>
           <p className="text-[11px] font-['DM_Sans'] mt-2" style={{ color: "var(--text-muted)" }}>
-            First image is the main one (shown on cards). The rest appear in the product gallery. {saving && "Uploading..."}
+            First image is the main one (shown on cards). The rest appear in the product gallery.
+            <br />
+            <span style={{ color: "var(--text-secondary)" }}>
+              Recommended: portrait 2:3 (e.g. 1000 × 1500px), under 5MB. Shoot all images at the same size so the gallery doesn’t jump.
+            </span>{" "}
+            {saving && "Uploading..."}
           </p>
         </div>
 
@@ -570,7 +612,7 @@ export default function ProductForm({
               {sizeRows.map((row, i) => (
                 <div key={i} className="flex gap-2 items-center">
                   <input
-                    className={`${inputClass} flex-1`}
+                    className={`${fieldClass} flex-1 min-w-0`}
                     style={inputStyle()}
                     value={row.size}
                     onChange={(e) =>
@@ -583,7 +625,7 @@ export default function ProductForm({
                   <input
                     type="number"
                     min="0"
-                    className={`${inputClass} w-28`}
+                    className={`${fieldClass} w-28 flex-shrink-0`}
                     style={inputStyle()}
                     value={row.stock}
                     onChange={(e) =>
@@ -638,6 +680,132 @@ export default function ProductForm({
             </select>
             <p className="text-[11px] font-['DM_Sans'] mt-1.5" style={{ color: "var(--text-muted)" }}>
               Which chart shows when a customer taps “Size Guide”.
+            </p>
+          </div>
+
+          {/* Colours (each with its own image[s]) */}
+          <div>
+            <label className={labelClass} style={{ color: "var(--text-muted)" }}>
+              Colours (optional)
+            </label>
+            <div className="space-y-4">
+              {colorRows.map((row, i) => (
+                <div
+                  key={i}
+                  className="border p-3 space-y-3"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  <div className="flex gap-2 items-center">
+                    {/* Swatch / colour picker */}
+                    <input
+                      type="color"
+                      value={row.hex || "#000000"}
+                      onChange={(e) =>
+                        setColorRows((rows) =>
+                          rows.map((r, idx) => (idx === i ? { ...r, hex: e.target.value } : r)),
+                        )
+                      }
+                      className="w-10 h-10 flex-shrink-0 cursor-pointer border"
+                      style={{ borderColor: "var(--border)", backgroundColor: "transparent" }}
+                      aria-label="Pick colour"
+                    />
+                    <input
+                      className={`${fieldClass} flex-1 min-w-0`}
+                      style={inputStyle()}
+                      value={row.name}
+                      onChange={(e) =>
+                        setColorRows((rows) =>
+                          rows.map((r, idx) => (idx === i ? { ...r, name: e.target.value } : r)),
+                        )
+                      }
+                      placeholder="Colour name (e.g. Black, Olive, Sky Blue)"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setColorRows((rows) => rows.filter((_, idx) => idx !== i))}
+                      className="w-9 h-9 flex items-center justify-center border flex-shrink-0 hover:opacity-70"
+                      style={{ borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}
+                      aria-label="Remove colour"
+                    >
+                      <X size={13} />
+                    </button>
+                  </div>
+
+                  {/* Per-colour images */}
+                  <div className="flex flex-wrap gap-2 items-start">
+                    {row.images.map((url, imgIdx) => (
+                      <div
+                        key={url + imgIdx}
+                        className="relative w-16 h-20 flex-shrink-0 overflow-hidden border"
+                        style={{ borderColor: "var(--border)" }}
+                      >
+                        <img src={url} alt="" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setColorRows((rows) =>
+                              rows.map((r, idx) =>
+                                idx === i
+                                  ? { ...r, images: r.images.filter((_, x) => x !== imgIdx) }
+                                  : r,
+                              ),
+                            )
+                          }
+                          className="absolute top-0.5 right-0.5 w-4 h-4 flex items-center justify-center bg-black/60 text-white"
+                          aria-label="Remove image"
+                        >
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                    <label
+                      className="w-16 h-20 flex-shrink-0 flex flex-col items-center justify-center gap-1 border cursor-pointer hover:opacity-70 transition-opacity"
+                      style={{ borderColor: "var(--border)", backgroundColor: "var(--bg-secondary)", color: "var(--text-muted)" }}
+                    >
+                      <Upload size={14} />
+                      <span className="text-[9px] font-['DM_Sans']">Add</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={async (e) => {
+                          const files = Array.from(e.target.files ?? []);
+                          if (!files.length) return;
+                          setSaving(true);
+                          try {
+                            const urls = await Promise.all(files.map((f) => uploadImage(f)));
+                            setColorRows((rows) =>
+                              rows.map((r, idx) =>
+                                idx === i
+                                  ? { ...r, images: [...r.images, ...urls.filter(Boolean)] }
+                                  : r,
+                              ),
+                            );
+                          } catch (err) {
+                            console.error("Upload failed:", err);
+                          } finally {
+                            setSaving(false);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() =>
+                setColorRows((rows) => [...rows, { name: "", hex: "#000000", images: [] }])
+              }
+              className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-70"
+              style={{ color: "var(--accent)" }}
+            >
+              <Plus size={12} /> Add colour
+            </button>
+            <p className="text-[11px] font-['DM_Sans'] mt-2" style={{ color: "var(--text-muted)" }}>
+              Add a colour with its own photos. Picking that colour on the product page swaps the gallery. Use the same portrait 2:3 size (e.g. 1000 × 1500px) as the main images. Leave empty if the product has no colour options.
             </p>
           </div>
         </div>
