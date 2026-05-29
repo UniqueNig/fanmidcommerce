@@ -63,7 +63,23 @@ const SHIPPING_QUERY = `
   }
 `;
 
+const MY_ADDRESSES_QUERY = `
+  query MyAddresses {
+    myAddresses { id label name phone address city state isDefault }
+  }
+`;
+
 type ShippingOption = { id: string; label: string; description: string; cost: number };
+type SavedAddress = {
+  id: string;
+  label: string;
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  isDefault: boolean;
+};
 
 const inputClass = "w-full px-4 py-3 text-sm font-['DM_Sans'] outline-none border transition-all duration-200";
 const inputStyle = { backgroundColor: "var(--bg-primary)", borderColor: "var(--border)", color: "var(--text-primary)" };
@@ -101,7 +117,10 @@ export default function CheckoutPage() {
 
   const update = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
-  // ✅ Auto-fill if logged in
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+
+  // ✅ Auto-fill if logged in (email always; other fields only if still empty,
+  // so a saved/default address isn't overwritten).
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -116,16 +135,58 @@ export default function CheckoutPage() {
           const u = data.data.me;
           setForm((f) => ({
             ...f,
-            name: u.name ?? "",
-            email: u.email ?? "",
-            phone: u.phone ?? "",
-            address: u.address ?? "",
+            email: u.email ?? f.email,
+            name: f.name || u.name || "",
+            phone: f.phone || u.phone || "",
+            address: f.address || u.address || "",
           }));
         }
       } catch {}
     }
     fetchUser();
   }, []);
+
+  // ✅ Load saved addresses (logged-in users) and prefill the default one.
+  useEffect(() => {
+    async function fetchAddresses() {
+      try {
+        const res = await fetch("/api/graphql", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: authHeaderValue() },
+          credentials: "include",
+          body: JSON.stringify({ query: MY_ADDRESSES_QUERY }),
+        });
+        const data = await res.json();
+        const list: SavedAddress[] = data?.data?.myAddresses ?? [];
+        setSavedAddresses(list);
+        const def = list.find((a) => a.isDefault) ?? list[0];
+        if (def) {
+          setForm((f) => ({
+            ...f,
+            name: f.name || def.name || "",
+            phone: f.phone || def.phone || "",
+            address: f.address || def.address || "",
+            city: f.city || def.city || "",
+            state: f.state || def.state || "",
+          }));
+        }
+      } catch {}
+    }
+    fetchAddresses();
+  }, []);
+
+  const pickAddress = (id: string) => {
+    const a = savedAddresses.find((x) => x.id === id);
+    if (!a) return; // "" = enter a new address → leave fields as-is
+    setForm((f) => ({
+      ...f,
+      name: a.name,
+      phone: a.phone,
+      address: a.address,
+      city: a.city,
+      state: a.state,
+    }));
+  };
 
 const handlePaystack = async () => {
   if (!form.email || !form.name || !form.phone || !form.address || !form.city || !form.state) {
@@ -318,6 +379,27 @@ fetch("/api/paystack/initialize", {
                   <h2 className="text-xs tracking-[0.2em] uppercase font-bold font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
                     Contact Information
                   </h2>
+
+                  {/* Saved addresses — only shown to logged-in users with any */}
+                  {savedAddresses.length > 0 && (
+                    <div>
+                      <label className={labelClass} style={{ color: "var(--text-muted)" }}>Use a saved address</label>
+                      <select
+                        className={inputClass}
+                        style={inputStyle}
+                        defaultValue={(savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0])?.id}
+                        onChange={(e) => pickAddress(e.target.value)}
+                      >
+                        {savedAddresses.map((a) => (
+                          <option key={a.id} value={a.id}>
+                            {(a.label || a.address)}{a.city ? `, ${a.city}` : ""}{a.isDefault ? " (default)" : ""}
+                          </option>
+                        ))}
+                        <option value="">— Enter a new address —</option>
+                      </select>
+                    </div>
+                  )}
+
                   <div>
                     <label className={labelClass} style={{ color: "var(--text-muted)" }}>Full Name *</label>
                     <input className={inputClass} style={inputStyle} value={form.name}

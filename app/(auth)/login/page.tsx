@@ -50,8 +50,8 @@ export default function Login() {
         // clear old cookie
         document.cookie = "user_token=; Max-Age=0; path=/";
 
-        // set new cookie
-        document.cookie = `user_token=${data.login.token}; path=/; max-age=604800; SameSite=Strict;${isProduction ? " Secure;" : ""}`;
+        // set new cookie — 1 year, matches the user JWT lifetime (stay logged in)
+        document.cookie = `user_token=${data.login.token}; path=/; max-age=31536000; SameSite=Strict;${isProduction ? " Secure;" : ""}`;
         // ✅ OPTIONAL (refresh Apollo cache)
         client.resetStore();
         router.push("/dashboard");

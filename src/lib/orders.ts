@@ -188,6 +188,41 @@ async function ensureUser(
   return user._id.toString();
 }
 
+/**
+ * Save the order's shipping address to the customer's account (works for
+ * auto-created guest accounts too). Deduped by address+city+state so repeat
+ * orders to the same place don't pile up. First address becomes the default.
+ */
+async function saveAddressToUser(
+  userId: string | null,
+  addr: ShippingAddress,
+) {
+  if (!userId || !addr?.address) return;
+  const user = await userModel.findById(userId);
+  if (!user) return;
+
+  const norm = (s?: string) => (s ?? "").trim().toLowerCase();
+  const exists = (user.addresses ?? []).some(
+    (a: any) =>
+      norm(a.address) === norm(addr.address) &&
+      norm(a.city) === norm(addr.city) &&
+      norm(a.state) === norm(addr.state),
+  );
+  if (exists) return;
+
+  const first = (user.addresses?.length ?? 0) === 0;
+  user.addresses.push({
+    label: "",
+    name: addr.name,
+    phone: addr.phone,
+    address: addr.address,
+    city: addr.city,
+    state: addr.state,
+    isDefault: first,
+  });
+  await user.save();
+}
+
 // ── The single source of truth for finalizing a PAID order ───────────────────
 
 export type FinalizeInput = {
@@ -258,6 +293,7 @@ export async function finalizePaidOrder(
   }
 
   await reduceStockAfterPayment(pricing.lines);
+  await saveAddressToUser(userId, input.shippingAddress);
   sendOrderConfirmation(order, input.shippingAddress.email);
 
   return { order, created: true };
