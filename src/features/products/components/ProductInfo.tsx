@@ -8,8 +8,8 @@ import {
 import { useCart } from "@/src/context/CartContext";
 import { useWishlist } from "@/src/context/WishlistContext";
 import { useToast } from "@/src/context/ToastContext";
-import SizeGuideModal from "@/src/components/product/SizeGuideModal";
-import BackInStockForm from "@/src/components/product/BackInStockForm";
+import SizeGuideModal from "@/src/features/products/components/SizeGuideModal";
+import BackInStockForm from "@/src/features/products/components/BackInStockForm";
 
 type ProductInfoProps = {
   id: string;

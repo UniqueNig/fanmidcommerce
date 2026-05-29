@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Provider from "@/src/components/ApolloProvider";
+import ThemeStyle from "@/src/themes/ThemeStyle";
+import { siteConfig } from "@/src/config/site";
 import { CartProvider } from "@/src/context/CartContext";
 import { ToastProvider } from "@/src/context/ToastContext";
 import { WishlistProvider } from "@/src/context/WishlistContext";
@@ -28,19 +30,17 @@ export const metadata: Metadata = {
   // Makes relative OpenGraph/canonical URLs resolve to absolute URLs.
   metadataBase: new URL(siteUrl),
   title: {
-    default: "FanMidCommerce — Modern Online Store",
+    default: siteConfig.seo.titleDefault,
     // Page titles become "Product Name | FanMidCommerce"
-    template: "%s | FanMidCommerce",
+    template: siteConfig.seo.titleTemplate,
   },
-  description:
-    "Shop the latest fashion and lifestyle products at FanMidCommerce.",
+  description: siteConfig.seo.description,
   openGraph: {
     type: "website",
-    siteName: "FanMidCommerce",
+    siteName: siteConfig.legalName,
     url: "/",
-    title: "FanMidCommerce — Modern Online Store",
-    description:
-      "Shop the latest fashion and lifestyle products at FanMidCommerce.",
+    title: siteConfig.seo.titleDefault,
+    description: siteConfig.seo.description,
   },
   twitter: {
     card: "summary_large_image",
@@ -57,13 +57,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-theme={siteConfig.theme} suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link
           href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
+        {/* Inject the active theme's colour palette as CSS variables. */}
+        <ThemeStyle />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

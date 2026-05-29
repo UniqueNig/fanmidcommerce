@@ -3,18 +3,19 @@ import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 import ContactForm from "./ContactForm";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { siteConfig } from "@/src/config/site";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description:
-    "Get in touch with FanMidCommerce — questions about orders, products, returns, or anything else. We're happy to help.",
+  description: `Get in touch with ${siteConfig.legalName} — questions about orders, products, returns, or anything else. We're happy to help.`,
   alternates: { canonical: "/contact" },
 };
 
+const { email, phone, whatsapp, location } = siteConfig.contact;
 const DETAILS = [
-  { icon: Mail, label: "Email", value: "support@fanmid.com", href: "mailto:support@fanmid.com" },
-  { icon: Phone, label: "Phone / WhatsApp", value: "+234 813 487 9924", href: "https://wa.me/2348134879924" },
-  { icon: MapPin, label: "Location", value: "Lagos, Nigeria", href: null },
+  { icon: Mail, label: "Email", value: email, href: `mailto:${email}` },
+  { icon: Phone, label: "Phone / WhatsApp", value: phone, href: `https://wa.me/${whatsapp}` },
+  { icon: MapPin, label: "Location", value: location, href: null },
   { icon: Clock, label: "Hours", value: "Mon – Sat, 9am – 6pm WAT", href: null },
 ];
 

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import PolicyPage from "@/src/components/layout/PolicyPage";
+import { siteConfig } from "@/src/config/site";
 
 export const metadata: Metadata = {
   title: "Shipping & Returns",
-  description: "Delivery timelines, shipping costs, and how to return or exchange an item at FanMidCommerce.",
+  description: `Delivery timelines, shipping costs, and how to return or exchange an item at ${siteConfig.legalName}.`,
   alternates: { canonical: "/shipping-returns" },
 };
 

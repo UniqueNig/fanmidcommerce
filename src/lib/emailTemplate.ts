@@ -5,8 +5,15 @@
  * and Helvetica/Arial (body) to approximate Playfair Display / DM Sans.
  */
 
+import { siteConfig } from "@/src/config/site";
+
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "";
 const ACCENT = "#c8a96e";
+// Brand strings for emails (kept in sync with the storefront via site config).
+const BRAND = siteConfig.name;            // e.g. "FanMid"
+const BRAND_LEGAL = siteConfig.legalName; // e.g. "FanMidCommerce"
+const WORDMARK_START = siteConfig.wordmark.start;
+const WORDMARK_END = siteConfig.wordmark.end;
 const naira = (n: number) => `₦${Number(n || 0).toLocaleString()}`;
 
 /** Outer shell: logo header + card + footer. */
@@ -23,7 +30,7 @@ function shell(inner: string, preheader = ""): string {
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
             <tr>
               <td align="center" style="padding-bottom:22px;">
-                <span style="font-size:26px;font-weight:800;letter-spacing:-1px;color:#ffffff;font-family:Georgia,'Times New Roman',serif;">FAN<span style="color:${ACCENT};">MID</span></span>
+                <span style="font-size:26px;font-weight:800;letter-spacing:-1px;color:#ffffff;font-family:Georgia,'Times New Roman',serif;">${WORDMARK_START}<span style="color:${ACCENT};">${WORDMARK_END}</span></span>
               </td>
             </tr>
             <tr>
@@ -33,7 +40,7 @@ function shell(inner: string, preheader = ""): string {
             </tr>
             <tr>
               <td align="center" style="padding-top:22px;color:#666666;font-size:12px;line-height:1.6;">
-                © ${year} FanMidCommerce${host ? ` · <a href="${SITE}" style="color:#888888;text-decoration:none;">${host}</a>` : ""}<br/>
+                © ${year} ${BRAND_LEGAL}${host ? ` · <a href="${SITE}" style="color:#888888;text-decoration:none;">${host}</a>` : ""}<br/>
                 Premium fashion, curated.
               </td>
             </tr>
@@ -133,7 +140,7 @@ export function renderOrderEmail(order: any): string {
 
     ${button("View Your Orders", SITE ? `${SITE}/dashboard/orders` : "")}
   `;
-  return shell(inner, `Your FanMid order ${ref} is confirmed`);
+  return shell(inner, `Your ${BRAND} order ${ref} is confirmed`);
 }
 
 // ── Welcome (auto-created account) ───────────────────────────────────────────
@@ -151,7 +158,7 @@ export function renderWelcomeEmail(name: string, email: string, password: string
     ${p("Please sign in and change your password after your first login.")}
     ${button("Log In", SITE ? `${SITE}/login` : "")}
   `;
-  return shell(inner, "Your FanMid account details");
+  return shell(inner, `Your ${BRAND} account details`);
 }
 
 // ── Admin: new-order alert ───────────────────────────────────────────────────
@@ -178,10 +185,10 @@ export function renderAdminOrderAlert(order: any): string {
 export function renderSubscribeEmail(): string {
   const inner = `
     ${h2("You're on the list 🎉")}
-    ${p("Thanks for subscribing to FanMid. You'll be the first to hear about new drops, private sales, and styling tips — no spam, ever.")}
+    ${p(`Thanks for subscribing to ${BRAND}. You'll be the first to hear about new drops, private sales, and styling tips — no spam, ever.`)}
     ${button("Shop New Arrivals", SITE ? `${SITE}/shop` : "")}
   `;
-  return shell(inner, "Welcome to the FanMid list");
+  return shell(inner, `Welcome to the ${BRAND} list`);
 }
 
 // ── Back in stock ────────────────────────────────────────────────────────────
@@ -221,5 +228,5 @@ export function renderResetEmail(name: string, link: string): string {
     ${button("Reset Password", link)}
     ${p(`<span style="color:#777777;font-size:12px;">If you didn't request this, you can safely ignore this email.</span>`)}
   `;
-  return shell(inner, "Reset your FanMid password");
+  return shell(inner, `Reset your ${BRAND} password`);
 }

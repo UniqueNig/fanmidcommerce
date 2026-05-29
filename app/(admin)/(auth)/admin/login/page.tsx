@@ -7,6 +7,7 @@ import { Lock, Loader2, Shield } from "lucide-react";
 import { useMutation } from "@apollo/client/react";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { siteConfig } from "@/src/config/site";
 import AuthInput from "@/src/components/auth/AuthInput";
 
 const LOGIN_MUTATION = gql`
@@ -231,7 +232,7 @@ onCompleted: (data) => {
           className="text-center text-[10px] font-['DM_Sans'] mt-6"
           style={{ color: "rgba(255,255,255,0.2)" }}
         >
-          FanMid Admin v1.0 · Unauthorized access is prohibited
+          {siteConfig.name} Admin v1.0 · Unauthorized access is prohibited
         </p>
       </div>
     </div>

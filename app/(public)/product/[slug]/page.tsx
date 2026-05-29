@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import { ChevronRight } from "lucide-react";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
-import ProductDetailClient from "@/src/components/product/ProductDetailClient";
-import ProductReviews from "@/src/components/product/ProductReviews";
+import ProductDetailClient from "@/src/features/products/components/ProductDetailClient";
+import ProductReviews from "@/src/features/products/components/ProductReviews";
 import ProductCard from "@/src/components/ui/ProductCard";
-import { getProductBySlug, getRelatedProducts } from "@/src/lib/data/products";
+import { getProductBySlug, getRelatedProducts } from "@/src/features/products/data";
 import { getProductReviews, getReviewSummary } from "@/src/lib/data/reviews";
 import { getStoreSettings } from "@/src/lib/data/settings";
 

@@ -4,14 +4,14 @@ import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 import { Heart, Award, Globe, Users } from "lucide-react";
 import { getTeamMembers } from "@/src/lib/data/content";
+import { siteConfig } from "@/src/config/site";
 
 // Reflect admin edits to the team within a minute.
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "About Us",
-  description:
-    "FanMidCommerce was founded in Lagos to make premium, ethical fashion accessible and built to last. Learn our story, values, and team.",
+  description: `${siteConfig.legalName} was founded in Lagos to make premium, ethical fashion accessible and built to last. Learn our story, values, and team.`,
   alternates: { canonical: "/about" },
 };
 

@@ -5,14 +5,14 @@ import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 import { ArrowRight } from "lucide-react";
 import { getAllCategories } from "@/src/lib/data/categories";
+import { siteConfig } from "@/src/config/site";
 
 // Refresh category data at most once a minute (reflects admin changes).
 export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Shop by Category",
-  description:
-    "Browse all product categories at FanMidCommerce and find exactly what you're looking for.",
+  description: `Browse all product categories at ${siteConfig.legalName} and find exactly what you're looking for.`,
   alternates: { canonical: "/categories" },
 };
 

@@ -8,7 +8,7 @@ import {
   verifyPasswordResetToken,
 } from "@/src/lib/auth";
 import { Resend } from "resend";
-import { MAIL_FROM, mailTo } from "@/src/lib/email";
+import { MAIL_FROM, mailTo } from "@/src/services/email";
 import { renderResetEmail } from "@/src/lib/emailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);

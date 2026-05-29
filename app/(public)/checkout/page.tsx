@@ -8,6 +8,7 @@ import { useCart } from "@/src/context/CartContext";
 import { useCoupon } from "@/src/context/CouponContext";
 import { authHeaderValue } from "@/src/lib/clientAuth";
 import { trackBeginCheckout } from "@/src/lib/analytics";
+import { siteConfig } from "@/src/config/site";
 import Image from "next/image";
 import Script from "next/script";
 
@@ -255,7 +256,7 @@ const handlePaystack = async () => {
   }
 
   const finalTotal = Math.max(0, subtotal - appliedDiscount) + shippingCost;
-  const ref = `FANMID-${Date.now()}`;
+  const ref = `${siteConfig.paymentRefPrefix}-${Date.now()}`;
 
   // Analytics: customer is committing to pay (stock + coupon validated).
   trackBeginCheckout({

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import PolicyPage from "@/src/components/layout/PolicyPage";
+import { siteConfig } from "@/src/config/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
-  description: "How FanMidCommerce collects, uses, and protects your personal information.",
+  description: `How ${siteConfig.legalName} collects, uses, and protects your personal information.`,
   alternates: { canonical: "/privacy" },
 };
 
