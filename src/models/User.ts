@@ -38,6 +38,19 @@ const userSchema = new mongoose.Schema(
       enum: ["Active", "Inactive"],
       default: "Active",
     },
+
+    // Saved delivery addresses (managed from the dashboard, used at checkout)
+    addresses: [
+      {
+        label: { type: String, default: "" }, // "Home", "Work"
+        name: { type: String, required: true },
+        phone: { type: String, default: "" },
+        address: { type: String, required: true },
+        city: { type: String, default: "" },
+        state: { type: String, default: "" },
+        isDefault: { type: Boolean, default: false },
+      },
+    ],
   },
   { timestamps: true }, // gives us createdAt (used as "joined")
 );

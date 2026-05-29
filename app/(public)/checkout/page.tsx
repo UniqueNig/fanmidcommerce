@@ -6,6 +6,7 @@ import Navbar from "@/src/components/layout/Navbar";
 import { Shield, Lock, ChevronRight, Check } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
 import { useCoupon } from "@/src/context/CouponContext";
+import { authHeaderValue } from "@/src/lib/clientAuth";
 import Image from "next/image";
 import Script from "next/script";
 
@@ -106,7 +107,7 @@ export default function CheckoutPage() {
       try {
         const res = await fetch("/api/graphql", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", Authorization: authHeaderValue() },
           credentials: "include",
           body: JSON.stringify({ query: `query { me { name email phone address } }` }),
         });

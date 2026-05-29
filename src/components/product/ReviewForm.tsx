@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Star, Loader2, Check } from "lucide-react";
 import { useToast } from "@/src/context/ToastContext";
+import { authHeaderValue } from "@/src/lib/clientAuth";
 
 const CAN_REVIEW = `
   query CanReview($product: ID!) {
@@ -29,7 +30,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
   useEffect(() => {
     fetch("/api/graphql", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: authHeaderValue() },
       credentials: "include",
       body: JSON.stringify({ query: CAN_REVIEW, variables: { product: productId } }),
     })
@@ -44,7 +45,7 @@ export default function ReviewForm({ productId }: { productId: string }) {
     try {
       const res = await fetch("/api/graphql", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: authHeaderValue() },
         credentials: "include",
         body: JSON.stringify({
           query: CREATE_REVIEW,

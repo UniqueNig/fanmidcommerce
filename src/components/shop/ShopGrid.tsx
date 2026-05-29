@@ -59,7 +59,7 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
           <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
         )}
 
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5 gap-2">
+        <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5 gap-2 bg-gradient-to-t from-black/70 via-black/10 to-transparent">
           <button
             onClick={() => !soldOut && trigger(onAddToCart)}
             disabled={soldOut}

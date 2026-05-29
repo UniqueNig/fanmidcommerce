@@ -20,11 +20,32 @@ const userType = gql`
     user: User!
   }
 
+  type Address {
+    id: ID!
+    label: String
+    name: String!
+    phone: String
+    address: String!
+    city: String
+    state: String
+    isDefault: Boolean
+  }
+
+  input AddressInput {
+    label: String
+    name: String!
+    phone: String
+    address: String!
+    city: String
+    state: String
+  }
+
   type Query {
     users: [User]
     user(id: ID!): User
     me: User
     admins: [User]
+    myAddresses: [Address!]!
   }
 
   type Mutation {
@@ -59,6 +80,12 @@ const userType = gql`
     # Password recovery
     requestPasswordReset(email: String!): Boolean!
     resetPassword(token: String!, newPassword: String!): Boolean!
+
+    # Saved addresses
+    addAddress(input: AddressInput!): [Address!]!
+    updateAddress(id: ID!, input: AddressInput!): [Address!]!
+    deleteAddress(id: ID!): [Address!]!
+    setDefaultAddress(id: ID!): [Address!]!
 
     deleteUser(id: ID!): User
     # Inside Mutation type, add:

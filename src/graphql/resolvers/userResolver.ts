@@ -58,6 +58,19 @@ function formatUser(user: any) {
   };
 }
 
+function formatAddress(a: any) {
+  return {
+    id: a._id.toString(),
+    label: a.label ?? "",
+    name: a.name,
+    phone: a.phone ?? "",
+    address: a.address,
+    city: a.city ?? "",
+    state: a.state ?? "",
+    isDefault: a.isDefault ?? false,
+  };
+}
+
 export const userResolvers = {
   // ── Field resolvers: orders + spent are computed per user ───────────────
   User: {
@@ -118,6 +131,13 @@ export const userResolvers = {
       .find({ role: { $in: ["admin", "superadmin"] } })
         .select("-password");
       return adminUsers.map(formatUser);
+    },
+
+    myAddresses: async (_: unknown, __: unknown, context: any) => {
+      await connectDB();
+      if (!context.user) throw new Error("Not authenticated");
+      const user = await userModel.findById(context.user.id).select("addresses");
+      return (user?.addresses ?? []).map(formatAddress);
     },
   },
 
@@ -281,6 +301,57 @@ export const userResolvers = {
       user.password = await bcrypt.hash(newPassword, 10);
       await user.save();
       return true;
+    },
+
+    // ── Saved addresses (all operate on the logged-in user) ──────────────
+    addAddress: async (_: unknown, { input }: any, context: any) => {
+      await connectDB();
+      if (!context.user) throw new Error("Not authenticated");
+      const user = await userModel.findById(context.user.id);
+      if (!user) throw new Error("User not found");
+      const first = (user.addresses?.length ?? 0) === 0;
+      user.addresses.push({ ...input, isDefault: first }); // first one becomes default
+      await user.save();
+      return user.addresses.map(formatAddress);
+    },
+
+    updateAddress: async (_: unknown, { id, input }: any, context: any) => {
+      await connectDB();
+      if (!context.user) throw new Error("Not authenticated");
+      const user = await userModel.findById(context.user.id);
+      if (!user) throw new Error("User not found");
+      const addr = user.addresses.id(id);
+      if (!addr) throw new Error("Address not found");
+      Object.assign(addr, input);
+      await user.save();
+      return user.addresses.map(formatAddress);
+    },
+
+    deleteAddress: async (_: unknown, { id }: any, context: any) => {
+      await connectDB();
+      if (!context.user) throw new Error("Not authenticated");
+      const user = await userModel.findById(context.user.id);
+      if (!user) throw new Error("User not found");
+      const wasDefault = user.addresses.id(id)?.isDefault;
+      user.addresses.pull({ _id: id });
+      // If we removed the default and others remain, promote the first.
+      if (wasDefault && user.addresses.length > 0) {
+        user.addresses[0].isDefault = true;
+      }
+      await user.save();
+      return user.addresses.map(formatAddress);
+    },
+
+    setDefaultAddress: async (_: unknown, { id }: any, context: any) => {
+      await connectDB();
+      if (!context.user) throw new Error("Not authenticated");
+      const user = await userModel.findById(context.user.id);
+      if (!user) throw new Error("User not found");
+      user.addresses.forEach((a: any) => {
+        a.isDefault = a._id.toString() === id;
+      });
+      await user.save();
+      return user.addresses.map(formatAddress);
     },
 
     changePassword: async (

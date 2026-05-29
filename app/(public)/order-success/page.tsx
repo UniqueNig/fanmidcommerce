@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "@/src/components/layout/Navbar";
 import { CheckCircle, ArrowRight, Loader2, XCircle } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
+import { authHeaderValue } from "@/src/lib/clientAuth";
 
 const VERIFY_AND_CREATE_ORDER = `
   mutation VerifyPaymentAndCreateOrder(
@@ -59,7 +60,7 @@ function OrderSuccessContent() {
 
     fetch("/api/graphql", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", Authorization: authHeaderValue() },
       credentials: "include",
       body: JSON.stringify({
         query: VERIFY_AND_CREATE_ORDER,

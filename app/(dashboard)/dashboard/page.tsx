@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShoppingBag, Heart, MapPin, ArrowRight, Package, Loader2 } from "lucide-react";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/client/react";
+import { useWishlist } from "@/src/context/WishlistContext";
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   Delivered:  { bg: "color-mix(in srgb, #22c55e 12%, transparent)", color: "#22c55e" },
@@ -44,6 +45,8 @@ export default function AccountPage() {
     myOrders: Order[];
   }>(ME_AND_ORDERS);
 
+  const { count: wishlistCount } = useWishlist();
+
   const orders = data?.myOrders ?? [];
   const recentOrders = [...orders]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -51,8 +54,8 @@ export default function AccountPage() {
 
   const QUICK_LINKS = [
     { label: "My Orders", sub: "Track & manage your orders", href: "/dashboard/orders", icon: ShoppingBag, count: `${orders.length} order${orders.length !== 1 ? "s" : ""}` },
-    { label: "Wishlist",  sub: "Items you've saved",         href: "/dashboard/wishlist", icon: Heart,       count: "Coming soon" },
-    { label: "Addresses", sub: "Manage delivery addresses",  href: "/dashboard/addresses", icon: MapPin,     count: "Coming soon" },
+    { label: "Wishlist",  sub: "Items you've saved",         href: "/dashboard/wishlist", icon: Heart,       count: `${wishlistCount} saved` },
+    { label: "Addresses", sub: "Manage delivery addresses",  href: "/dashboard/addresses", icon: MapPin,     count: "Manage" },
   ];
 
   if (loading) {
