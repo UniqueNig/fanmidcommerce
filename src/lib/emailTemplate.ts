@@ -143,6 +143,33 @@ export function renderOrderEmail(order: any): string {
   return shell(inner, `Your ${BRAND} order ${ref} is confirmed`);
 }
 
+// ── Order status update ──────────────────────────────────────────────────────
+
+// Friendly copy per status. Falls back to a generic line for anything else.
+const STATUS_COPY: Record<string, { title: string; line: string }> = {
+  Pending:    { title: "We've received your order", line: "Your order has been received and is awaiting processing." },
+  Processing: { title: "Your order is being prepared", line: "Good news — we've started preparing your order." },
+  Shipped:    { title: "Your order is on its way", line: "Your order has shipped and is heading to you." },
+  Delivered:  { title: "Your order has been delivered", line: "Your order has been delivered. We hope you love it!" },
+  Cancelled:  { title: "Your order was cancelled", line: "Your order has been cancelled. If this looks wrong, please reply or contact us." },
+  Failed:     { title: "There was a problem with your order", line: "Something went wrong with your order. Please contact us and we'll help." },
+};
+
+export function renderOrderStatusEmail(order: any, status: string): string {
+  const orderId = `#${String(order._id ?? "").slice(-6).toUpperCase()}`;
+  const c = STATUS_COPY[status] ?? {
+    title: `Order update: ${status}`,
+    line: `Your order status is now "${status}".`,
+  };
+  const inner = `
+    ${h2(c.title)}
+    ${p(c.line)}
+    ${p(`Order <strong style="color:#ffffff;">${orderId}</strong> &nbsp;·&nbsp; Total ${naira(order.totalAmount)} &nbsp;·&nbsp; Status: <strong style="color:${ACCENT};">${status}</strong>`)}
+    ${button("View Your Orders", SITE ? `${SITE}/dashboard/orders` : "")}
+  `;
+  return shell(inner, `Your ${BRAND} order ${orderId} is now ${status}`);
+}
+
 // ── Welcome (auto-created account) ───────────────────────────────────────────
 
 export function renderWelcomeEmail(name: string, email: string, password: string): string {

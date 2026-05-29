@@ -5,6 +5,7 @@ import {
   recomputeOrderPricing,
   finalizePaidOrder,
   formatOrder,
+  sendOrderStatusEmail,
 } from "@/src/lib/orders";
 
 type StockLine = { product: string; name?: string; quantity: number };
@@ -153,6 +154,8 @@ export const orderResolvers = {
       const order = await orderModel.findById(id);
       if (!order) throw new Error("Order not found");
 
+      const prevStatus = order.status;
+
       // Return stock when cancelled/failed — only on the first such transition.
       const releaseStates = ["Cancelled", "Failed"];
       const wasReleased = releaseStates.includes(order.status);
@@ -169,6 +172,18 @@ export const orderResolvers = {
       order.status = status;
       if (status === "Delivered") order.deliveredAt = new Date();
       await order.save();
+
+      // Email the customer about the new status (only on a real change). The
+      // dashboard notification bell already reflects it via the bumped
+      // updatedAt. Awaited + isolated so a mail hiccup can't fail the update.
+      if (status !== prevStatus) {
+        try {
+          await sendOrderStatusEmail(order, status);
+        } catch (e) {
+          console.error("Order status email failed:", e);
+        }
+      }
+
       return formatOrder(order);
     },
   },

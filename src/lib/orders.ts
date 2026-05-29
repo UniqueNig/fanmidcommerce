@@ -12,6 +12,7 @@ import {
   renderOrderEmail,
   renderWelcomeEmail,
   renderAdminOrderAlert,
+  renderOrderStatusEmail,
 } from "@/src/lib/emailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -165,6 +166,25 @@ async function sendOrderConfirmation(order: any, email: string) {
     else console.log("Order email sent to", mailTo(email));
   } catch (err) {
     console.error("Order email error:", err);
+  }
+}
+
+// Email the customer when an admin changes their order's status
+// (Processing → Shipped → Delivered, etc.). Awaited so it sends on serverless.
+export async function sendOrderStatusEmail(order: any, status: string) {
+  const email = order?.shippingAddress?.email;
+  if (!email) return;
+  try {
+    const r = await resend.emails.send({
+      from: MAIL_FROM,
+      to: mailTo(email),
+      subject: `Your order is now ${status}`,
+      html: renderOrderStatusEmail(order, status),
+    });
+    if (r.error) console.error("Status email rejected:", r.error);
+    else console.log("Status email sent to", mailTo(email));
+  } catch (err) {
+    console.error("Status email error:", err);
   }
 }
 
