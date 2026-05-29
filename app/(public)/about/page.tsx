@@ -75,15 +75,15 @@ export default async function AboutPage() {
               Started from Lagos,<br />built for the world.
             </h2>
             <div className="space-y-4 font-['DM_Sans'] text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-              <p>FanMid began as a small curation project — Emmanuel Faniyi, frustrated by fast fashion and inspired by the timeless dressing of his grandfather, started sourcing premium pieces that told a story.</p>
+              <p>FanMid began as a small curation project — born out of frustration with fast fashion and inspired by timeless, considered dressing — sourcing premium pieces that tell a story.</p>
               <p>What started as a passion project quickly grew into a full e-commerce brand, serving thousands of customers across Nigeria and beyond. Our philosophy has never changed: invest in fewer, better things.</p>
               <p>Today, FanMid partners with 50+ ethical brands worldwide, offering a carefully edited selection of clothing and accessories that are built to last decades, not seasons.</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 h-[450px]">
             <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80" alt="Store" className="w-full h-full object-cover" style={{ gridRow: "1 / 3" }} />
-            <img src="https://images.unsplash.com/photo-1558171813-f9f8c13b6f5f?w=400&q=80" alt="Fashion" className="w-full object-cover" style={{ height: "210px" }} />
-            <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&q=80" alt="Products" className="w-full object-cover" style={{ height: "210px" }} />
+            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&q=80" alt="Fashion" className="w-full h-full object-cover" style={{ height: "210px" }} />
+            <img src="https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=400&q=80" alt="Products" className="w-full h-full object-cover" style={{ height: "210px" }} />
           </div>
         </div>
       </section>
@@ -116,7 +116,7 @@ export default async function AboutPage() {
             <p className="text-xs tracking-[0.3em] uppercase font-['DM_Sans'] mb-3" style={{ color: "var(--accent)" }}>The people</p>
             <h2 className="text-4xl font-black font-['Playfair_Display']" style={{ color: "var(--text-primary)" }}>Meet the Team</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             {team.map(({ id, name, role, image }) => (
               <div key={id} className="group">
                 <div className="relative overflow-hidden aspect-[3/4] mb-4" style={{ backgroundColor: "var(--card-bg)" }}>

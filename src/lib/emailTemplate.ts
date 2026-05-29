@@ -167,6 +167,17 @@ export function renderAdminOrderAlert(order: any): string {
   return shell(inner, `New order ${orderId} — ${naira(order.totalAmount)}`);
 }
 
+// ── Newsletter welcome ───────────────────────────────────────────────────────
+
+export function renderSubscribeEmail(): string {
+  const inner = `
+    ${h2("You're on the list 🎉")}
+    ${p("Thanks for subscribing to FanMid. You'll be the first to hear about new drops, private sales, and styling tips — no spam, ever.")}
+    ${button("Shop New Arrivals", SITE ? `${SITE}/shop` : "")}
+  `;
+  return shell(inner, "Welcome to the FanMid list");
+}
+
 // ── Password reset ───────────────────────────────────────────────────────────
 
 export function renderResetEmail(name: string, link: string): string {

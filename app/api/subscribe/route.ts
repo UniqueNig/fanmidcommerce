@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 import { connectDB } from "@/src/lib/db";
 import subscriberModel from "@/src/models/Subscriber";
 import { rateLimit, clientIp } from "@/src/lib/rateLimit";
+import { MAIL_FROM, mailTo } from "@/src/lib/email";
+import { renderSubscribeEmail } from "@/src/lib/emailTemplate";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Basic email shape check.
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -27,11 +32,26 @@ export async function POST(req: NextRequest) {
     await connectDB();
 
     // Upsert so re-subscribing is idempotent (no duplicate-key error).
-    await subscriberModel.updateOne(
-      { email: email.toLowerCase().trim() },
-      { $setOnInsert: { email: email.toLowerCase().trim() } },
+    const clean = email.toLowerCase().trim();
+    const result = await subscriberModel.updateOne(
+      { email: clean },
+      { $setOnInsert: { email: clean } },
       { upsert: true },
     );
+
+    // Send a welcome email only on a NEW subscription (don't spam re-subscribers).
+    if (result.upsertedCount > 0) {
+      try {
+        await resend.emails.send({
+          from: MAIL_FROM,
+          to: mailTo(clean),
+          subject: "Welcome to FanMid",
+          html: renderSubscribeEmail(),
+        });
+      } catch (e) {
+        console.error("Subscribe email error:", e);
+      }
+    }
 
     return NextResponse.json({ ok: true });
   } catch (err) {

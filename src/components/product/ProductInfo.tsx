@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
 import { useWishlist } from "@/src/context/WishlistContext";
+import { useToast } from "@/src/context/ToastContext";
+import SizeGuideModal from "@/src/components/product/SizeGuideModal";
 
 type ProductInfoProps = {
   id: string;
@@ -36,9 +38,11 @@ export default function ProductInfo({
 }: ProductInfoProps) {
   const { addItem } = useCart();
   const { has, toggle } = useWishlist();
+  const { toast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const wishlisted = has(id);
 
   const discount = originalPrice
@@ -63,10 +67,22 @@ export default function ProductInfo({
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
-      await navigator.share({ title: name, url: window.location.href });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
+    const url = window.location.href;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: name, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast("Link copied to clipboard", "success");
+      }
+    } catch {
+      // user cancelled the share sheet, or clipboard blocked — try clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        toast("Link copied to clipboard", "success");
+      } catch {
+        /* ignore */
+      }
     }
   };
 
@@ -154,7 +170,8 @@ export default function ProductInfo({
                 <span className="ml-2 text-red-400 normal-case tracking-normal">— please select</span>
               )}
             </h3>
-            <button className="text-[10px] tracking-widest uppercase font-['DM_Sans'] underline underline-offset-2"
+            <button type="button" onClick={() => setShowGuide(true)}
+              className="text-[10px] tracking-widest uppercase font-['DM_Sans'] underline underline-offset-2 hover:opacity-70 transition-opacity"
               style={{ color: "var(--text-muted)" }}>
               Size Guide
             </button>
@@ -238,6 +255,8 @@ export default function ProductInfo({
           </div>
         ))}
       </div>
+
+      <SizeGuideModal open={showGuide} onClose={() => setShowGuide(false)} />
     </div>
   );
 }

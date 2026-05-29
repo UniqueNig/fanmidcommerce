@@ -184,14 +184,14 @@ export default async function ProductDetailPage({
           style={{ borderColor: "var(--border)" }}
         >
           {[
-            { title: "Materials", content: product.description },
+            { title: "Materials", content: product.materials || product.description },
             {
               title: "Sizing & Fit",
-              content: "True to size. Refer to size guide for best fit.",
+              content: product.sizingFit || "True to size. Refer to size guide for best fit.",
             },
             {
               title: "Care Instructions",
-              content: "Refer to garment label for care instructions.",
+              content: product.careInstructions || "Refer to garment label for care instructions.",
             },
           ].map((item) => (
             <div key={item.title}>

@@ -21,6 +21,9 @@ export type ProductDetail = {
   stock: number;
   isNew: boolean;
   sizes: string[];
+  materials: string;
+  sizingFit: string;
+  careInstructions: string;
   category: { id: string; name: string; slug: string } | null;
 };
 
@@ -58,6 +61,9 @@ export async function getProductBySlug(
     stock: doc.stock,
     isNew: Boolean(doc.isNew),
     sizes: Array.isArray(doc.sizes) ? doc.sizes : [],
+    materials: doc.materials ?? "",
+    sizingFit: doc.sizingFit ?? "",
+    careInstructions: doc.careInstructions ?? "",
     category:
       cat && cat.name
         ? { id: cat._id.toString(), name: cat.name, slug: cat.slug ?? "" }

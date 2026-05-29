@@ -11,6 +11,9 @@ const productType = gql`
     image: String
     stock: Int!
     sizes: [String]
+    materials: String
+    sizingFit: String
+    careInstructions: String
     category: Category # ✅ FIXED
     isNew: Boolean
     createdBy: ID
@@ -50,6 +53,9 @@ const productType = gql`
       image: String
       stock: Int!
       sizes: [String]
+      materials: String
+      sizingFit: String
+      careInstructions: String
       category: ID! # ✅ FIXED — category is referenced by its id
       isNew: Boolean
     ): Product
@@ -63,6 +69,9 @@ const productType = gql`
       image: String
       stock: Int
       sizes: [String]
+      materials: String
+      sizingFit: String
+      careInstructions: String
       category: ID
       isNew: Boolean
     ): Product

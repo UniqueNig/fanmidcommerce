@@ -29,6 +29,9 @@ const UPDATE_PRODUCT = gql`
     $image: String
     $stock: Int
     $sizes: [String]
+    $materials: String
+    $sizingFit: String
+    $careInstructions: String
     $category: ID!
     $isNew: Boolean
   ) {
@@ -41,6 +44,9 @@ const UPDATE_PRODUCT = gql`
       image: $image
       stock: $stock
       sizes: $sizes
+      materials: $materials
+      sizingFit: $sizingFit
+      careInstructions: $careInstructions
       category: $category
       isNew: $isNew
     ) {
@@ -68,6 +74,9 @@ const CREATE_PRODUCT = gql`
     $image: String
     $stock: Int!
     $sizes: [String]
+    $materials: String
+    $sizingFit: String
+    $careInstructions: String
     $category: ID!
     $isNew: Boolean
   ) {
@@ -79,6 +88,9 @@ const CREATE_PRODUCT = gql`
       image: $image
       stock: $stock
       sizes: $sizes
+      materials: $materials
+      sizingFit: $sizingFit
+      careInstructions: $careInstructions
       category: $category
       isNew: $isNew
     ) {
@@ -108,6 +120,9 @@ type ProductFormProps = {
     price?: string;
     stock?: string;
     sizes?: string[];
+    materials?: string;
+    sizingFit?: string;
+    careInstructions?: string;
     categoryId?: string; // ✅ now an ID, not a name string
     image?: string;
     isNew?: boolean;
@@ -140,6 +155,9 @@ export default function ProductForm({
     price: initialData.price ?? "",
     stock: initialData.stock ?? "",
     sizes: (initialData.sizes ?? []).join(", "), // comma-separated in the input
+    materials: initialData.materials ?? "",
+    sizingFit: initialData.sizingFit ?? "",
+    careInstructions: initialData.careInstructions ?? "",
     categoryId: initialData.categoryId ?? "", // ✅ stores the category _id
     image: initialData.image ?? "",
     isNew: initialData.isNew ?? false,
@@ -205,6 +223,9 @@ export default function ProductForm({
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean), // "S, M, L" → ["S","M","L"]
+        materials: form.materials,
+        sizingFit: form.sizingFit,
+        careInstructions: form.careInstructions,
         category: form.categoryId, // ✅ sending the _id
         image: form.image,
         isNew: form.isNew,
@@ -515,6 +536,41 @@ export default function ProductForm({
               Comma-separated. Customers must pick a size before adding to cart.
             </p>
           </div>
+        </div>
+
+        {/* Product details (optional) — shown on the product page */}
+        <div
+          className="border p-6 space-y-5"
+          style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border)" }}
+        >
+          <h3
+            className="text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans']"
+            style={{ color: "var(--text-muted)" }}
+          >
+            Product Details (optional)
+          </h3>
+          {[
+            { key: "materials", label: "Materials", placeholder: "e.g. 100% cotton" },
+            { key: "sizingFit", label: "Sizing & Fit", placeholder: "e.g. True to size; model wears M" },
+            { key: "careInstructions", label: "Care Instructions", placeholder: "e.g. Machine wash cold, do not tumble dry" },
+          ].map((f) => (
+            <div key={f.key}>
+              <label className={labelClass} style={{ color: "var(--text-muted)" }}>
+                {f.label}
+              </label>
+              <textarea
+                rows={2}
+                className={inputClass}
+                style={inputStyle({ resize: "none" })}
+                value={(form as any)[f.key]}
+                onChange={(e) => update(f.key, e.target.value)}
+                placeholder={f.placeholder}
+              />
+            </div>
+          ))}
+          <p className="text-[11px] font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+            Leave blank to use the default text on the product page.
+          </p>
         </div>
 
         {/* Actions */}

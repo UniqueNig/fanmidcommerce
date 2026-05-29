@@ -184,6 +184,9 @@ export const productResolvers = {
         "category",
         "isNew",
         "sizes",
+        "materials",
+        "sizingFit",
+        "careInstructions",
       ]) {
         if (rest[key] !== undefined) updates[key] = rest[key];
       }

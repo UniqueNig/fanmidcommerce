@@ -14,6 +14,11 @@ const productSchema = new mongoose.Schema(
     stock: { type: Number, required: true },
     // Optional size options (e.g. ["S","M","L"]). Empty = no size selection.
     sizes: { type: [String], default: [] },
+    // Optional product detail copy (shown on the product page; fall back to
+    // sensible defaults when empty).
+    materials: { type: String, default: "" },
+    sizingFit: { type: String, default: "" },
+    careInstructions: { type: String, default: "" },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "fanmidcommerce-categories",
