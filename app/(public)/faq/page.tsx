@@ -3,11 +3,11 @@ import Link from "next/link";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 import FaqAccordion, { type FaqItem } from "./FaqAccordion";
+import { siteConfig } from "@/src/config/site";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description:
-    "Frequently asked questions about ordering, shipping, returns, payments, and sizing at FanMidCommerce.",
+  description: `Frequently asked questions about ordering, shipping, returns, payments, and sizing at ${siteConfig.legalName}.`,
   alternates: { canonical: "/faq" },
 };
 

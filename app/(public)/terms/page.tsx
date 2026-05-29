@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import PolicyPage from "@/src/components/layout/PolicyPage";
+import { siteConfig } from "@/src/config/site";
 
 export const metadata: Metadata = {
   title: "Terms of Service",
-  description: "The terms and conditions for using FanMidCommerce and purchasing from our store.",
+  description: `The terms and conditions for using ${siteConfig.legalName} and purchasing from our store.`,
   alternates: { canonical: "/terms" },
 };
 

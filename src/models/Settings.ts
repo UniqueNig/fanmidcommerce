@@ -1,8 +1,9 @@
 import mongoose from "mongoose";
+import { siteConfig } from "@/src/config/site";
 
 const settingsSchema = new mongoose.Schema(
   {
-    storeName:     { type: String, default: "FanMid" },
+    storeName:     { type: String, default: siteConfig.name },
     currency:      { type: String, default: "NGN" },
     contactEmail:  { type: String, default: "" },
     whatsapp:      { type: String, default: "" },

@@ -10,6 +10,7 @@ import {
   getCategoryBySlug,
   getProductsByCategorySlug,
 } from "@/src/lib/data/categories";
+import { siteConfig } from "@/src/config/site";
 
 export async function generateMetadata({
   params,
@@ -23,7 +24,7 @@ export async function generateMetadata({
 
   const description =
     category.description ||
-    `Shop ${category.name} at FanMidCommerce — ${category.productCount} product${category.productCount === 1 ? "" : "s"} available.`;
+    `Shop ${category.name} at ${siteConfig.legalName} — ${category.productCount} product${category.productCount === 1 ? "" : "s"} available.`;
 
   return {
     title: category.name,

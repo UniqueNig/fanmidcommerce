@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { siteConfig } from "@/src/config/site";
 
 export default function HeroSection() {
   return (
@@ -137,7 +138,7 @@ export default function HeroSection() {
         className="hidden lg:block absolute right-10 top-1/2 -translate-y-1/2 -rotate-90 text-xs tracking-[0.5em] uppercase font-['DM_Sans']"
         style={{ color: "var(--text-muted)" }}
       >
-        FanMidCommerce — Premium Fashion
+        {siteConfig.legalName} — Premium Fashion
       </div>
     </section>
   );

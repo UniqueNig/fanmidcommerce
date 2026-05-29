@@ -9,6 +9,7 @@ import { gql } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useFormik } from "formik";
 import * as yup from "yup";
+import { siteConfig } from "@/src/config/site";
 
 // ─── Queries & Mutations ─────────────────────────────────────────────────────
 
@@ -247,7 +248,7 @@ export function AdminSettingsPage() {
 
   const formik = useFormik({
     initialValues: {
-      storeName: data?.settings?.storeName ?? "FanMid",
+      storeName: data?.settings?.storeName ?? siteConfig.name,
       currency: data?.settings?.currency ?? "NGN",
       contactEmail: data?.settings?.contactEmail ?? "",
       whatsapp: data?.settings?.whatsapp ?? "",

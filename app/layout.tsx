@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Provider from "@/src/components/ApolloProvider";
+import { siteConfig } from "@/src/config/site";
 import { CartProvider } from "@/src/context/CartContext";
 import { ToastProvider } from "@/src/context/ToastContext";
 import { WishlistProvider } from "@/src/context/WishlistContext";
@@ -28,19 +29,17 @@ export const metadata: Metadata = {
   // Makes relative OpenGraph/canonical URLs resolve to absolute URLs.
   metadataBase: new URL(siteUrl),
   title: {
-    default: "FanMidCommerce — Modern Online Store",
+    default: siteConfig.seo.titleDefault,
     // Page titles become "Product Name | FanMidCommerce"
-    template: "%s | FanMidCommerce",
+    template: siteConfig.seo.titleTemplate,
   },
-  description:
-    "Shop the latest fashion and lifestyle products at FanMidCommerce.",
+  description: siteConfig.seo.description,
   openGraph: {
     type: "website",
-    siteName: "FanMidCommerce",
+    siteName: siteConfig.legalName,
     url: "/",
-    title: "FanMidCommerce — Modern Online Store",
-    description:
-      "Shop the latest fashion and lifestyle products at FanMidCommerce.",
+    title: siteConfig.seo.titleDefault,
+    description: siteConfig.seo.description,
   },
   twitter: {
     card: "summary_large_image",

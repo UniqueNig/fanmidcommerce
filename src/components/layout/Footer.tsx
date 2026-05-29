@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { siteConfig } from "@/src/config/site";
 
 export default function Footer() {
   return (
@@ -18,13 +19,14 @@ export default function Footer() {
               className="text-2xl font-black tracking-tighter font-['Playfair_Display']"
               style={{ color: "var(--text-primary)" }}
             >
-              FAN<span style={{ color: "var(--accent)" }}>MID</span>
+              {siteConfig.wordmark.start}
+              <span style={{ color: "var(--accent)" }}>{siteConfig.wordmark.end}</span>
             </span>
             <p
               className="text-sm mt-4 leading-relaxed font-['DM_Sans'] max-w-xs"
               style={{ color: "var(--text-muted)" }}
             >
-              Premium fashion curated for those who define their own aesthetic.
+              {siteConfig.tagline}
             </p>
           </div>
 
@@ -90,7 +92,7 @@ export default function Footer() {
             className="text-xs font-['DM_Sans'] tracking-wide"
             style={{ color: "var(--text-secondary)" }}
           >
-            © {new Date().getFullYear()} FanMidCommerce. All rights reserved.
+            © {new Date().getFullYear()} {siteConfig.legalName}. All rights reserved.
           </p>
 
           <div className="flex gap-6">

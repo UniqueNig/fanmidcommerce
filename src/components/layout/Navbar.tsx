@@ -6,6 +6,7 @@ import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import ThemeToggle from "../ui/ThemeToggle";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/src/context/CartContext";
+import { siteConfig } from "@/src/config/site";
 
 export default function Navbar() {
   const router = useRouter();
@@ -47,7 +48,8 @@ export default function Navbar() {
               className="text-2xl font-black tracking-tighter font-['Playfair_Display']"
               style={{ color: "var(--text-primary)" }}
             >
-              FAN<span style={{ color: "var(--accent)" }}>MID</span>
+              {siteConfig.wordmark.start}
+              <span style={{ color: "var(--accent)" }}>{siteConfig.wordmark.end}</span>
             </span>
           </Link>
 

@@ -5,6 +5,7 @@ import subscriberModel from "@/src/models/Subscriber";
 import { rateLimitAsync, clientIp } from "@/src/lib/rateLimit";
 import { MAIL_FROM, mailTo } from "@/src/lib/email";
 import { renderSubscribeEmail } from "@/src/lib/emailTemplate";
+import { siteConfig } from "@/src/config/site";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -45,7 +46,7 @@ export async function POST(req: NextRequest) {
         await resend.emails.send({
           from: MAIL_FROM,
           to: mailTo(clean),
-          subject: "Welcome to FanMid",
+          subject: `Welcome to ${siteConfig.name}`,
           html: renderSubscribeEmail(),
         });
       } catch (e) {

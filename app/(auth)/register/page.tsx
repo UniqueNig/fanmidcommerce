@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { gql } from "@apollo/client";
 import AuthCard from "@/src/components/auth/AuthCard";
 import AuthInput from "@/src/components/auth/AuthInput";
+import { siteConfig } from "@/src/config/site";
 import { Loader2, Check } from "lucide-react";
 import { useMutation } from "@apollo/client/react";
 import { useFormik } from "formik";
@@ -117,7 +118,7 @@ export default function Register() {
   return (
     <AuthCard
       title="Create account"
-      subtitle="Join FanMid and elevate your style"
+      subtitle={`Join ${siteConfig.name} and elevate your style`}
       footerText="Already have an account?"
       footerLinkText="Sign in"
       footerLinkHref="/login"
