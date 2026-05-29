@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, Bell, Search, LogOut } from "lucide-react";
+import { Menu, Search, LogOut } from "lucide-react";
 import ThemeToggle from "@/src/components/ui/ThemeToggle";
+import NotificationsBell from "@/src/components/ui/NotificationsBell";
 
 type DashboardHeaderProps = {
   onMenuOpen: () => void;
@@ -26,8 +28,15 @@ export default function DashboardHeader({
 }: DashboardHeaderProps) {
   const pathname = usePathname();
   const title = PAGE_TITLES[pathname] ?? "Dashboard";
+  const [query, setQuery] = useState("");
 
   const router = useRouter();
+
+  const runSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = query.trim();
+    if (q) router.push(`/admin/products?q=${encodeURIComponent(q)}`);
+  };
 
   const handleLogout = () => {
     // document.cookie = "token=; path=/; max-age=0";
@@ -66,34 +75,24 @@ document.cookie = "admin_token=; Max-Age=0; path=/";
 
       {/* Right — search, notifications, theme, avatar */}
       <div className="flex items-center gap-3">
-        {/* Search — desktop only */}
-        <div
+        {/* Search — desktop only (searches products) */}
+        <form
+          onSubmit={runSearch}
           className="hidden md:flex items-center gap-2 px-3 py-2 border text-sm font-['DM_Sans']"
-          style={{
-            backgroundColor: "var(--bg-secondary)",
-            borderColor: "var(--border)",
-            color: "var(--text-muted)",
-          }}
+          style={{ backgroundColor: "var(--bg-secondary)", borderColor: "var(--border)" }}
         >
-          <Search size={13} />
-          <span className="text-xs">Search...</span>
-        </div>
+          <Search size={13} style={{ color: "var(--text-muted)" }} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search products..."
+            className="text-xs bg-transparent outline-none w-40"
+            style={{ color: "var(--text-primary)" }}
+          />
+        </form>
 
         {/* Notifications */}
-        <button
-          className="relative w-9 h-9 flex items-center justify-center border transition-opacity hover:opacity-60"
-          style={{
-            borderColor: "var(--border)",
-            color: "var(--text-secondary)",
-          }}
-        >
-          <Bell size={15} />
-          {/* Unread dot */}
-          <span
-            className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full"
-            style={{ backgroundColor: "var(--accent)" }}
-          />
-        </button>
+        <NotificationsBell role="admin" />
 
         <ThemeToggle />
 

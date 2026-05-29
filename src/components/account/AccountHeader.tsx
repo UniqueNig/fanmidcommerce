@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { LogOut, Menu, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import ThemeToggle from "@/src/components/ui/ThemeToggle";
+import NotificationsBell from "@/src/components/ui/NotificationsBell";
 // import { client } from "@/src/lib/apolloClient";
 
 type AccountHeaderProps = {
@@ -82,6 +83,7 @@ export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {
           <ShoppingBag size={13} />
           Continue Shopping
         </Link>
+        <NotificationsBell role="user" />
         <ThemeToggle />
         <button
           onClick={handleLogout}

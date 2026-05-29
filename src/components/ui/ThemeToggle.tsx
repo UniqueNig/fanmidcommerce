@@ -5,14 +5,17 @@ import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 export default function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  // resolvedTheme is the ACTUAL applied theme ("dark"/"light") even when the
+  // setting is "system" — reading `theme` (which can be "system") is why the
+  // first click appeared to do nothing.
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   // Avoid hydration mismatch — only render after mount
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
-  const isDark = theme === "dark";
+  const isDark = resolvedTheme === "dark";
 
   return (
     <button

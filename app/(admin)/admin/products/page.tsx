@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useQuery, useMutation } from "@apollo/client/react";
 import ConfirmModal from "@/src/components/admindashboard/ConfirmModal";
@@ -53,6 +53,12 @@ export default function AdminProductsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  // Seed the search box from ?q= (used by the admin header search).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("q");
+    if (q) setSearch(q);
+  }, []);
 
   // ── Fetch ──────────────────────────────────────────────────────────────
   const { data, loading, error, refetch } = useQuery<ProductsData>(

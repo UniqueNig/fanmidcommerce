@@ -62,6 +62,9 @@ const p = (t: string) =>
 
 export function renderOrderEmail(order: any): string {
   const ref = order.paymentReference ?? order._id;
+  // Matches what the admin sees in the Orders list (#XXXXXX) so it can be
+  // quoted by the customer and found/filtered by an admin.
+  const orderId = `#${String(order._id ?? "").slice(-6).toUpperCase()}`;
 
   const itemRows = (order.items ?? [])
     .map(
@@ -95,7 +98,10 @@ export function renderOrderEmail(order: any): string {
   const inner = `
     ${h2("Thank you for your order!")}
     ${p("We've received your payment and we're getting your order ready. Here's your summary:")}
-    <p style="margin:0 0 18px;color:#777777;font-size:12px;">Order reference: <strong style="color:${ACCENT};">${ref}</strong></p>
+    <p style="margin:0 0 18px;color:#777777;font-size:12px;">
+      Order ID: <strong style="color:${ACCENT};">${orderId}</strong><br/>
+      Payment reference: <strong style="color:#999999;">${ref}</strong>
+    </p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(255,255,255,0.08);">
       ${itemRows}
@@ -140,6 +146,25 @@ export function renderWelcomeEmail(name: string, email: string, password: string
     ${button("Log In", SITE ? `${SITE}/login` : "")}
   `;
   return shell(inner, "Your FanMid account details");
+}
+
+// ── Admin: new-order alert ───────────────────────────────────────────────────
+
+export function renderAdminOrderAlert(order: any): string {
+  const orderId = `#${String(order._id ?? "").slice(-6).toUpperCase()}`;
+  const inner = `
+    ${h2("New order received")}
+    ${p("A new order has just been placed and paid.")}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0;background:#0d0d0d;border:1px solid rgba(255,255,255,0.08);border-radius:6px;">
+      <tr><td style="padding:16px 18px;color:#cccccc;font-size:13px;line-height:1.9;">
+        <strong style="color:#ffffff;">Order ID:</strong> <span style="color:${ACCENT};">${orderId}</span><br/>
+        <strong style="color:#ffffff;">Customer:</strong> ${order.shippingAddress?.name ?? "—"}<br/>
+        <strong style="color:#ffffff;">Total:</strong> <span style="color:${ACCENT};">${naira(order.totalAmount)}</span>
+      </td></tr>
+    </table>
+    ${button("Open Orders", SITE ? `${SITE}/admin/orders` : "")}
+  `;
+  return shell(inner, `New order ${orderId} — ${naira(order.totalAmount)}`);
 }
 
 // ── Password reset ───────────────────────────────────────────────────────────

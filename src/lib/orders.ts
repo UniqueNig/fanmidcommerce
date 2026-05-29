@@ -5,9 +5,14 @@ import productModel from "@/src/models/Product";
 import shippingMethodModel from "@/src/models/ShippingMethod";
 import bcrypt from "bcryptjs";
 import { Resend } from "resend";
+import settingsModel from "@/src/models/Settings";
 import { evaluateCoupon } from "@/src/lib/coupon";
 import { MAIL_FROM, mailTo } from "@/src/lib/email";
-import { renderOrderEmail, renderWelcomeEmail } from "@/src/lib/emailTemplate";
+import {
+  renderOrderEmail,
+  renderWelcomeEmail,
+  renderAdminOrderAlert,
+} from "@/src/lib/emailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -139,6 +144,27 @@ async function sendOrderConfirmation(order: any, email: string) {
     else console.log("Order email sent to", mailTo(email));
   } catch (err) {
     console.error("Order email error:", err);
+  }
+}
+
+// Notify the store admin of a new order — gated by the "New Order Alerts"
+// setting (on by default). Sends to the store contact email (or EMAIL_OVERRIDE
+// in sandbox).
+async function notifyAdminOfOrder(order: any) {
+  try {
+    const settings: any = await settingsModel.findOne();
+    if (settings && settings.orderNotifs === false) return; // alerts turned off
+    const to = mailTo(settings?.contactEmail || process.env.CONTACT_EMAIL || "");
+    if (!to) return;
+    const r = await resend.emails.send({
+      from: MAIL_FROM,
+      to,
+      subject: `New order — ${order.paymentReference ?? order._id}`,
+      html: renderAdminOrderAlert(order),
+    });
+    if (r.error) console.error("Admin alert rejected:", r.error);
+  } catch (err) {
+    console.error("Admin alert error:", err);
   }
 }
 
@@ -286,6 +312,7 @@ export async function finalizePaidOrder(
     console.error("Address save failed:", e);
   }
   await sendOrderConfirmation(order, input.shippingAddress.email);
+  await notifyAdminOfOrder(order);
 
   return { order, created: true };
 }

@@ -5,14 +5,18 @@ import AccountSidebar from "@/src/components/account/AccountSidebar";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useAutoLogout } from "@/src/hooks/useAutoLogout";
 import { useState } from "react";
-// import AccountSidebar from "@/src/components/account/AccountSidebar";
-// import AccountHeader from "@/src/components/account/AccountHeader";
+import { useQuery } from "@apollo/client/react";
+import gql from "graphql-tag";
 
-// Replace with real user from context/query later
-const MOCK_USER = {
-  name: "John Doe",
-  email: "johndoe@gmail.com",
-};
+const ME = gql`
+  query {
+    me {
+      id
+      name
+      email
+    }
+  }
+`;
 
 export default function AccountLayout({
   children,
@@ -21,6 +25,7 @@ export default function AccountLayout({
 }) {
   useAutoLogout("user"); // 🔥 ADD THIS
   const { loading } = useAuth("user");
+  const { data } = useQuery<{ me: { name: string; email: string } }>(ME);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   if (loading) return <p>Loading...</p>; // Or spinner
   return (
@@ -31,8 +36,8 @@ export default function AccountLayout({
       <AccountSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        userName={MOCK_USER.name}
-        userEmail={MOCK_USER.email}
+        userName={data?.me?.name ?? "My Account"}
+        userEmail={data?.me?.email ?? ""}
       />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">

@@ -1,9 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@apollo/client/react";
+import gql from "graphql-tag";
 import DashboardSidebar from "@/src/components/admindashboard/DashboardSidebar";
 import DashboardHeader from "@/src/components/admindashboard/DashboardHeader";
 import AdminGuard from "@/src/components/adminguard/AdminGuard";
+
+const ME = gql`
+  query {
+    me {
+      id
+      name
+    }
+  }
+`;
 
 export default function DashboardLayout({
   children,
@@ -11,6 +22,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data } = useQuery<{ me: { name: string } }>(ME);
 
   return (
     <div
@@ -27,7 +39,7 @@ export default function DashboardLayout({
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <DashboardHeader
           onMenuOpen={() => setSidebarOpen(true)}
-          userName="Emmanuel"
+          userName={data?.me?.name ?? "Admin"}
         />
 
         {/* Scrollable content */}
