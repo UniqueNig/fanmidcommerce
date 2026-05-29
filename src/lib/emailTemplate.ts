@@ -184,6 +184,34 @@ export function renderSubscribeEmail(): string {
   return shell(inner, "Welcome to the FanMid list");
 }
 
+// ── Back in stock ────────────────────────────────────────────────────────────
+
+export function renderBackInStockEmail(args: {
+  productName: string;
+  url: string;
+  size?: string;
+  color?: string;
+  image?: string;
+}): string {
+  const variant = [
+    args.color && `Colour: ${args.color}`,
+    args.size && `Size: ${args.size}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const inner = `
+    ${h2("It's back in stock")}
+    ${
+      args.image
+        ? `<img src="${args.image}" width="120" alt="" style="width:120px;height:auto;border-radius:6px;display:block;margin:0 0 16px;border:1px solid rgba(255,255,255,0.08);" />`
+        : ""
+    }
+    ${p(`<strong style="color:#ffffff;">${args.productName}</strong> is available again${variant ? ` <span style="color:#888888;">(${variant})</span>` : ""}. Popular items sell out fast — grab yours before it's gone.`)}
+    ${button("Shop Now", args.url)}
+  `;
+  return shell(inner, `${args.productName} is back in stock`);
+}
+
 // ── Password reset ───────────────────────────────────────────────────────────
 
 export function renderResetEmail(name: string, link: string): string {

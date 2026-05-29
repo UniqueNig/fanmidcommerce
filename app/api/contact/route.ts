@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { MAIL_FROM, mailTo } from "@/src/lib/email";
-import { rateLimit, clientIp } from "@/src/lib/rateLimit";
+import { rateLimitAsync, clientIp } from "@/src/lib/rateLimit";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     if (website) return NextResponse.json({ ok: true });
 
     // Rate limit: max 5 messages/minute per IP.
-    if (!rateLimit(`contact:${clientIp(req)}`, 5, 60_000)) {
+    if (!(await rateLimitAsync(`contact:${clientIp(req)}`, 5, 60_000))) {
       return NextResponse.json(
         { error: "Too many messages. Please try again shortly." },
         { status: 429 },

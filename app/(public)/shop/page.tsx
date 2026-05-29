@@ -7,31 +7,44 @@ import ShopHeader from "@/src/components/shop/ShopHeader";
 import ShopSidebar from "@/src/components/shop/ShopSidebar";
 import { useQuery } from "@apollo/client/react"; // ✅ FIXED
 import gql from "graphql-tag";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import { ProductGridSkeleton } from "@/src/components/ui/Skeleton";
 
-const GET_DATA = gql`
+// Categories load once (rarely change). Products are fetched per page/filter.
+const GET_CATEGORIES = gql`
   query {
-    products {
-      id
-      slug
-      name
-      price
-      image
-      isNew
-      stock
-      sizes
-      category {
-        id
-        name
-        slug
-      }
-    }
     categories {
       id
       name
       slug
+    }
+  }
+`;
+
+// Server-side filtered + paginated products. The DB does the work, so the
+// client never downloads the whole catalog.
+const GET_PRODUCTS_PAGE = gql`
+  query ProductsPage($filter: ProductFilter, $page: Int, $limit: Int) {
+    productsPage(filter: $filter, page: $page, limit: $limit) {
+      total
+      page
+      pages
+      items {
+        id
+        slug
+        name
+        price
+        image
+        isNew
+        stock
+        sizes
+        category {
+          id
+          name
+          slug
+        }
+      }
     }
   }
 `;
@@ -54,18 +67,22 @@ interface Product {
   sizes: string[];
 }
 
-interface Data {
-  products: Product[];
+interface CategoriesData {
   categories: Category[];
+}
+
+interface ProductsPageData {
+  productsPage: {
+    total: number;
+    page: number;
+    pages: number;
+    items: Product[];
+  };
 }
 
 const PRODUCTS_PER_PAGE = 8;
 
 export default function ShopPage() {
-  const { data, loading, error } = useQuery<Data>(GET_DATA, {
-    fetchPolicy: "cache-and-network", // show fresh stock on each visit
-  });
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [sortBy, setSortBy] = useState("newest");
@@ -74,63 +91,43 @@ export default function ShopPage() {
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
-
   const toggleSize = (size: string) => {
     setSelectedSizes((prev) =>
       prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size],
     );
-    setCurrentPage(1);
   };
 
-  // ✅ FIXED
-  const categories = data?.categories || [];
+  // Any filter/sort change should send us back to page 1.
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedCategory, priceRange, selectedSizes, sortBy]);
 
-  const filtered = useMemo(() => {
-    const products = data?.products || [];
+  const { data: catData } = useQuery<CategoriesData>(GET_CATEGORIES);
+  const categories = catData?.categories || [];
 
-    let result = products.filter((p) => {
-      const catMatch =
-        selectedCategory === "all" || p.category?.slug === selectedCategory;
-
-      const priceMatch = p.price >= priceRange[0] && p.price <= priceRange[1];
-
-      // Size filter: when sizes are selected, keep products that offer one.
-      const sizeMatch =
-        selectedSizes.length === 0 ||
-        (p.sizes ?? []).some((s) => selectedSizes.includes(s));
-
-      return catMatch && priceMatch && sizeMatch;
-    });
-
-    switch (sortBy) {
-      case "price-asc":
-        result = [...result].sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        result = [...result].sort((a, b) => b.price - a.price);
-        break;
-      case "newest":
-        result = [...result].sort(
-          (a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0),
-        );
-        break;
-    }
-
-    return result;
-  }, [data, selectedCategory, priceRange, sortBy, selectedSizes]);
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filtered.length / PRODUCTS_PER_PAGE),
+  // Build the server filter from the UI state.
+  const filter = useMemo(
+    () => ({
+      category: selectedCategory,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      sizes: selectedSizes,
+      sort: sortBy,
+    }),
+    [selectedCategory, priceRange, selectedSizes, sortBy],
   );
 
-  const paginated = filtered.slice(
-    (currentPage - 1) * PRODUCTS_PER_PAGE,
-    currentPage * PRODUCTS_PER_PAGE,
-  );
+  const { data, loading, error } = useQuery<ProductsPageData>(GET_PRODUCTS_PAGE, {
+    variables: { filter, page: currentPage, limit: PRODUCTS_PER_PAGE },
+    fetchPolicy: "cache-and-network", // show fresh stock on each visit
+  });
 
-  if (loading) {
+  const paginated = data?.productsPage.items ?? [];
+  const totalProducts = data?.productsPage.total ?? 0;
+  const totalPages = data?.productsPage.pages ?? 1;
+
+  // Only show the full-page skeleton on the very first load (no data yet).
+  if (loading && !data) {
     return (
       <main style={{ backgroundColor: "var(--bg-primary)", minHeight: "100vh" }}>
         <Navbar />
@@ -177,7 +174,7 @@ export default function ShopPage() {
 
           <div className="flex-1 min-w-0">
             <ShopHeader
-              totalProducts={filtered.length}
+              totalProducts={totalProducts}
               view={view}
               setView={setView}
               sortBy={sortBy}

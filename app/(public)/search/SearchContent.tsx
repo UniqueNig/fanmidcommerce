@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
@@ -11,20 +11,25 @@ import Link from "next/link";
 import Image from "next/image";
 import { ProductGridSkeleton } from "@/src/components/ui/Skeleton";
 
+// Server-side search (matches product name or category name) + pagination.
 const SEARCH_PRODUCTS = gql`
-  query {
-    products {
-      id
-      slug
-      name
-      price
-      image
-      isNew
-      stock
-      category {
+  query SearchProducts($filter: ProductFilter, $page: Int, $limit: Int) {
+    productsPage(filter: $filter, page: $page, limit: $limit) {
+      total
+      pages
+      items {
         id
-        name
         slug
+        name
+        price
+        image
+        isNew
+        stock
+        category {
+          id
+          name
+          slug
+        }
       }
     }
   }
@@ -48,31 +53,48 @@ interface Product {
 }
 
 interface Data {
-  products: Product[];
+  productsPage: { total: number; pages: number; items: Product[] };
 }
+
+const RESULTS_PER_PAGE = 12;
 
 export default function SearchContent() {
   const searchParams = useSearchParams();
   const initialQ = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(initialQ);
   const [submitted, setSubmitted] = useState(!!initialQ);
+  // The query actually sent to the server (only updates on submit).
+  const [activeQuery, setActiveQuery] = useState(initialQ);
+  const [page, setPage] = useState(1);
   const router = useRouter();
 
-  const { data, loading, error } = useQuery<Data>(SEARCH_PRODUCTS);
+  const { data, loading, error } = useQuery<Data>(SEARCH_PRODUCTS, {
+    variables: {
+      filter: { search: activeQuery, sort: "newest" },
+      page,
+      limit: RESULTS_PER_PAGE,
+    },
+    skip: !submitted || !activeQuery.trim(),
+    fetchPolicy: "cache-and-network",
+  });
 
-  const results = useMemo(() => {
-    if (!submitted || !query.trim()) return [];
-    const products = data?.products ?? [];
-    return products.filter(
-      (p) =>
-        p.name.toLowerCase().includes(query.toLowerCase()) ||
-        p.category?.name.toLowerCase().includes(query.toLowerCase()),
-    );
-  }, [query, submitted, data]);
+  const results = data?.productsPage.items ?? [];
+  const total = data?.productsPage.total ?? 0;
+  const totalPages = data?.productsPage.pages ?? 1;
+
+  // Keep state in sync if the user navigates with a new ?q= in the URL.
+  useEffect(() => {
+    setQuery(initialQ);
+    setActiveQuery(initialQ);
+    setSubmitted(!!initialQ);
+    setPage(1);
+  }, [initialQ]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
+    setActiveQuery(query);
+    setPage(1);
     router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
@@ -122,8 +144,8 @@ export default function SearchContent() {
           </form>
         </div>
 
-        {/* Loading */}
-        {loading && <ProductGridSkeleton count={8} />}
+        {/* Loading (first load only — keep results visible while paging) */}
+        {loading && !data && <ProductGridSkeleton count={8} />}
 
         {/* Error */}
         {error && (
@@ -133,18 +155,18 @@ export default function SearchContent() {
         )}
 
         {/* Results */}
-        {!loading && !error && submitted && query && (
+        {(!loading || data) && !error && submitted && activeQuery && (
           <div>
             <p className="text-sm font-['DM_Sans'] mb-8" style={{ color: "var(--text-muted)" }}>
-              {results.length > 0 ? (
+              {total > 0 ? (
                 <>
                   <span className="font-bold" style={{ color: "var(--text-primary)" }}>
-                    {results.length}
+                    {total}
                   </span>{" "}
-                  results for "<span style={{ color: "var(--accent)" }}>{query}</span>"
+                  results for "<span style={{ color: "var(--accent)" }}>{activeQuery}</span>"
                 </>
               ) : (
-                <>No results for "<span style={{ color: "var(--accent)" }}>{query}</span>"</>
+                <>No results for "<span style={{ color: "var(--accent)" }}>{activeQuery}</span>"</>
               )}
             </p>
 
@@ -213,7 +235,34 @@ export default function SearchContent() {
                   </Link>
                 ))}
               </div>
-            ) : (
+            ) : null}
+
+            {/* Pagination */}
+            {total > 0 && totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-12">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="px-4 py-2 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] border transition-opacity hover:opacity-70 disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+                >
+                  Prev
+                </button>
+                <span className="text-xs font-['DM_Sans'] px-2" style={{ color: "var(--text-muted)" }}>
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="px-4 py-2 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] border transition-opacity hover:opacity-70 disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{ borderColor: "var(--border)", color: "var(--text-secondary)" }}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+
+            {total === 0 && (
               <div className="text-center py-16 space-y-4">
                 <p className="text-5xl">🔍</p>
                 <p className="font-['DM_Sans'] text-sm" style={{ color: "var(--text-muted)" }}>

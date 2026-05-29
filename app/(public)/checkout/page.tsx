@@ -7,6 +7,7 @@ import { Shield, Lock, ChevronRight, Check } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
 import { useCoupon } from "@/src/context/CouponContext";
 import { authHeaderValue } from "@/src/lib/clientAuth";
+import { trackBeginCheckout } from "@/src/lib/analytics";
 import Image from "next/image";
 import Script from "next/script";
 
@@ -255,6 +256,12 @@ const handlePaystack = async () => {
 
   const finalTotal = Math.max(0, subtotal - appliedDiscount) + shippingCost;
   const ref = `FANMID-${Date.now()}`;
+
+  // Analytics: customer is committing to pay (stock + coupon validated).
+  trackBeginCheckout({
+    value: finalTotal,
+    items: items.reduce((n, i) => n + i.quantity, 0),
+  });
 
   // 2) Initialize transaction via your backend, then redirect
 fetch("/api/paystack/initialize", {

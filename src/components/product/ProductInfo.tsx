@@ -9,6 +9,7 @@ import { useCart } from "@/src/context/CartContext";
 import { useWishlist } from "@/src/context/WishlistContext";
 import { useToast } from "@/src/context/ToastContext";
 import SizeGuideModal from "@/src/components/product/SizeGuideModal";
+import BackInStockForm from "@/src/components/product/BackInStockForm";
 
 type ProductInfoProps = {
   id: string;
@@ -74,6 +75,12 @@ export default function ProductInfo({
   const canBuy =
     colorChosen && (sized ? !!selectedSize && selectedStock > 0 : inStock);
   const maxForQty = sized ? selectedStock : stockCount ?? 0;
+
+  // Back-in-stock: show when the whole product is out, or when a chosen size is
+  // sold out (while other sizes may still be available).
+  const soldOutSelected = sized && !!selectedSize && selectedStock <= 0;
+  const showNotify = !anySizeAvailable || soldOutSelected;
+  const notifySize = soldOutSelected ? selectedSize! : "";
 
   const discount = originalPrice
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
@@ -338,6 +345,11 @@ export default function ProductInfo({
           Inquire on WhatsApp
         </button>
       </div>
+
+      {/* Back-in-stock notify (shown when sold out) */}
+      {showNotify && (
+        <BackInStockForm productId={id} size={notifySize} color={selectedColor ?? ""} />
+      )}
 
       {/* Guarantees */}
       <div className="grid grid-cols-3 gap-4 pt-6 border-t" style={{ borderColor: "var(--border)" }}>

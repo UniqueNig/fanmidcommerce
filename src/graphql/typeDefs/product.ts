@@ -60,8 +60,28 @@ const productType = gql`
     ok: Boolean!
   }
 
+  # A page of products plus the totals the UI needs to render pagination.
+  type ProductPage {
+    items: [Product!]!
+    total: Int!
+    page: Int!
+    pages: Int!
+  }
+
+  # Server-side filter/sort for the shop & search pages.
+  input ProductFilter {
+    search: String      # matches product name or category name
+    category: String    # category SLUG
+    minPrice: Float
+    maxPrice: Float
+    sizes: [String]     # keep products offering any of these sizes
+    sort: String        # "newest" | "price-asc" | "price-desc"
+  }
+
   type Query {
     products: [Product]
+    # Paginated + server-filtered product listing (shop & search).
+    productsPage(filter: ProductFilter, page: Int = 1, limit: Int = 12): ProductPage!
     product(id: ID!): Product
     # Public product page lookup. Accepts a slug; also falls back to an
     # old Mongo id so existing /product/<id> links keep working.

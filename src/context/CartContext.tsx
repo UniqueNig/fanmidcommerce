@@ -10,6 +10,7 @@ import {
   ReactNode,
 } from "react";
 import { useToast } from "@/src/context/ToastContext";
+import { trackAddToCart } from "@/src/lib/analytics";
 
 export type CartItem = {
   id: string;        // product _id from MongoDB
@@ -121,6 +122,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         toast(`Max available quantity of "${incoming.name}" already in cart`, "info");
       } else {
         toast(`${incoming.name} added to cart`, "success");
+        trackAddToCart({
+          id: incoming.id,
+          name: incoming.name,
+          price: incoming.price,
+          size: incoming.size,
+          color: incoming.color,
+          quantity: incoming.quantity ?? 1,
+        });
       }
     },
     [toast],

@@ -7,6 +7,7 @@ import Navbar from "@/src/components/layout/Navbar";
 import { CheckCircle, ArrowRight, Loader2, XCircle } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
 import { authHeaderValue } from "@/src/lib/clientAuth";
+import { trackPurchase } from "@/src/lib/analytics";
 
 const VERIFY_AND_CREATE_ORDER = `
   mutation VerifyPaymentAndCreateOrder(
@@ -78,6 +79,14 @@ function OrderSuccessContent() {
       .then((res) => res.json())
       .then((data) => {
         if (data.errors) throw new Error(data.errors[0].message);
+        // Analytics: confirmed, paid purchase.
+        trackPurchase({
+          reference: ref,
+          value: order.totalAmount ?? 0,
+          items: Array.isArray(order.items)
+            ? order.items.reduce((n: number, i: any) => n + (i.quantity ?? 0), 0)
+            : 0,
+        });
         localStorage.removeItem("pending_order");
         clearCart();
         setStatus("success");

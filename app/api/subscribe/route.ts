@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { connectDB } from "@/src/lib/db";
 import subscriberModel from "@/src/models/Subscriber";
-import { rateLimit, clientIp } from "@/src/lib/rateLimit";
+import { rateLimitAsync, clientIp } from "@/src/lib/rateLimit";
 import { MAIL_FROM, mailTo } from "@/src/lib/email";
 import { renderSubscribeEmail } from "@/src/lib/emailTemplate";
 
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     // Honeypot — silently accept bot submissions without storing them.
     if (website) return NextResponse.json({ ok: true });
 
-    if (!rateLimit(`subscribe:${clientIp(req)}`, 5, 60_000)) {
+    if (!(await rateLimitAsync(`subscribe:${clientIp(req)}`, 5, 60_000))) {
       return NextResponse.json(
         { error: "Too many requests. Please try again shortly." },
         { status: 429 },

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Provider from "@/src/components/ApolloProvider";
 import { CartProvider } from "@/src/context/CartContext";
@@ -76,6 +77,9 @@ export default function RootLayout({
             </WishlistProvider>
           </ToastProvider>
         </Provider>
+        {/* Vercel Web Analytics — page views (free) + custom events below.
+            No-ops in local dev and when analytics isn't enabled on the project. */}
+        <Analytics />
       </body>
     </html>
   );

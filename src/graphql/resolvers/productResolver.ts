@@ -3,6 +3,7 @@ import categoryModel from "@/src/models/Category";
 import productModel from "@/src/models/Product";
 import mongoose from "mongoose";
 import { makeUniqueSlug, slugify } from "@/src/lib/slug";
+import { diffRestock, fulfillStockAlerts } from "@/src/lib/stockAlerts";
 
 // Escape any regex-special characters so a product name can be used safely
 // inside a `new RegExp(...)` (e.g. a name with "(" won't break the query).
@@ -81,6 +82,103 @@ export const productResolvers = {
         console.error(error);
         throw new Error("Failed to fetch products");
       }
+    },
+
+    // ✅ Paginated + server-filtered listing for the shop & search pages.
+    // Filtering, sorting, and paging happen in MongoDB so the client never
+    // downloads the whole catalog.
+    productsPage: async (
+      _: unknown,
+      {
+        filter = {},
+        page = 1,
+        limit = 12,
+      }: {
+        filter?: {
+          search?: string;
+          category?: string;
+          minPrice?: number;
+          maxPrice?: number;
+          sizes?: string[];
+          sort?: string;
+        };
+        page?: number;
+        limit?: number;
+      },
+    ) => {
+      await connectDB();
+
+      const safePage = Math.max(1, Math.floor(page || 1));
+      const safeLimit = Math.min(60, Math.max(1, Math.floor(limit || 12)));
+
+      // Only consider products whose category still exists (mirrors the old
+      // products query that filtered out broken refs — and keeps counts honest).
+      const validCats = await categoryModel.find().select("_id name slug").lean();
+      const validCatIds = validCats.map((c: any) => c._id);
+
+      const query: Record<string, unknown> = { category: { $in: validCatIds } };
+
+      // Category by slug.
+      if (filter.category && filter.category !== "all") {
+        const cat = validCats.find((c: any) => c.slug === filter.category);
+        // Unknown slug → no results (rather than silently ignoring the filter).
+        query.category = cat ? cat._id : { $in: [] };
+      }
+
+      // Text search across product name OR category name.
+      if (filter.search && filter.search.trim()) {
+        const rx = new RegExp(escapeRegex(filter.search.trim()), "i");
+        const matchedCatIds = validCats
+          .filter((c: any) => rx.test(c.name ?? ""))
+          .map((c: any) => c._id);
+        const baseCat = query.category; // preserve the category constraint
+        query.$and = [
+          { category: baseCat },
+          { $or: [{ name: rx }, { category: { $in: matchedCatIds } }] },
+        ];
+        delete query.category;
+      }
+
+      // Price range.
+      if (typeof filter.minPrice === "number" || typeof filter.maxPrice === "number") {
+        const price: Record<string, number> = {};
+        if (typeof filter.minPrice === "number") price.$gte = filter.minPrice;
+        if (typeof filter.maxPrice === "number") price.$lte = filter.maxPrice;
+        query.price = price;
+      }
+
+      // Sizes: keep products offering any of the selected sizes.
+      if (Array.isArray(filter.sizes) && filter.sizes.length > 0) {
+        query.sizes = { $in: filter.sizes };
+      }
+
+      // Sort.
+      let sort: Record<string, 1 | -1>;
+      switch (filter.sort) {
+        case "price-asc":
+          sort = { price: 1 };
+          break;
+        case "price-desc":
+          sort = { price: -1 };
+          break;
+        default: // "newest"
+          sort = { isNew: -1, _id: -1 };
+      }
+
+      const total = await productModel.countDocuments(query);
+      const items = await productModel
+        .find(query)
+        .sort(sort)
+        .skip((safePage - 1) * safeLimit)
+        .limit(safeLimit)
+        .populate("category");
+
+      return {
+        items,
+        total,
+        page: safePage,
+        pages: Math.max(1, Math.ceil(total / safeLimit)),
+      };
     },
 
     product: async (_: unknown, { id }: { id: string }) => {
@@ -226,12 +324,34 @@ export const productResolvers = {
         updates.slug = await generateUniqueProductSlug(rest.slug, id);
       }
 
+      // Snapshot stock BEFORE the update so we can detect a 0 → in-stock
+      // transition and notify back-in-stock waiters.
+      const before: any = await productModel
+        .findById(id)
+        .select("stock sizeStock")
+        .lean();
+
       const updatedProduct = await productModel
         .findByIdAndUpdate(id, updates, { new: true, runValidators: true })
         .populate("category");
 
       if (!updatedProduct) {
         throw new Error("Product not found");
+      }
+
+      // Fire back-in-stock emails for anything that just came back. Awaited
+      // (serverless drops un-awaited promises) but isolated — must never break
+      // the save.
+      if (before) {
+        try {
+          const restock = diffRestock(
+            { stock: before.stock, sizeStock: before.sizeStock },
+            { stock: updatedProduct.stock, sizeStock: updatedProduct.sizeStock },
+          );
+          await fulfillStockAlerts(id, restock);
+        } catch (e) {
+          console.error("Back-in-stock notify failed:", e);
+        }
       }
 
       return updatedProduct;
