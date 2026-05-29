@@ -52,18 +52,20 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
   return (
     <div className="group relative">
       <div className="relative overflow-hidden aspect-[5/7] mb-4" style={{ backgroundColor: "var(--card-bg)" }}>
-        {product.image ? (
-          <Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105" />
-        ) : (
-          <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
-        )}
+        <Link href={`/product/${product.slug ?? product.id}`} aria-label={product.name} className="absolute inset-0">
+          {product.image ? (
+            <Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105" />
+          ) : (
+            <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
+          )}
+        </Link>
 
-        <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5 gap-2 bg-gradient-to-t from-black/70 via-black/10 to-transparent">
+        <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5 gap-2 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none">
           <button
             onClick={() => !soldOut && trigger(onAddToCart)}
             disabled={soldOut}
-            className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 disabled:cursor-not-allowed"
+            className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 disabled:cursor-not-allowed"
             style={{
               backgroundColor: soldOut ? "var(--text-muted)" : added ? "#22c55e" : "var(--accent)",
               color: "#000",
@@ -83,7 +85,7 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
               })
             }
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            className="w-9 h-9 border border-white/40 hover:border-white flex items-center justify-center transition-colors"
+            className="pointer-events-auto w-9 h-9 border border-white/40 hover:border-white flex items-center justify-center transition-colors"
             style={{ color: wishlisted ? "var(--accent)" : "#fff" }}
           >
             <Heart size={13} fill={wishlisted ? "currentColor" : "none"} />
@@ -128,7 +130,7 @@ function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
 
   return (
     <div className="flex gap-5 py-5 border-b" style={{ borderColor: "var(--border)" }}>
-      <div className="relative overflow-hidden w-24 h-32 flex-shrink-0" style={{ backgroundColor: "var(--card-bg)" }}>
+      <Link href={`/product/${product.slug ?? product.id}`} aria-label={product.name} className="relative overflow-hidden w-24 h-32 flex-shrink-0" style={{ backgroundColor: "var(--card-bg)" }}>
         {product.image ? (
           <Image src={product.image} alt={product.name} fill sizes="96px" className="object-cover" />
         ) : (
@@ -145,7 +147,7 @@ function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
             New
           </div>
         ) : null}
-      </div>
+      </Link>
       <div className="flex flex-1 items-center justify-between">
         <div>
           <p className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>

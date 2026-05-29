@@ -59,24 +59,27 @@ export default function ProductCard({
         className="relative overflow-hidden aspect-[3/4] mb-4"
         style={{ backgroundColor: "var(--card-bg)" }}
       >
-        {image ? (
-          <Image
-            src={image}
-            alt={name}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
-        )}
+        {/* Whole image links to the product (sits under the action overlay) */}
+        <Link href={`/product/${slug ?? id}`} aria-label={name} className="absolute inset-0">
+          {image ? (
+            <Image
+              src={image}
+              alt={name}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
+          )}
+        </Link>
 
-        {/* Overlay actions — always visible on mobile (no hover), hover-reveal on desktop */}
-        <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6 gap-3 bg-gradient-to-t from-black/70 via-black/10 to-transparent">
+        {/* Overlay actions — buttons capture clicks; empty areas fall through to the image link */}
+        <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6 gap-3 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none">
           <button
             onClick={handleAddToCart}
             disabled={soldOut}
-            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase transition-colors font-['DM_Sans'] disabled:cursor-not-allowed"
+            className="pointer-events-auto flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase transition-colors font-['DM_Sans'] disabled:cursor-not-allowed"
             style={{
               backgroundColor: soldOut
                 ? "var(--text-muted)"
@@ -101,7 +104,7 @@ export default function ProductCard({
           <button
             onClick={handleWishlist}
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            className="w-10 h-10 border border-white/40 hover:border-white flex items-center justify-center transition-colors"
+            className="pointer-events-auto w-10 h-10 border border-white/40 hover:border-white flex items-center justify-center transition-colors"
             style={{ color: wishlisted ? "var(--accent)" : "#fff" }}
           >
             <Heart size={14} fill={wishlisted ? "currentColor" : "none"} />
