@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import ProductImageGallery from "@/src/components/product/ProductImageGallery";
-import ProductInfo from "@/src/components/product/ProductInfo";
+import ProductImageGallery from "@/src/features/products/components/ProductImageGallery";
+import ProductInfo from "@/src/features/products/components/ProductInfo";
 
 export type ProductColor = { name: string; hex: string; images: string[] };
 

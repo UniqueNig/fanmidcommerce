@@ -1,7 +1,7 @@
 import { mergeTypeDefs } from "@graphql-tools/merge";
 
 import userType from "./user";
-import productType from "./product";
+import productType from "@/src/features/products/graphql/typeDefs";
 import categoryType from "./category";
 import orderType from "./order";
 import settingsType from "./settings";

@@ -72,7 +72,7 @@ export const siteConfig = {
 
   // ── Placeholders wired now, used by later phases ──────────────────────────
   // Phase 3 (themes): which theme preset this client uses.
-  theme: "fashion",
+  theme: "minimal",
   // Phase 2 (dynamic homepage): the ordered list of sections to render on "/".
   homepageSections: [
     "hero",

@@ -1,6 +1,6 @@
 import { categoryResolvers } from "./categoryResolver";
 import { orderResolvers } from "./orderResolver";
-import { productResolvers } from "./productResolver";
+import { productResolvers } from "@/src/features/products/graphql/resolver";
 import { settingsResolvers } from "./setingsResolver";
 import { userResolvers } from "./userResolver";
 import { couponResolvers } from "./couponResolver";
