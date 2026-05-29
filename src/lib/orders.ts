@@ -109,10 +109,12 @@ export function formatOrder(order: any) {
 
 // ── Emails ───────────────────────────────────────────────────────────────────
 
-function sendWelcomeEmail(name: string, email: string, password: string) {
+// IMPORTANT: emails are AWAITED. On Vercel/serverless, un-awaited promises are
+// dropped once the response is sent, so fire-and-forget sends never deliver.
+async function sendWelcomeEmail(name: string, email: string, password: string) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
-  resend.emails
-    .send({
+  try {
+    const r = await resend.emails.send({
       from: MAIL_FROM,
       to: mailTo(email),
       subject: "Your account details",
@@ -127,11 +129,15 @@ function sendWelcomeEmail(name: string, email: string, password: string) {
         <p>Please log in and change your password after your first login.</p>
         ${siteUrl ? `<a href="${siteUrl}/login" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#000;color:#fff;text-decoration:none;font-weight:bold;">Log In Now</a>` : ""}
       </div>`,
-    })
-    .catch((err) => console.error("Welcome email error:", err));
+    });
+    if (r.error) console.error("Welcome email rejected:", r.error);
+    else console.log("Welcome email sent to", mailTo(email));
+  } catch (err) {
+    console.error("Welcome email error:", err);
+  }
 }
 
-function sendOrderConfirmation(order: any, email: string) {
+async function sendOrderConfirmation(order: any, email: string) {
   const rows = (order.items ?? [])
     .map(
       (i: any) =>
@@ -139,8 +145,8 @@ function sendOrderConfirmation(order: any, email: string) {
     )
     .join("");
 
-  resend.emails
-    .send({
+  try {
+    const r = await resend.emails.send({
       from: MAIL_FROM,
       to: mailTo(email),
       subject: `Order confirmed — ${order.paymentReference ?? order._id}`,
@@ -158,8 +164,12 @@ function sendOrderConfirmation(order: any, email: string) {
         </table>
         <p style="font-size:13px;color:#666;">Shipping to: ${order.shippingAddress?.address}, ${order.shippingAddress?.city}, ${order.shippingAddress?.state}</p>
       </div>`,
-    })
-    .catch((err) => console.error("Order email error:", err));
+    });
+    if (r.error) console.error("Order email rejected:", r.error);
+    else console.log("Order email sent to", mailTo(email));
+  } catch (err) {
+    console.error("Order email error:", err);
+  }
 }
 
 // ── Guest user creation ──────────────────────────────────────────────────────
@@ -183,7 +193,7 @@ async function ensureUser(
       password: hashedPassword,
       role: "user",
     });
-    sendWelcomeEmail(shippingAddress.name, shippingAddress.email, randomPassword);
+    await sendWelcomeEmail(shippingAddress.name, shippingAddress.email, randomPassword);
   }
   return user._id.toString();
 }
@@ -292,9 +302,20 @@ export async function finalizePaidOrder(
     throw err;
   }
 
-  await reduceStockAfterPayment(pricing.lines);
-  await saveAddressToUser(userId, input.shippingAddress);
-  sendOrderConfirmation(order, input.shippingAddress.email);
+  // Post-payment side-effects. The order is already created & paid, so each
+  // step is isolated — one failing must never break the others. The email is
+  // AWAITED so it actually sends before the serverless function freezes.
+  try {
+    await reduceStockAfterPayment(pricing.lines);
+  } catch (e) {
+    console.error("Stock decrement failed:", e);
+  }
+  try {
+    await saveAddressToUser(userId, input.shippingAddress);
+  } catch (e) {
+    console.error("Address save failed:", e);
+  }
+  await sendOrderConfirmation(order, input.shippingAddress.email);
 
   return { order, created: true };
 }

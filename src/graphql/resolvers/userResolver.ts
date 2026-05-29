@@ -12,11 +12,12 @@ import { MAIL_FROM, mailTo } from "@/src/lib/email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-function sendPasswordResetEmail(name: string, email: string, token: string) {
+// Awaited (see orders.ts note) so the email actually sends on serverless.
+async function sendPasswordResetEmail(name: string, email: string, token: string) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
   const link = `${siteUrl}/reset-password?token=${token}`;
-  resend.emails
-    .send({
+  try {
+    const r = await resend.emails.send({
       from: MAIL_FROM,
       to: mailTo(email),
       subject: "Reset your password",
@@ -27,8 +28,11 @@ function sendPasswordResetEmail(name: string, email: string, token: string) {
         <a href="${link}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#000;color:#fff;text-decoration:none;font-weight:bold;">Reset Password</a>
         <p style="margin-top:16px;font-size:12px;color:#888;">If you didn't request this, you can safely ignore this email.</p>
       </div>`,
-    })
-    .catch((err) => console.error("Reset email error:", err));
+    });
+    if (r.error) console.error("Reset email rejected:", r.error);
+  } catch (err) {
+    console.error("Reset email error:", err);
+  }
 }
 
 // ── Helper: compute orders count + total spent for a user ─────────────────
@@ -280,7 +284,7 @@ export const userResolvers = {
       const user = await userModel.findOne({ email });
       if (user) {
         const token = generatePasswordResetToken(user._id.toString());
-        sendPasswordResetEmail(user.name, user.email, token);
+        await sendPasswordResetEmail(user.name, user.email, token);
       }
       return true;
     },
