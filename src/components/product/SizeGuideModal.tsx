@@ -2,24 +2,48 @@
 
 import { X } from "lucide-react";
 
-// Generic apparel size chart (cm). Adjust per your products if needed.
-const ROWS = [
-  { size: "XS", chest: "81–86", waist: "66–71", hips: "86–91" },
-  { size: "S", chest: "86–91", waist: "71–76", hips: "91–96" },
-  { size: "M", chest: "96–101", waist: "81–86", hips: "101–106" },
-  { size: "L", chest: "106–111", waist: "91–96", hips: "111–116" },
-  { size: "XL", chest: "116–121", waist: "101–106", hips: "121–126" },
-  { size: "XXL", chest: "126–131", waist: "111–116", hips: "131–136" },
-];
+// Apparel chart (cm).
+const CLOTHING = {
+  note: "Body measurements in centimetres (cm). Between sizes? Size up.",
+  cols: ["Size", "Chest", "Waist", "Hips"],
+  rows: [
+    ["XS", "81–86", "66–71", "86–91"],
+    ["S", "86–91", "71–76", "91–96"],
+    ["M", "96–101", "81–86", "101–106"],
+    ["L", "106–111", "91–96", "111–116"],
+    ["XL", "116–121", "101–106", "121–126"],
+    ["XXL", "126–131", "111–116", "131–136"],
+  ],
+};
+
+// Footwear conversion (approx, unisex).
+const FOOTWEAR = {
+  note: "Foot length in centimetres (cm). Sizes are approximate conversions.",
+  cols: ["UK", "EU", "US", "Foot (cm)"],
+  rows: [
+    ["5", "38", "6", "24.5"],
+    ["6", "39", "7", "25.4"],
+    ["7", "41", "8", "26.0"],
+    ["8", "42", "9", "26.7"],
+    ["9", "43", "10", "27.3"],
+    ["10", "44", "11", "28.0"],
+    ["11", "45", "12", "28.8"],
+    ["12", "46", "13", "29.5"],
+  ],
+};
 
 export default function SizeGuideModal({
   open,
   onClose,
+  type = "clothing",
 }: {
   open: boolean;
   onClose: () => void;
+  type?: "clothing" | "footwear" | "none";
 }) {
   if (!open) return null;
+
+  const chart = type === "footwear" ? FOOTWEAR : CLOTHING;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
@@ -33,7 +57,7 @@ export default function SizeGuideModal({
             className="text-lg font-black font-['Playfair_Display']"
             style={{ color: "var(--text-primary)" }}
           >
-            Size Guide
+            Size Guide — {type === "footwear" ? "Footwear" : "Clothing"}
           </h3>
           <button
             onClick={onClose}
@@ -46,14 +70,14 @@ export default function SizeGuideModal({
         </div>
 
         <p className="text-xs font-['DM_Sans'] mb-4" style={{ color: "var(--text-muted)" }}>
-          Measurements in centimetres (cm). If you're between sizes, we recommend sizing up.
+          {chart.note}
         </p>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm font-['DM_Sans']">
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                {["Size", "Chest", "Waist", "Hips"].map((h) => (
+                {chart.cols.map((h) => (
                   <th
                     key={h}
                     className="text-left py-2 text-[10px] tracking-widest uppercase font-bold"
@@ -65,12 +89,17 @@ export default function SizeGuideModal({
               </tr>
             </thead>
             <tbody>
-              {ROWS.map((r) => (
-                <tr key={r.size} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <td className="py-2.5 font-bold" style={{ color: "var(--accent)" }}>{r.size}</td>
-                  <td className="py-2.5" style={{ color: "var(--text-secondary)" }}>{r.chest}</td>
-                  <td className="py-2.5" style={{ color: "var(--text-secondary)" }}>{r.waist}</td>
-                  <td className="py-2.5" style={{ color: "var(--text-secondary)" }}>{r.hips}</td>
+              {chart.rows.map((row) => (
+                <tr key={row[0]} style={{ borderBottom: "1px solid var(--border)" }}>
+                  {row.map((cell, i) => (
+                    <td
+                      key={i}
+                      className={`py-2.5 ${i === 0 ? "font-bold" : ""}`}
+                      style={{ color: i === 0 ? "var(--accent)" : "var(--text-secondary)" }}
+                    >
+                      {cell}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>

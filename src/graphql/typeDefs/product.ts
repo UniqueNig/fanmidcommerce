@@ -11,6 +11,7 @@ const productType = gql`
     image: String
     stock: Int!
     sizes: [String]
+    sizeGuide: String
     materials: String
     sizingFit: String
     careInstructions: String
@@ -53,6 +54,7 @@ const productType = gql`
       image: String
       stock: Int!
       sizes: [String]
+      sizeGuide: String
       materials: String
       sizingFit: String
       careInstructions: String
@@ -69,6 +71,7 @@ const productType = gql`
       image: String
       stock: Int
       sizes: [String]
+      sizeGuide: String
       materials: String
       sizingFit: String
       careInstructions: String

@@ -23,6 +23,7 @@ type ProductInfoProps = {
   inStock: boolean;
   stockCount?: number;
   sizes: string[];
+  sizeGuide?: "clothing" | "footwear" | "none";
   whatsappNumber: string;
 };
 
@@ -34,7 +35,7 @@ const GUARANTEES = [
 
 export default function ProductInfo({
   id, slug, name, price, originalPrice, description, category, image,
-  isNew, inStock, stockCount, sizes, whatsappNumber,
+  isNew, inStock, stockCount, sizes, sizeGuide = "clothing", whatsappNumber,
 }: ProductInfoProps) {
   const { addItem } = useCart();
   const { has, toggle } = useWishlist();
@@ -170,11 +171,13 @@ export default function ProductInfo({
                 <span className="ml-2 text-red-400 normal-case tracking-normal">— please select</span>
               )}
             </h3>
-            <button type="button" onClick={() => setShowGuide(true)}
-              className="text-[10px] tracking-widest uppercase font-['DM_Sans'] underline underline-offset-2 hover:opacity-70 transition-opacity"
-              style={{ color: "var(--text-muted)" }}>
-              Size Guide
-            </button>
+            {sizeGuide !== "none" && (
+              <button type="button" onClick={() => setShowGuide(true)}
+                className="text-[10px] tracking-widest uppercase font-['DM_Sans'] underline underline-offset-2 hover:opacity-70 transition-opacity"
+                style={{ color: "var(--text-muted)" }}>
+                Size Guide
+              </button>
+            )}
           </div>
           <div className="flex flex-wrap gap-2">
             {sizes.map((size) => (
@@ -256,7 +259,7 @@ export default function ProductInfo({
         ))}
       </div>
 
-      <SizeGuideModal open={showGuide} onClose={() => setShowGuide(false)} />
+      <SizeGuideModal open={showGuide} onClose={() => setShowGuide(false)} type={sizeGuide} />
     </div>
   );
 }

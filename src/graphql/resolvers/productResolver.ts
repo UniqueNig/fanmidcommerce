@@ -184,6 +184,7 @@ export const productResolvers = {
         "category",
         "isNew",
         "sizes",
+        "sizeGuide",
         "materials",
         "sizingFit",
         "careInstructions",

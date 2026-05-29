@@ -14,6 +14,12 @@ const productSchema = new mongoose.Schema(
     stock: { type: Number, required: true },
     // Optional size options (e.g. ["S","M","L"]). Empty = no size selection.
     sizes: { type: [String], default: [] },
+    // Which size-guide chart to show: clothing, footwear, or none.
+    sizeGuide: {
+      type: String,
+      enum: ["clothing", "footwear", "none"],
+      default: "clothing",
+    },
     // Optional product detail copy (shown on the product page; fall back to
     // sensible defaults when empty).
     materials: { type: String, default: "" },

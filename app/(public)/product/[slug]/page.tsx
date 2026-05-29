@@ -173,6 +173,7 @@ export default async function ProductDetailPage({
               inStock={inStock}
               stockCount={product.stock}
               sizes={product.sizes} // real sizes from the product (empty = no size selector)
+              sizeGuide={(product.sizeGuide as "clothing" | "footwear" | "none") || "clothing"}
               whatsappNumber={store.whatsapp || "2348134879924"} // from store settings
             />
           </div>

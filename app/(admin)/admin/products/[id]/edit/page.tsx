@@ -19,6 +19,7 @@ const GET_PRODUCT = gql`
       image
       stock
       sizes
+      sizeGuide
       materials
       sizingFit
       careInstructions
@@ -42,6 +43,7 @@ interface GetProductData {
     image: string;
     stock: number;
     sizes: string[] | null;
+    sizeGuide: string | null;
     materials: string | null;
     sizingFit: string | null;
     careInstructions: string | null;
@@ -101,6 +103,7 @@ const EditProduct = ({ params }: { params: Promise<{ id: string }> }) => {
         price:       product.price.toString(),
         stock:       product.stock.toString(),
         sizes:       product.sizes ?? [],
+        sizeGuide:   product.sizeGuide ?? "clothing",
         materials:   product.materials ?? "",
         sizingFit:   product.sizingFit ?? "",
         careInstructions: product.careInstructions ?? "",

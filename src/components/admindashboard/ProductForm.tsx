@@ -29,6 +29,7 @@ const UPDATE_PRODUCT = gql`
     $image: String
     $stock: Int
     $sizes: [String]
+    $sizeGuide: String
     $materials: String
     $sizingFit: String
     $careInstructions: String
@@ -44,6 +45,7 @@ const UPDATE_PRODUCT = gql`
       image: $image
       stock: $stock
       sizes: $sizes
+      sizeGuide: $sizeGuide
       materials: $materials
       sizingFit: $sizingFit
       careInstructions: $careInstructions
@@ -74,6 +76,7 @@ const CREATE_PRODUCT = gql`
     $image: String
     $stock: Int!
     $sizes: [String]
+    $sizeGuide: String
     $materials: String
     $sizingFit: String
     $careInstructions: String
@@ -88,6 +91,7 @@ const CREATE_PRODUCT = gql`
       image: $image
       stock: $stock
       sizes: $sizes
+      sizeGuide: $sizeGuide
       materials: $materials
       sizingFit: $sizingFit
       careInstructions: $careInstructions
@@ -120,6 +124,7 @@ type ProductFormProps = {
     price?: string;
     stock?: string;
     sizes?: string[];
+    sizeGuide?: string;
     materials?: string;
     sizingFit?: string;
     careInstructions?: string;
@@ -155,6 +160,7 @@ export default function ProductForm({
     price: initialData.price ?? "",
     stock: initialData.stock ?? "",
     sizes: (initialData.sizes ?? []).join(", "), // comma-separated in the input
+    sizeGuide: initialData.sizeGuide ?? "clothing",
     materials: initialData.materials ?? "",
     sizingFit: initialData.sizingFit ?? "",
     careInstructions: initialData.careInstructions ?? "",
@@ -223,6 +229,7 @@ export default function ProductForm({
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean), // "S, M, L" → ["S","M","L"]
+        sizeGuide: form.sizeGuide,
         materials: form.materials,
         sizingFit: form.sizingFit,
         careInstructions: form.careInstructions,
@@ -534,6 +541,26 @@ export default function ProductForm({
               style={{ color: "var(--text-muted)" }}
             >
               Comma-separated. Customers must pick a size before adding to cart.
+            </p>
+          </div>
+
+          {/* Size guide type */}
+          <div>
+            <label className={labelClass} style={{ color: "var(--text-muted)" }}>
+              Size Guide
+            </label>
+            <select
+              className={inputClass}
+              style={inputStyle()}
+              value={form.sizeGuide}
+              onChange={(e) => update("sizeGuide", e.target.value)}
+            >
+              <option value="clothing">Clothing (chest / waist / hips)</option>
+              <option value="footwear">Footwear (UK / EU / US / cm)</option>
+              <option value="none">None (hide size guide)</option>
+            </select>
+            <p className="text-[11px] font-['DM_Sans'] mt-1.5" style={{ color: "var(--text-muted)" }}>
+              Which chart shows when a customer taps “Size Guide”.
             </p>
           </div>
         </div>
