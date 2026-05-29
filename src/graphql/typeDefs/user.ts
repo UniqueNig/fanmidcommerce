@@ -56,6 +56,10 @@ const userType = gql`
     updateUserStatus(id: ID!, status: String!): User # admin toggle Active/Inactive
     changePassword(currentPassword: String!, newPassword: String!): Boolean!
 
+    # Password recovery
+    requestPasswordReset(email: String!): Boolean!
+    resetPassword(token: String!, newPassword: String!): Boolean!
+
     deleteUser(id: ID!): User
     # Inside Mutation type, add:
     createAdmin(

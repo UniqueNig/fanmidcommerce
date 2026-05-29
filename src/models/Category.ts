@@ -4,6 +4,7 @@ const categorySchema = new mongoose.Schema(
   {
     name: { type: String, required: true, unique: true }, // "Tops"
     slug: { type: String, required: true, unique: true }, // "tops"
+    description: { type: String, default: "" }, // shown on category pages
   },
   {
     timestamps: true,

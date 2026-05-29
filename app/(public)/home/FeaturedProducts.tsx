@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import ProductCard from "@/src/components/ui/ProductCard";
+import { ProductCardSkeleton } from "@/src/components/ui/Skeleton";
 import { useQuery } from "@apollo/client/react";
 import gql from "graphql-tag";
 
@@ -10,10 +11,12 @@ const GET_PRODUCTS = gql`
   query GetProducts {
     products {
       id
+      slug
       name
       price
       image
       isNew
+      stock
       category {
         id
         name
@@ -25,11 +28,13 @@ const GET_PRODUCTS = gql`
 
 interface Product {
   id: string;
+  slug: string;
   name: string;
   price: number;
   image: string;
   category: { id: string; name: string; slug: string } | null; // ✅ object
   isNew: boolean;
+  stock: number;
 }
 
 interface ProductsData {
@@ -82,18 +87,10 @@ export default function FeaturedProducts() {
 
         {/* Loading */}
         {loading && (
-          <div className="flex items-center justify-center py-16 gap-3">
-            <Loader2
-              size={18}
-              className="animate-spin"
-              style={{ color: "var(--accent)" }}
-            />
-            <span
-              className="text-sm font-['DM_Sans']"
-              style={{ color: "var(--text-muted)" }}
-            >
-              Loading products...
-            </span>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
           </div>
         )}
 

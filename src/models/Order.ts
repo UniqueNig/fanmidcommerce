@@ -37,14 +37,18 @@ shippingAddress: {
 
     // Payment
     paymentMethod:    { type: String, default: "Paystack" },
-    paymentReference: { type: String },          // Paystack transaction ref
+    // unique+sparse → guarantees one order per payment ref (race-safe between
+    // the success page and the Paystack webhook); null refs (unpaid) allowed.
+    paymentReference: { type: String, unique: true, sparse: true },
     isPaid:           { type: Boolean, default: false },
     paidAt:           { type: Date },
 
     // Pricing
-    subtotal:      { type: Number, required: true }, // before shipping
+    subtotal:      { type: Number, required: true }, // before shipping & discount
+    discount:      { type: Number, default: 0 },     // coupon discount applied
+    couponCode:    { type: String, default: null },  // code used, if any
     shippingCost:  { type: Number, default: 0 },
-    totalAmount:   { type: Number, required: true }, // subtotal + shipping
+    totalAmount:   { type: Number, required: true }, // subtotal - discount + shipping
 
     // Order lifecycle status
     status: {

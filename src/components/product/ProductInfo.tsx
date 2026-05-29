@@ -6,9 +6,11 @@ import {
   Check, Truck, RefreshCw, Shield,
 } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
+import { useWishlist } from "@/src/context/WishlistContext";
 
 type ProductInfoProps = {
   id: string;
+  slug?: string;
   name: string;
   price: number;
   originalPrice?: number;
@@ -29,24 +31,26 @@ const GUARANTEES = [
 ];
 
 export default function ProductInfo({
-  id, name, price, originalPrice, description, category, image,
+  id, slug, name, price, originalPrice, description, category, image,
   isNew, inStock, stockCount, sizes, whatsappNumber,
 }: ProductInfoProps) {
   const { addItem } = useCart();
+  const { has, toggle } = useWishlist();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [addedToCart, setAddedToCart] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
+  const wishlisted = has(id);
 
   const discount = originalPrice
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : null;
 
   const handleAddToCart = () => {
+    if (!inStock) return;
     const size = selectedSize ?? (sizes.length === 0 ? "One Size" : null);
     if (!size) return; // sizes exist but none selected
 
-    addItem({ id, name, price, image: '', category, size, quantity });
+    addItem({ id, name, price, image: image || null, category, size, quantity, maxStock: stockCount });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
@@ -83,7 +87,9 @@ export default function ProductInfo({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setWishlisted(!wishlisted)}
+          <button
+            onClick={() => toggle({ id, slug, name, price, image: image || null, category })}
+            aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
             className="w-8 h-8 flex items-center justify-center border transition-all duration-200"
             style={{ borderColor: wishlisted ? "var(--accent)" : "var(--border)", color: wishlisted ? "var(--accent)" : "var(--text-muted)" }}>
             <Heart size={14} fill={wishlisted ? "currentColor" : "none"} />
@@ -185,8 +191,14 @@ export default function ProductInfo({
             style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}>
             {quantity}
           </span>
-          <button onClick={() => setQuantity((q) => q + 1)}
-            className="w-11 h-11 flex items-center justify-center transition-colors hover:opacity-60"
+          <button
+            onClick={() =>
+              setQuantity((q) =>
+                stockCount ? Math.min(q + 1, stockCount) : q + 1,
+              )
+            }
+            disabled={!!stockCount && quantity >= stockCount}
+            className="w-11 h-11 flex items-center justify-center transition-colors hover:opacity-60 disabled:opacity-30 disabled:cursor-not-allowed"
             style={{ color: "var(--text-secondary)" }}>
             <Plus size={14} />
           </button>

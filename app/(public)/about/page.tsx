@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
+import Image from "next/image";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 import { Heart, Award, Globe, Users } from "lucide-react";
+import { getTeamMembers } from "@/src/lib/data/content";
+
+// Reflect admin edits to the team within a minute.
+export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description:
+    "FanMidCommerce was founded in Lagos to make premium, ethical fashion accessible and built to last. Learn our story, values, and team.",
+  alternates: { canonical: "/about" },
+};
 
 const VALUES = [
   { icon: Heart, title: "Made with Intention", desc: "Every piece we carry is chosen for quality, craftsmanship, and longevity. We believe in buying less and wearing more." },
@@ -16,13 +29,9 @@ const STATS = [
   { value: "4.9★", label: "Average Rating" },
 ];
 
-const TEAM = [
-  { name: "Emmanuel Faniyi", role: "Founder & CEO", image: "https://res.cloudinary.com/deeqdbuup/image/upload/v1775650657/z6bqcdd5muomxuj0x9wd.jpg" },
-  { name: "Chioma Obi", role: "Creative Director", image: "https://res.cloudinary.com/deeqdbuup/image/upload/v1775650657/z6bqcdd5muomxuj0x9wd.jpg" },
-  { name: "Tunde Alabi", role: "Head of Operations", image: "https://res.cloudinary.com/deeqdbuup/image/upload/v1775650657/z6bqcdd5muomxuj0x9wd.jpg" },
-];
+export default async function AboutPage() {
+  const team = await getTeamMembers();
 
-export default function AboutPage() {
   return (
     <main style={{ backgroundColor: "var(--bg-primary)", minHeight: "100vh" }}>
       <Navbar />
@@ -108,13 +117,17 @@ export default function AboutPage() {
             <h2 className="text-4xl font-black font-['Playfair_Display']" style={{ color: "var(--text-primary)" }}>Meet the Team</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl">
-            {TEAM.map(({ name, role, image }) => (
-              <div key={name} className="group">
-                <div className="overflow-hidden aspect-[3/4] mb-4" style={{ backgroundColor: "var(--card-bg)" }}>
-                  <img src={image} alt={name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+            {team.map(({ id, name, role, image }) => (
+              <div key={id} className="group">
+                <div className="relative overflow-hidden aspect-[3/4] mb-4" style={{ backgroundColor: "var(--card-bg)" }}>
+                  {image ? (
+                    <Image src={image} alt={name} fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                  ) : (
+                    <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
+                  )}
                 </div>
                 <h3 className="font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>{name}</h3>
-                <p className="text-xs tracking-widest uppercase font-['DM_Sans'] mt-0.5" style={{ color: "var(--accent)" }}>{role}</p>
+                {role && <p className="text-xs tracking-widest uppercase font-['DM_Sans'] mt-0.5" style={{ color: "var(--accent)" }}>{role}</p>}
               </div>
             ))}
           </div>

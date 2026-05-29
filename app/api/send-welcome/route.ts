@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { MAIL_FROM, mailTo } from "@/src/lib/email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -7,8 +8,8 @@ export async function POST(req: NextRequest) {
   const { name, email, password } = await req.json();
 
   await resend.emails.send({
-    from: "Fanmid <onboarding@resend.dev>", // use this until you have a domain
-    to: email,
+    from: MAIL_FROM,
+    to: mailTo(email), // real customer in prod; EMAIL_OVERRIDE in sandbox
     subject: "Your Fanmid account details",
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: auto;">

@@ -1,10 +1,5 @@
-import { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "FanMidCommerce",
-  description:
-    "A fan-made e-commerce website built with Next.js and TypeScript.",
-};
+// Title/description are inherited from the root layout (app/layout.tsx).
+// Individual pages override them via their own `metadata` / generateMetadata.
 
 export default function RootLayout({
   children,

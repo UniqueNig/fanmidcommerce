@@ -8,15 +8,19 @@ import ShopSidebar from "@/src/components/shop/ShopSidebar";
 import { useQuery } from "@apollo/client/react"; // ✅ FIXED
 import gql from "graphql-tag";
 import { useState, useMemo } from "react";
+import { AlertCircle } from "lucide-react";
+import { ProductGridSkeleton } from "@/src/components/ui/Skeleton";
 
 const GET_DATA = gql`
   query {
     products {
       id
+      slug
       name
       price
       image
       isNew
+      stock
       category {
         id
         name
@@ -39,11 +43,13 @@ interface Category {
 
 interface Product {
   id: string;
+  slug: string;
   name: string;
   price: number;
   image: string;
   category: Category;
   isNew: boolean;
+  stock: number;
 }
 
 interface Data {
@@ -115,11 +121,31 @@ export default function ShopPage() {
     currentPage * PRODUCTS_PER_PAGE,
   );
 
-  if (loading) return <p>Loading products...</p>;
-  // if (error) return <p>Error loading products</p>;
+  if (loading) {
+    return (
+      <main style={{ backgroundColor: "var(--bg-primary)", minHeight: "100vh" }}>
+        <Navbar />
+        <div className="max-w-7xl mx-auto px-6 lg:px-10 py-10 pt-28">
+          <ProductGridSkeleton count={8} />
+        </div>
+        <Footer />
+      </main>
+    );
+  }
+
   if (error) {
-    console.error(error);
-    return <p>{error.message}</p>;
+    return (
+      <main style={{ backgroundColor: "var(--bg-primary)", minHeight: "100vh" }}>
+        <Navbar />
+        <div className="flex flex-col items-center justify-center py-40 gap-4">
+          <AlertCircle size={32} style={{ color: "#ef4444" }} />
+          <p className="text-sm font-['DM_Sans']" style={{ color: "#ef4444" }}>
+            Failed to load products. Please try again.
+          </p>
+        </div>
+        <Footer />
+      </main>
+    );
   }
 
   return (

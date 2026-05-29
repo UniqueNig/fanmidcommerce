@@ -2,6 +2,7 @@
 
 import { useCart } from "@/src/context/CartContext";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
 import {
@@ -12,19 +13,30 @@ import {
   ShoppingBag,
   ArrowLeft,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useCoupon } from "@/src/context/CouponContext";
 
 export default function CartPage() {
   const { items, removeItem, updateQty, subtotal } = useCart();
-  const [coupon, setCoupon] = useState("");
-  const [couponApplied, setCouponApplied] = useState(false);
+  const { coupon, apply, clear, refresh } = useCoupon();
+  const [code, setCode] = useState("");
+  const [applying, setApplying] = useState(false);
 
-  const discount = couponApplied ? subtotal * 0.1 : 0;
-  const shipping = subtotal > 50000 ? 0 : 3000;
-  const total = subtotal - discount + shipping;
+  const discount = coupon?.discount ?? 0;
+  const total = Math.max(0, subtotal - discount); // shipping is added at checkout
 
-  const applyCoupon = () => {
-    if (coupon.toUpperCase() === "FANMID10") setCouponApplied(true);
+  // Re-check the applied coupon whenever the cart subtotal changes
+  // (e.g. quantity edits may drop it below a minimum).
+  useEffect(() => {
+    if (coupon) refresh(subtotal);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal]);
+
+  const applyCoupon = async () => {
+    if (!code.trim()) return;
+    setApplying(true);
+    await apply(code.trim(), subtotal);
+    setApplying(false);
   };
 
   if (items.length === 0) {
@@ -97,14 +109,16 @@ export default function CartPage() {
                 style={{ borderColor: "var(--border)" }}
               >
                 <div
-                  className="w-24 h-28 md:w-28 md:h-36 flex-shrink-0 overflow-hidden"
+                  className="relative w-24 h-28 md:w-28 md:h-36 flex-shrink-0 overflow-hidden"
                   style={{ backgroundColor: "var(--card-bg)" }}
                 >
                   {item.image ? (
-                    <img
+                    <Image
                       src={item.image}
                       alt={item.name}
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="112px"
+                      className="object-cover"
                     />
                   ) : (
                     <div
@@ -170,18 +184,31 @@ export default function CartPage() {
                       </span>
                       <button
                         onClick={() => updateQty(item.id, item.size, 1)}
-                        className="w-8 h-8 flex items-center justify-center hover:opacity-60 transition-opacity"
+                        disabled={
+                          !!item.maxStock && item.quantity >= item.maxStock
+                        }
+                        className="w-8 h-8 flex items-center justify-center hover:opacity-60 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
                         style={{ color: "var(--text-secondary)" }}
                       >
                         <Plus size={12} />
                       </button>
                     </div>
-                    <span
-                      className="font-black font-['Playfair_Display'] text-lg"
-                      style={{ color: "var(--accent)" }}
-                    >
-                      ₦{(item.price * item.quantity).toLocaleString()}
-                    </span>
+                    <div className="flex flex-col items-end">
+                      <span
+                        className="font-black font-['Playfair_Display'] text-lg"
+                        style={{ color: "var(--accent)" }}
+                      >
+                        ₦{(item.price * item.quantity).toLocaleString()}
+                      </span>
+                      {!!item.maxStock && item.quantity >= item.maxStock && (
+                        <span
+                          className="text-[10px] font-['DM_Sans'] mt-0.5"
+                          style={{ color: "var(--text-muted)" }}
+                        >
+                          Max stock reached
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -203,42 +230,32 @@ export default function CartPage() {
               Order Summary
             </h2>
             <div className="space-y-3">
-              {[
-                { label: "Subtotal", value: `₦${subtotal.toLocaleString()}` },
-                {
-                  label: "Shipping",
-                  value:
-                    shipping === 0 ? "Free" : `₦${shipping.toLocaleString()}`,
-                },
-                ...(couponApplied
-                  ? [
-                      {
-                        label: "Discount (10%)",
-                        value: `-₦${discount.toLocaleString()}`,
-                      },
-                    ]
-                  : []),
-              ].map(({ label, value }) => (
-                <div key={label} className="flex justify-between">
-                  <span
-                    className="text-sm font-['DM_Sans']"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {label}
+              <div className="flex justify-between">
+                <span className="text-sm font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                  Subtotal
+                </span>
+                <span className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>
+                  ₦{subtotal.toLocaleString()}
+                </span>
+              </div>
+              {discount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-sm font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                    Discount {coupon?.code ? `(${coupon.code})` : ""}
                   </span>
-                  <span
-                    className="text-sm font-bold font-['DM_Sans']"
-                    style={{
-                      color:
-                        label === "Discount (10%)"
-                          ? "#22c55e"
-                          : "var(--text-primary)",
-                    }}
-                  >
-                    {value}
+                  <span className="text-sm font-bold font-['DM_Sans']" style={{ color: "#22c55e" }}>
+                    -₦{discount.toLocaleString()}
                   </span>
                 </div>
-              ))}
+              )}
+              <div className="flex justify-between">
+                <span className="text-sm font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                  Shipping
+                </span>
+                <span className="text-xs font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+                  Calculated at checkout
+                </span>
+              </div>
             </div>
             <div
               className="border-t pt-4"
@@ -258,44 +275,48 @@ export default function CartPage() {
                   ₦{total.toLocaleString()}
                 </span>
               </div>
-              {shipping === 0 && (
-                <p
-                  className="text-[10px] font-['DM_Sans'] mt-1"
-                  style={{ color: "#22c55e" }}
-                >
-                  ✓ You qualify for free shipping
-                </p>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <input
-                value={coupon}
-                onChange={(e) => setCoupon(e.target.value)}
-                placeholder="Coupon code"
-                disabled={couponApplied}
-                className="flex-1 px-3 py-2.5 text-xs font-['DM_Sans'] outline-none border"
-                style={{
-                  backgroundColor: "var(--bg-primary)",
-                  borderColor: "var(--border)",
-                  color: "var(--text-primary)",
-                }}
-              />
-              <button
-                onClick={applyCoupon}
-                disabled={couponApplied}
-                className="px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-opacity hover:opacity-80 disabled:opacity-40"
-                style={{ backgroundColor: "var(--accent)", color: "#000" }}
-              >
-                {couponApplied ? "✓" : "Apply"}
-              </button>
-            </div>
-            {couponApplied && (
-              <p
-                className="text-xs font-['DM_Sans']"
-                style={{ color: "#22c55e" }}
-              >
-                Coupon applied! 10% off
+              <p className="text-[10px] font-['DM_Sans'] mt-1" style={{ color: "var(--text-muted)" }}>
+                Plus shipping, selected at checkout.
               </p>
+            </div>
+            {coupon ? (
+              <div
+                className="flex items-center justify-between px-3 py-2.5 border"
+                style={{ borderColor: "var(--accent)", backgroundColor: "color-mix(in srgb, var(--accent) 8%, transparent)" }}
+              >
+                <span className="text-xs font-bold font-['DM_Sans']" style={{ color: "var(--accent)" }}>
+                  {coupon.code} applied
+                </span>
+                <button
+                  onClick={() => { clear(); setCode(""); }}
+                  className="text-[10px] font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-70"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  placeholder="Coupon code"
+                  className="flex-1 px-3 py-2.5 text-xs font-['DM_Sans'] outline-none border uppercase"
+                  style={{
+                    backgroundColor: "var(--bg-primary)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-primary)",
+                  }}
+                />
+                <button
+                  onClick={applyCoupon}
+                  disabled={applying || !code.trim()}
+                  className="px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-opacity hover:opacity-80 disabled:opacity-40"
+                  style={{ backgroundColor: "var(--accent)", color: "#000" }}
+                >
+                  {applying ? "..." : "Apply"}
+                </button>
+              </div>
             )}
             <Link
               href="/checkout"

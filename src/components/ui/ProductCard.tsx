@@ -1,35 +1,53 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingBag, Heart, Check } from "lucide-react";
 import { useState } from "react";
 import { useCart } from "@/src/context/CartContext";
+import { useWishlist } from "@/src/context/WishlistContext";
 
 type ProductCardProps = {
   id: string;
+  slug?: string; // SEO URL; falls back to id if missing
   name: string;
   price: number;
   image: string;
   category: string;
   isNew?: boolean;
+  stock?: number;
 };
 
 export default function ProductCard({
   id,
+  slug,
   name,
   price,
   image,
   category,
   isNew,
+  stock,
 }: ProductCardProps) {
   const { addItem } = useCart();
+  const { has, toggle } = useWishlist();
   const [added, setAdded] = useState(false);
+
+  const wishlisted = has(id);
+
+  // Treat "no stock info" as available (e.g. legacy callers); only block on 0.
+  const soldOut = stock !== undefined && stock <= 0;
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toggle({ id, slug, name, price, image, category });
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (soldOut) return;
     // Products on grid don't have size selection — default to "One Size"
     // For sized items, clicking the card goes to product page where size is chosen
-    addItem({ id, name, price, image, category, size: "One Size" });
+    addItem({ id, name, price, image, category, size: "One Size", maxStock: stock });
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   };
@@ -41,40 +59,72 @@ export default function ProductCard({
         className="relative overflow-hidden aspect-[3/4] mb-4"
         style={{ backgroundColor: "var(--card-bg)" }}
       >
-        <img
-          src={image}
-          alt={name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        {image ? (
+          <Image
+            src={image}
+            alt={name}
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
+        )}
 
         {/* Overlay actions */}
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6 gap-3">
           <button
             onClick={handleAddToCart}
-            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase transition-colors font-['DM_Sans']"
+            disabled={soldOut}
+            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase transition-colors font-['DM_Sans'] disabled:cursor-not-allowed"
             style={{
-              backgroundColor: added ? "#22c55e" : "var(--accent)",
+              backgroundColor: soldOut
+                ? "var(--text-muted)"
+                : added
+                  ? "#22c55e"
+                  : "var(--accent)",
               color: "#000",
             }}
           >
-            {added ? <Check size={13} /> : <ShoppingBag size={13} />}
-            {added ? "Added!" : "Add to Cart"}
+            {soldOut ? (
+              "Sold Out"
+            ) : added ? (
+              <>
+                <Check size={13} /> Added!
+              </>
+            ) : (
+              <>
+                <ShoppingBag size={13} /> Add to Cart
+              </>
+            )}
           </button>
           <button
-            className="w-10 h-10 border border-white/40 hover:border-white text-white flex items-center justify-center transition-colors"
+            onClick={handleWishlist}
+            aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            className="w-10 h-10 border border-white/40 hover:border-white flex items-center justify-center transition-colors"
+            style={{ color: wishlisted ? "var(--accent)" : "#fff" }}
           >
-            <Heart size={14} />
+            <Heart size={14} fill={wishlisted ? "currentColor" : "none"} />
           </button>
         </div>
 
         {/* Badge */}
-        {isNew && (
+        {soldOut ? (
           <div
-            className="absolute top-3 left-3 text-black text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
-            style={{ backgroundColor: "var(--accent)" }}
+            className="absolute top-3 left-3 text-white text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
+            style={{ backgroundColor: "#ef4444" }}
           >
-            New
+            Sold Out
           </div>
+        ) : (
+          isNew && (
+            <div
+              className="absolute top-3 left-3 text-black text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
+              style={{ backgroundColor: "var(--accent)" }}
+            >
+              New
+            </div>
+          )
         )}
       </div>
 
@@ -87,7 +137,7 @@ export default function ProductCard({
           >
             {category}
           </p>
-          <Link href={`/product/${id}`}>
+          <Link href={`/product/${slug ?? id}`}>
             <h3
               className="text-sm font-medium font-['DM_Sans'] transition-colors hover:opacity-70"
               style={{ color: "var(--text-primary)" }}

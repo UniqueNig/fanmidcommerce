@@ -6,7 +6,7 @@ import { ArrowLeft, Save, Upload, Loader2 } from "lucide-react";
 import Link from "next/link";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client/react";
-import { useApolloClient } from "@apollo/client/react";
+import { slugify } from "@/src/lib/slug";
 
 // ── GraphQL ────────────────────────────────────────────────────────────────
 const GET_CATEGORIES = gql`
@@ -23,25 +23,30 @@ const UPDATE_PRODUCT = gql`
   mutation UpdateProduct(
     $id: ID!
     $name: String
+    $slug: String
     $description: String
     $price: Float
     $image: String
     $stock: Int
+    $sizes: [String]
     $category: ID!
     $isNew: Boolean
   ) {
     updateProduct(
       id: $id
       name: $name
+      slug: $slug
       description: $description
       price: $price
       image: $image
       stock: $stock
+      sizes: $sizes
       category: $category
       isNew: $isNew
     ) {
       id
       name
+      slug
       price
       stock
       category {
@@ -57,24 +62,29 @@ const UPDATE_PRODUCT = gql`
 const CREATE_PRODUCT = gql`
   mutation CreateProduct(
     $name: String!
+    $slug: String
     $description: String!
     $price: Float!
     $image: String
     $stock: Int!
+    $sizes: [String]
     $category: ID!
     $isNew: Boolean
   ) {
     createProduct(
       name: $name
+      slug: $slug
       description: $description
       price: $price
       image: $image
       stock: $stock
+      sizes: $sizes
       category: $category
       isNew: $isNew
     ) {
       id
       name
+      slug
       price
       stock
       category {
@@ -93,9 +103,11 @@ type ProductFormProps = {
   productId?: string;
   initialData?: {
     name?: string;
+    slug?: string;
     description?: string;
     price?: string;
     stock?: string;
+    sizes?: string[];
     categoryId?: string; // ✅ now an ID, not a name string
     image?: string;
     isNew?: boolean;
@@ -120,19 +132,24 @@ export default function ProductForm({
   productId,
 }: ProductFormProps) {
   const router = useRouter();
-  const apolloClient = useApolloClient();
 
   const [form, setForm] = useState({
     name: initialData.name ?? "",
+    slug: initialData.slug ?? "",
     description: initialData.description ?? "",
     price: initialData.price ?? "",
     stock: initialData.stock ?? "",
+    sizes: (initialData.sizes ?? []).join(", "), // comma-separated in the input
     categoryId: initialData.categoryId ?? "", // ✅ stores the category _id
     image: initialData.image ?? "",
     isNew: initialData.isNew ?? false,
   });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Once the admin manually edits the slug (or we're editing a product that
+  // already has one), we stop auto-syncing it from the name.
+  const [slugEdited, setSlugEdited] = useState(Boolean(initialData.slug));
 
   // ── Fetch categories from backend ──────────────────────────────────────
   const { data: catData, loading: catLoading } = useQuery<{
@@ -149,6 +166,16 @@ export default function ProductForm({
 
   const update = (key: string, val: any) =>
     setForm((f) => ({ ...f, [key]: val }));
+
+  // Typing the name auto-fills the slug — until the admin edits the slug.
+  const handleNameChange = (val: string) =>
+    setForm((f) => ({ ...f, name: val, slug: slugEdited ? f.slug : slugify(val) }));
+
+  // Editing the slug detaches it from the name and keeps it URL-safe.
+  const handleSlugChange = (val: string) => {
+    setSlugEdited(true);
+    update("slug", slugify(val));
+  };
 
   const uploadImage = async (file: File) => {
     const formData = new FormData();
@@ -170,9 +197,14 @@ export default function ProductForm({
     try {
       const variables = {
         name: form.name,
+        slug: form.slug, // backend slugifies + guarantees uniqueness
         description: form.description,
         price: parseFloat(form.price),
         stock: parseInt(form.stock),
+        sizes: form.sizes
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean), // "S, M, L" → ["S","M","L"]
         category: form.categoryId, // ✅ sending the _id
         image: form.image,
         isNew: form.isNew,
@@ -183,7 +215,10 @@ export default function ProductForm({
       } else {
         await createProduct({ variables });
       }
-      await apolloClient.resetStore();
+      // NOTE: the mutations use refetchQueries:["GetProducts"] to refresh the
+      // list. We intentionally do NOT call apolloClient.resetStore() here —
+      // resetStore aborts in-flight queries and, racing with the navigation
+      // below, surfaced a console "AbortError".
       setSaved(true);
       setTimeout(() => router.push("/admin/products"), 800);
     } catch (err) {
@@ -310,9 +345,32 @@ export default function ProductForm({
               className={inputClass}
               style={inputStyle()}
               value={form.name}
-              onChange={(e) => update("name", e.target.value)}
+              onChange={(e) => handleNameChange(e.target.value)}
               placeholder="e.g. Minimalist Leather Jacket"
             />
+          </div>
+
+          {/* Slug — auto-generated from the name, but editable */}
+          <div>
+            <label className={labelClass} style={{ color: "var(--text-muted)" }}>
+              URL Slug
+            </label>
+            <input
+              className={inputClass}
+              style={inputStyle()}
+              value={form.slug}
+              onChange={(e) => handleSlugChange(e.target.value)}
+              placeholder="auto-generated-from-name"
+            />
+            <p
+              className="text-[11px] font-['DM_Sans'] mt-1.5"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Product URL:{" "}
+              <span style={{ color: "var(--text-secondary)" }}>
+                /product/{form.slug || "your-product-name"}
+              </span>
+            </p>
           </div>
 
           <div>
@@ -436,6 +494,26 @@ export default function ProductForm({
                 </span>
               </label>
             </div>
+          </div>
+
+          {/* Sizes */}
+          <div>
+            <label className={labelClass} style={{ color: "var(--text-muted)" }}>
+              Sizes (optional)
+            </label>
+            <input
+              className={inputClass}
+              style={inputStyle()}
+              value={form.sizes}
+              onChange={(e) => update("sizes", e.target.value)}
+              placeholder="e.g. S, M, L, XL — leave blank for one-size items"
+            />
+            <p
+              className="text-[11px] font-['DM_Sans'] mt-1.5"
+              style={{ color: "var(--text-muted)" }}
+            >
+              Comma-separated. Customers must pick a size before adding to cart.
+            </p>
           </div>
         </div>
 

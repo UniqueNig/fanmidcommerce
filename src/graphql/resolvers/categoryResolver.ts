@@ -1,7 +1,12 @@
-import Product from "@/src/models/Product";
-// import Category from "@/src/models/Category";
 import { connectDB } from "@/src/lib/db";
 import categoryModel from "@/src/models/Category";
+
+// 🔒 Throws unless the caller is an admin/superadmin.
+function requireAdmin(context: any) {
+  if (!context?.user || !["admin", "superadmin"].includes(context.user.role)) {
+    throw new Error("Unauthorized");
+  }
+}
 
 export const categoryResolvers = {
   Category: {
@@ -15,11 +20,10 @@ export const categoryResolvers = {
     },
   },
   Query: {
-    products: async () => {
-      await connectDB();
-      return await Product.find().populate("category"); // ✅ IMPORTANT
-    },
-
+    // NOTE: `products` and `createProduct` intentionally live ONLY in
+    // productResolver now. They used to be duplicated here, and because
+    // mergeResolvers lets the later file win, this barebones copy (no auth,
+    // no slug) was silently overriding the real one.
     categories: async () => {
       await connectDB();
       return await categoryModel.find();
@@ -29,26 +33,29 @@ export const categoryResolvers = {
   Mutation: {
     createCategory: async (
       _: any,
-      { name, slug }: { name: string; slug: string },
+      {
+        name,
+        slug,
+        description,
+      }: { name: string; slug: string; description?: string },
+      context: any,
     ) => {
       await connectDB();
+      requireAdmin(context);
       const existing = await categoryModel.findOne({ slug });
       if (existing) return existing;
 
-      const category = await categoryModel.create({ name, slug });
+      const category = await categoryModel.create({
+        name,
+        slug,
+        description: description ?? "",
+      });
       return category;
     },
 
-    createProduct: async (_: any, args: any) => {
+    updateCategory: async (_: any, { id, name, description }: any, context: any) => {
       await connectDB();
-
-      return await Product.create({
-        ...args,
-      });
-    },
-
-    updateCategory: async (_: any, { id, name, description }: any) => {
-      await connectDB();
+      requireAdmin(context);
       const slug = name.toLowerCase().replace(/\s+/g, "-");
       return await categoryModel.findByIdAndUpdate(
         id,
@@ -57,8 +64,9 @@ export const categoryResolvers = {
       );
     },
 
-    deleteCategory: async (_: any, { id }: { id: string }) => {
+    deleteCategory: async (_: any, { id }: { id: string }, context: any) => {
       await connectDB();
+      requireAdmin(context);
       return await categoryModel.findByIdAndDelete(id);
     },
   },

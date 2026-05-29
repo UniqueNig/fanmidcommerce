@@ -15,6 +15,7 @@ const VERIFY_AND_CREATE_ORDER = `
     $subtotal: Float!
     $shippingCost: Float!
     $totalAmount: Float!
+    $couponCode: String
   ) {
     verifyPaymentAndCreateOrder(
       reference: $reference
@@ -23,6 +24,7 @@ const VERIFY_AND_CREATE_ORDER = `
       subtotal: $subtotal
       shippingCost: $shippingCost
       totalAmount: $totalAmount
+      couponCode: $couponCode
     ) {
       id
       status
@@ -68,6 +70,7 @@ function OrderSuccessContent() {
           subtotal: order.subtotal,
           shippingCost: order.shippingCost,
           totalAmount: order.totalAmount,
+          couponCode: order.couponCode ?? null,
         },
       }),
     })

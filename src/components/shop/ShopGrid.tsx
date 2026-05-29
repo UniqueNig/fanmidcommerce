@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ShoppingBag, Heart, ArrowLeft, ArrowRight, Check } from "lucide-react";
 // At the top of ShopGrid.tsx
 import { useCart } from "@/src/context/CartContext";
+import { useWishlist } from "@/src/context/WishlistContext";
 import { useState } from "react";
 
 type Product = {
   id: string;
+  slug?: string;
   name: string;
   price: number;
   image: string;
@@ -16,6 +19,7 @@ type Product = {
     slug: string;
   };
   isNew?: boolean;
+  stock?: number;
 };
 
 type ShopGridProps = {
@@ -41,36 +45,62 @@ function useAddFeedback() {
 
 function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
   const { added, trigger } = useAddFeedback();
+  const { has, toggle } = useWishlist();
+  const soldOut = product.stock !== undefined && product.stock <= 0;
+  const wishlisted = has(product.id);
 
   return (
     <div className="group relative">
       <div className="relative overflow-hidden aspect-[5/7] mb-4" style={{ backgroundColor: "var(--card-bg)" }}>
-        <img src={product.image || undefined} alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        {product.image ? (
+          <Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105" />
+        ) : (
+          <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
+        )}
 
         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5 gap-2">
           <button
-            onClick={() => trigger(onAddToCart)}
-            className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300"
+            onClick={() => !soldOut && trigger(onAddToCart)}
+            disabled={soldOut}
+            className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 disabled:cursor-not-allowed"
             style={{
-              backgroundColor: added ? "#22c55e" : "var(--accent)",
+              backgroundColor: soldOut ? "var(--text-muted)" : added ? "#22c55e" : "var(--accent)",
               color: "#000",
             }}
           >
-            {added ? <Check size={12} /> : <ShoppingBag size={12} />}
-            {added ? "Added!" : "Add to Cart"}
+            {soldOut ? "Sold Out" : added ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Add to Cart</>}
           </button>
-          <button className="w-9 h-9 border border-white/40 hover:border-white text-white flex items-center justify-center transition-colors">
-            <Heart size={13} />
+          <button
+            onClick={() =>
+              toggle({
+                id: product.id,
+                slug: product.slug,
+                name: product.name,
+                price: product.price,
+                image: product.image ?? null,
+                category: product.category?.name ?? "",
+              })
+            }
+            aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+            className="w-9 h-9 border border-white/40 hover:border-white flex items-center justify-center transition-colors"
+            style={{ color: wishlisted ? "var(--accent)" : "#fff" }}
+          >
+            <Heart size={13} fill={wishlisted ? "currentColor" : "none"} />
           </button>
         </div>
 
-        {product.isNew && (
+        {soldOut ? (
+          <div className="absolute top-3 left-3 text-white text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
+            style={{ backgroundColor: "#ef4444" }}>
+            Sold Out
+          </div>
+        ) : product.isNew ? (
           <div className="absolute top-3 left-3 text-black text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
             style={{ backgroundColor: "var(--accent)" }}>
             New
           </div>
-        )}
+        ) : null}
       </div>
       {/* Info unchanged */}
       <div className="flex items-start justify-between">
@@ -78,7 +108,7 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
           <p className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
             {product.category?.name}
           </p>
-          <Link href={`/product/${product.id}`}>
+          <Link href={`/product/${product.slug ?? product.id}`}>
             <h3 className="text-sm font-medium font-['DM_Sans'] transition-colors hover:opacity-70" style={{ color: "var(--text-primary)" }}>
               {product.name}
             </h3>
@@ -94,28 +124,34 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
 
 function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
   const { added, trigger } = useAddFeedback();
+  const soldOut = product.stock !== undefined && product.stock <= 0;
 
   return (
     <div className="flex gap-5 py-5 border-b" style={{ borderColor: "var(--border)" }}>
       <div className="relative overflow-hidden w-24 h-32 flex-shrink-0" style={{ backgroundColor: "var(--card-bg)" }}>
         {product.image ? (
-          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+          <Image src={product.image} alt={product.name} fill sizes="96px" className="object-cover" />
         ) : (
           <div className="w-full h-full" />
         )}
-        {product.isNew && (
+        {soldOut ? (
+          <div className="absolute top-2 left-2 text-white text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 font-['DM_Sans']"
+            style={{ backgroundColor: "#ef4444" }}>
+            Sold Out
+          </div>
+        ) : product.isNew ? (
           <div className="absolute top-2 left-2 text-black text-[9px] font-bold tracking-widest uppercase px-1.5 py-0.5 font-['DM_Sans']"
             style={{ backgroundColor: "var(--accent)" }}>
             New
           </div>
-        )}
+        ) : null}
       </div>
       <div className="flex flex-1 items-center justify-between">
         <div>
           <p className="text-[10px] tracking-widest uppercase mb-1 font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
             {product.category?.name}
           </p>
-          <Link href={`/product/${product.id}`}>
+          <Link href={`/product/${product.slug ?? product.id}`}>
             <h3 className="text-base font-medium font-['DM_Sans'] mb-1 hover:opacity-70 transition-opacity" style={{ color: "var(--text-primary)" }}>
               {product.name}
             </h3>
@@ -125,15 +161,15 @@ function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
           </span>
         </div>
         <button
-          onClick={() => trigger(onAddToCart)}
-          className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 hover:opacity-80"
+          onClick={() => !soldOut && trigger(onAddToCart)}
+          disabled={soldOut}
+          className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 hover:opacity-80 disabled:cursor-not-allowed"
           style={{
-            backgroundColor: added ? "#22c55e" : "var(--accent)",
+            backgroundColor: soldOut ? "var(--text-muted)" : added ? "#22c55e" : "var(--accent)",
             color: "#000",
           }}
         >
-          {added ? <Check size={12} /> : <ShoppingBag size={12} />}
-          {added ? "Added!" : "Add"}
+          {soldOut ? "Sold Out" : added ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Add</>}
         </button>
       </div>
     </div>
@@ -176,7 +212,8 @@ export default function ShopGrid({
       image: product.image ?? null, // ← guards against empty string
       category: product.category?.name ?? "",
       quantity: 1,
-         size: "",   // ← add this; no size selector on the grid
+      size: "", // ← add this; no size selector on the grid
+      maxStock: product.stock,
     });
   };
 

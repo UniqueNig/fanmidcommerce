@@ -10,32 +10,18 @@ const categoryType = gql`
     productCount: Int
   }
 
-  type Product {
-    id: ID!
-    name: String!
-    price: Float!
-    image: String!
-    category: Category # ✅ object now
-    isNew: Boolean
-  }
+  # NOTE: the Product type, the products query, and createProduct live in
+  # product.ts (the authoritative definition). They used to be duplicated
+  # here with conflicting field types, which is schema-fragile.
 
   type Query {
-    products: [Product]
-    categories: [Category] # ✅ NEW
+    categories: [Category]
   }
 
   type Mutation {
     createCategory(name: String!, slug: String!, description: String): Category
     updateCategory(id: ID!, name: String, description: String): Category
     deleteCategory(id: ID!): Category
-
-    createProduct(
-      name: String!
-      price: Float!
-      image: String
-      category: ID! # ✅ send category ID
-      isNew: Boolean
-    ): Product
   }
 `;
 

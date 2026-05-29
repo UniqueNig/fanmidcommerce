@@ -32,15 +32,29 @@ export default function Footer() {
           {[
             {
               title: "Shop",
-              links: ["New Arrivals", "Best Sellers", "Sale", "All Products"],
+              links: [
+                { label: "All Products", href: "/shop" },
+                { label: "Categories", href: "/categories" },
+                { label: "Search", href: "/search" },
+                { label: "Cart", href: "/cart" },
+              ],
             },
             {
               title: "Company",
-              links: ["About", "Careers", "Press", "Contact"],
+              links: [
+                { label: "About", href: "/about" },
+                { label: "Contact", href: "/contact" },
+                { label: "FAQ", href: "/faq" },
+              ],
             },
             {
               title: "Support",
-              links: ["FAQ", "Shipping", "Returns", "Size Guide"],
+              links: [
+                { label: "Shipping & Returns", href: "/shipping-returns" },
+                { label: "FAQ", href: "/faq" },
+                { label: "Contact", href: "/contact" },
+                { label: "My Orders", href: "/dashboard/orders" },
+              ],
             },
           ].map((col) => (
             <div key={col.title}>
@@ -52,13 +66,13 @@ export default function Footer() {
               </h4>
               <ul className="space-y-3">
                 {col.links.map((link) => (
-                  <li key={link}>
+                  <li key={link.label}>
                     <Link
-                      href="#"
+                      href={link.href}
                       className="footer-link text-sm transition-colors duration-200 font-['DM_Sans']"
                       style={{ color: "var(--text-muted)" }}
                     >
-                      {link}
+                      {link.label}
                     </Link>
                   </li>
                 ))}
@@ -80,14 +94,18 @@ export default function Footer() {
           </p>
 
           <div className="flex gap-6">
-            {["Privacy", "Terms", "Cookies"].map((item) => (
+            {[
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
+              { label: "Shipping & Returns", href: "/shipping-returns" },
+            ].map((item) => (
               <Link
-                key={item}
-                href="#"
+                key={item.label}
+                href={item.href}
                 className="footer-link text-xs transition-colors duration-200 font-['DM_Sans'] tracking-wide"
                 style={{ color: "var(--text-muted)" }}
               >
-                {item}
+                {item.label}
               </Link>
             ))}
           </div>

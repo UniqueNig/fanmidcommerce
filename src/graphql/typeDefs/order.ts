@@ -28,6 +28,8 @@ const orderType = gql`
     isPaid: Boolean!
     paidAt: String
     subtotal: Float!
+    discount: Float
+    couponCode: String
     shippingCost: Float!
     totalAmount: Float!
     status: String!
@@ -57,6 +59,7 @@ const orderType = gql`
     orders: [Order!]!
     order(id: ID!): Order
     myOrders: [Order!]!
+    myOrder(id: ID!): Order
   }
 
   type Mutation {
@@ -67,6 +70,7 @@ const orderType = gql`
       shippingCost: Float!
       totalAmount: Float!
       paymentReference: String
+      couponCode: String
     ): Order!
 
     verifyPaymentAndCreateOrder(
@@ -76,6 +80,7 @@ const orderType = gql`
       subtotal: Float!
       shippingCost: Float!
       totalAmount: Float!
+      couponCode: String
     ): Order!
 
     updateOrderStatus(id: ID!, status: String!): Order!

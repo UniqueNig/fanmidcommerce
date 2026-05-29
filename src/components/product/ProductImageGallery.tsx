@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ZoomIn } from "lucide-react";
 
 type ProductImageGalleryProps = {
@@ -34,7 +35,7 @@ export default function ProductImageGallery({ images, productName }: ProductImag
               opacity: activeIndex === i ? 1 : 0.6,
             }}
           >
-            <img src={img} alt={`${productName} view ${i + 1}`} className="w-full h-full object-cover" />
+            <Image src={img} alt={`${productName} view ${i + 1}`} fill sizes="96px" className="object-cover" />
           </button>
         ))}
       </div>
@@ -51,15 +52,22 @@ export default function ProductImageGallery({ images, productName }: ProductImag
         onMouseLeave={() => setZoomed(false)}
         onMouseMove={handleMouseMove}
       >
-        <img
-          src={images[activeIndex]}
-          alt={productName}
-          className="w-full h-full object-cover transition-transform duration-200"
-          style={{
-            transform: zoomed ? "scale(1.6)" : "scale(1)",
-            transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
-          }}
-        />
+        {images[activeIndex] ? (
+          <Image
+            src={images[activeIndex]}
+            alt={productName}
+            fill
+            priority
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover transition-transform duration-200"
+            style={{
+              transform: zoomed ? "scale(1.6)" : "scale(1)",
+              transformOrigin: `${mousePos.x}% ${mousePos.y}%`,
+            }}
+          />
+        ) : (
+          <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
+        )}
 
         {!zoomed && (
           <div

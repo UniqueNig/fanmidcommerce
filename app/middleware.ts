@@ -25,8 +25,8 @@ export const middleware = (req: NextRequest) => {
         role: string;
       };
 
-      // 🚫 Not admin
-      if (payload.role !== "admin") {
+      // 🚫 Not an admin (allow both admin and superadmin)
+      if (!["admin", "superadmin"].includes(payload.role)) {
         return NextResponse.redirect(new URL("/", req.url));
       }
 

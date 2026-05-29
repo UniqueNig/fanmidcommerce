@@ -4,19 +4,23 @@ import { useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/src/components/layout/Navbar";
 import Footer from "@/src/components/layout/Footer";
-import { Search, X, Loader2 } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useQuery } from "@apollo/client/react";
 import gql from "graphql-tag";
 import Link from "next/link";
+import Image from "next/image";
+import { ProductGridSkeleton } from "@/src/components/ui/Skeleton";
 
 const SEARCH_PRODUCTS = gql`
   query {
     products {
       id
+      slug
       name
       price
       image
       isNew
+      stock
       category {
         id
         name
@@ -34,10 +38,12 @@ interface Category {
 
 interface Product {
   id: string;
+  slug: string;
   name: string;
   price: number;
   image: string;
   isNew: boolean;
+  stock: number;
   category: Category | null;
 }
 
@@ -117,14 +123,7 @@ export default function SearchContent() {
         </div>
 
         {/* Loading */}
-        {loading && (
-          <div className="flex items-center justify-center py-20 gap-3">
-            <Loader2 size={20} className="animate-spin" style={{ color: "var(--accent)" }} />
-            <span className="text-sm font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
-              Loading...
-            </span>
-          </div>
-        )}
+        {loading && <ProductGridSkeleton count={8} />}
 
         {/* Error */}
         {error && (
@@ -152,24 +151,39 @@ export default function SearchContent() {
             {results.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                 {results.map((product) => (
-                  <Link key={product.id} href={`/product/${product.id}`} className="group block">
+                  <Link key={product.id} href={`/product/${product.slug ?? product.id}`} className="group block">
                     {/* Image */}
                     <div
                       className="relative overflow-hidden aspect-[2/3] mb-3"
                       style={{ backgroundColor: "var(--card-bg)" }}
                     >
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      {product.isNew && (
+                      {product.image ? (
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          fill
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full" style={{ backgroundColor: "var(--bg-secondary)" }} />
+                      )}
+                      {product.stock <= 0 ? (
                         <div
-                          className="absolute top-3 left-3 text-black text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
-                          style={{ backgroundColor: "var(--accent)" }}
+                          className="absolute top-3 left-3 text-white text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
+                          style={{ backgroundColor: "#ef4444" }}
                         >
-                          New
+                          Sold Out
                         </div>
+                      ) : (
+                        product.isNew && (
+                          <div
+                            className="absolute top-3 left-3 text-black text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 font-['DM_Sans']"
+                            style={{ backgroundColor: "var(--accent)" }}
+                          >
+                            New
+                          </div>
+                        )
                       )}
                     </div>
 

@@ -3,10 +3,17 @@ import mongoose from "mongoose";
 const productSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
+    // SEO-friendly URL identifier, e.g. "minimalist-leather-jacket".
+    // unique → no two products can share a slug.
+    // sparse → existing products without a slug don't break the unique index
+    //          (run the backfill script to fill them in).
+    slug: { type: String, unique: true, sparse: true, index: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
     image: { type: String },
     stock: { type: Number, required: true },
+    // Optional size options (e.g. ["S","M","L"]). Empty = no size selection.
+    sizes: { type: [String], default: [] },
     category: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "fanmidcommerce-categories",
@@ -21,6 +28,9 @@ const productSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // ← adds createdAt + updatedAt automatically
+    // `isNew` is technically a reserved Mongoose key; it works correctly here
+    // (verified), so we just silence the startup warning.
+    suppressReservedKeysWarning: true,
     toJSON: {
       virtuals: true,
       transform: (_doc: any, ret: any) => {

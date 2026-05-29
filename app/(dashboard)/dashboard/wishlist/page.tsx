@@ -1,57 +1,122 @@
 "use client";
-import { useState } from "react";
-import { Trash2, ShoppingCart } from "lucide-react";
 
-
-interface WishlistItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-}
+import Link from "next/link";
+import Image from "next/image";
+import { Trash2, ShoppingCart, Heart } from "lucide-react";
+import { useWishlist } from "@/src/context/WishlistContext";
+import { useCart } from "@/src/context/CartContext";
 
 export default function WishlistPage() {
-  const [items, setItems] = useState<WishlistItem[]>([]);
-
-  const removeItem = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
-  };
-
-  const addToCart = (item: WishlistItem) => {
-    // Add to cart logic
-    console.log("Added to cart:", item);
-  };
+  const { items, remove } = useWishlist();
+  const { addItem } = useCart();
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">My Wishlist</h1>
+    <div className="space-y-6">
+      <div>
+        <h1
+          className="text-2xl font-black font-['Playfair_Display']"
+          style={{ color: "var(--text-primary)" }}
+        >
+          My Wishlist
+        </h1>
+        <p
+          className="text-sm font-['DM_Sans'] mt-0.5"
+          style={{ color: "var(--text-muted)" }}
+        >
+          {items.length} {items.length === 1 ? "item" : "items"} saved
+        </p>
+      </div>
 
       {items.length === 0 ? (
-        <p className="text-gray-500">Your wishlist is empty</p>
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <Heart size={48} style={{ color: "var(--text-muted)" }} />
+          <p className="text-sm font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+            Your wishlist is empty.
+          </p>
+          <Link
+            href="/shop"
+            className="px-6 py-3 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-80 transition-opacity"
+            style={{ backgroundColor: "var(--accent)", color: "#000" }}
+          >
+            Browse Products
+          </Link>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((item) => (
-            <div key={item.id} className="border rounded-lg p-4">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-48 object-cover rounded"
-              />
-              <h3 className="font-semibold mt-2">{item.name}</h3>
-              <p className="text-lg font-bold">${item.price}</p>
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => addToCart(item)}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded flex items-center justify-center gap-2"
-                >
-                  <ShoppingCart size={18} /> Add to Cart
-                </button>
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="bg-red-600 text-white p-2 rounded"
-                >
-                  <Trash2 size={18} />
-                </button>
+            <div
+              key={item.id}
+              className="border overflow-hidden"
+              style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border)" }}
+            >
+              <Link
+                href={`/product/${item.slug ?? item.id}`}
+                className="relative block aspect-[4/5] overflow-hidden"
+                style={{ backgroundColor: "var(--bg-secondary)" }}
+              >
+                {item.image ? (
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="(max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full" />
+                )}
+              </Link>
+              <div className="p-4 space-y-3">
+                <div>
+                  {item.category && (
+                    <p
+                      className="text-[10px] tracking-widest uppercase font-['DM_Sans']"
+                      style={{ color: "var(--text-muted)" }}
+                    >
+                      {item.category}
+                    </p>
+                  )}
+                  <Link href={`/product/${item.slug ?? item.id}`}>
+                    <h3
+                      className="text-sm font-bold font-['DM_Sans'] hover:opacity-70 transition-opacity"
+                      style={{ color: "var(--text-primary)" }}
+                    >
+                      {item.name}
+                    </h3>
+                  </Link>
+                  <p
+                    className="text-base font-black font-['Playfair_Display'] mt-1"
+                    style={{ color: "var(--accent)" }}
+                  >
+                    ₦{item.price.toLocaleString()}
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      addItem({
+                        id: item.id,
+                        name: item.name,
+                        price: item.price,
+                        image: item.image,
+                        category: item.category,
+                        size: "One Size",
+                      })
+                    }
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-80 transition-opacity"
+                    style={{ backgroundColor: "var(--accent)", color: "#000" }}
+                  >
+                    <ShoppingCart size={14} /> Add to Cart
+                  </button>
+                  <button
+                    onClick={() => remove(item.id)}
+                    aria-label="Remove from wishlist"
+                    className="w-10 flex items-center justify-center border hover:opacity-70 transition-opacity"
+                    style={{ borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
             </div>
           ))}

@@ -13,10 +13,12 @@ const GET_PRODUCT = gql`
     product(id: $id) {
       id
       name
+      slug
       description
       price
       image
       stock
+      sizes
       category {
         id
         name
@@ -31,10 +33,12 @@ interface GetProductData {
   product: {
     id: string;
     name: string;
+    slug: string;
     description: string;
     price: number;
     image: string;
     stock: number;
+    sizes: string[] | null;
     category: { id: string; name: string; slug: string };
     isNew: boolean | null;
   };
@@ -86,9 +90,11 @@ const EditProduct = ({ params }: { params: Promise<{ id: string }> }) => {
       productId={product.id}
       initialData={{
         name:        product.name,
+        slug:        product.slug,
         description: product.description,
         price:       product.price.toString(),
         stock:       product.stock.toString(),
+        sizes:       product.sizes ?? [],
         categoryId:  product.category?.id ?? " ",   // ✅ pass the ID, not the name
         image:       product.image,
         isNew:       product.isNew ?? false,

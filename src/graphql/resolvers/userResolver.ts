@@ -2,7 +2,34 @@ import bcrypt from "bcryptjs";
 import { connectDB } from "@/src/lib/db";
 import userModel from "@/src/models/User";
 import orderModel from "@/src/models/Order"; // 👈 needed to compute orders + spent
-import { generateToken } from "@/src/lib/auth";
+import {
+  generateToken,
+  generatePasswordResetToken,
+  verifyPasswordResetToken,
+} from "@/src/lib/auth";
+import { Resend } from "resend";
+import { MAIL_FROM, mailTo } from "@/src/lib/email";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+function sendPasswordResetEmail(name: string, email: string, token: string) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const link = `${siteUrl}/reset-password?token=${token}`;
+  resend.emails
+    .send({
+      from: MAIL_FROM,
+      to: mailTo(email),
+      subject: "Reset your password",
+      html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
+        <h2>Hi ${name || "there"},</h2>
+        <p>We received a request to reset your password. This link expires in 1 hour.</p>
+        <a href="${link}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#000;color:#fff;text-decoration:none;font-weight:bold;">Reset Password</a>
+        <p style="margin-top:16px;font-size:12px;color:#888;">If you didn't request this, you can safely ignore this email.</p>
+      </div>`,
+    })
+    .catch((err) => console.error("Reset email error:", err));
+}
 
 // ── Helper: compute orders count + total spent for a user ─────────────────
 async function getUserStats(userId: string) {
@@ -45,8 +72,11 @@ export const userResolvers = {
   },
 
   Query: {
-    users: async () => {
+    users: async (_: unknown, __: unknown, context: any) => {
       await connectDB();
+      // 🔒 Admins only — this exposes every customer's personal data.
+      if (!context.user || !["admin", "superadmin"].includes(context.user.role))
+        throw new Error("Unauthorized");
       try {
         const usersDB = await userModel.find().select("-password");
         return usersDB.map(formatUser);
@@ -55,8 +85,12 @@ export const userResolvers = {
       }
     },
 
-    user: async (_: unknown, { id }: { id: string }) => {
+    user: async (_: unknown, { id }: { id: string }, context: any) => {
       await connectDB();
+      // 🔒 Admins can read anyone; a normal user may only read themselves.
+      if (!context.user) throw new Error("Not authenticated");
+      const isAdmin = ["admin", "superadmin"].includes(context.user.role);
+      if (!isAdmin && context.user.id !== id) throw new Error("Unauthorized");
       try {
         const userDB = await userModel.findById(id).select("-password");
         if (!userDB) throw new Error("User not found");
@@ -152,8 +186,12 @@ export const userResolvers = {
         phone?: string;
         address?: string;
       },
+      context: any,
     ) => {
       await connectDB();
+      // 🔒 Admin-only. Users update themselves via updateProfile.
+      if (!context.user || !["admin", "superadmin"].includes(context.user.role))
+        throw new Error("Unauthorized");
       const user = await userModel.findById(id);
       if (!user) throw new Error("User not found");
 
@@ -215,6 +253,36 @@ export const userResolvers = {
       return formatUser(user);
     },
 
+    // Always returns true (don't reveal whether an email exists). Sends a
+    // reset link only if the account is found.
+    requestPasswordReset: async (_: unknown, { email }: { email: string }) => {
+      await connectDB();
+      const user = await userModel.findOne({ email });
+      if (user) {
+        const token = generatePasswordResetToken(user._id.toString());
+        sendPasswordResetEmail(user.name, user.email, token);
+      }
+      return true;
+    },
+
+    resetPassword: async (
+      _: unknown,
+      { token, newPassword }: { token: string; newPassword: string },
+    ) => {
+      await connectDB();
+      const userId = verifyPasswordResetToken(token);
+      if (!userId) throw new Error("This reset link is invalid or has expired.");
+      if (!newPassword || newPassword.length < 8)
+        throw new Error("Password must be at least 8 characters.");
+
+      const user = await userModel.findById(userId);
+      if (!user) throw new Error("Account not found.");
+
+      user.password = await bcrypt.hash(newPassword, 10);
+      await user.save();
+      return true;
+    },
+
     changePassword: async (
       _: unknown,
       {
@@ -240,8 +308,11 @@ export const userResolvers = {
       return true;
     },
 
-    deleteUser: async (_: unknown, { id }: { id: string }) => {
+    deleteUser: async (_: unknown, { id }: { id: string }, context: any) => {
       await connectDB();
+      // 🔒 Admin-only. Users delete their own account via deleteAccount.
+      if (!context.user || !["admin", "superadmin"].includes(context.user.role))
+        throw new Error("Unauthorized");
       const deletedUser = await userModel.findByIdAndDelete(id);
       if (!deletedUser) throw new Error("User not found");
       return formatUser(deletedUser);

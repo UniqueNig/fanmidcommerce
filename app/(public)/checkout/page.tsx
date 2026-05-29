@@ -5,9 +5,21 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/src/components/layout/Navbar";
 import { Shield, Lock, ChevronRight, Check } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
+import { useCoupon } from "@/src/context/CouponContext";
+import Image from "next/image";
 import Script from "next/script";
 
 const STEPS = ["Details", "Shipping", "Payment"];
+
+const VALIDATE_COUPON = `
+  query ValidateCoupon($code: String!, $subtotal: Float!) {
+    validateCoupon(code: $code, subtotal: $subtotal) {
+      ok
+      discount
+      code
+    }
+  }
+`;
 
 const VERIFY_AND_CREATE_ORDER = `
   mutation VerifyPaymentAndCreateOrder(
@@ -32,6 +44,26 @@ const VERIFY_AND_CREATE_ORDER = `
   }
 `;
 
+const CHECK_STOCK = `
+  query CheckStock($items: [StockCheckInput!]!) {
+    checkStock(items: $items) {
+      product
+      name
+      available
+      requested
+      ok
+    }
+  }
+`;
+
+const SHIPPING_QUERY = `
+  query ShippingMethods {
+    shippingMethods { id label description cost }
+  }
+`;
+
+type ShippingOption = { id: string; label: string; description: string; cost: number };
+
 const inputClass = "w-full px-4 py-3 text-sm font-['DM_Sans'] outline-none border transition-all duration-200";
 const inputStyle = { backgroundColor: "var(--bg-primary)", borderColor: "var(--border)", color: "var(--text-primary)" };
 const labelClass = "text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_Sans'] block mb-1.5";
@@ -39,6 +71,7 @@ const labelClass = "text-[10px] tracking-[0.2em] uppercase font-bold font-['DM_S
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
+  const { coupon, clear: clearCoupon } = useCoupon();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [selectedShipping, setSelectedShipping] = useState(0);
@@ -47,13 +80,23 @@ export default function CheckoutPage() {
     address: "", city: "", state: "",
   });
 
-  const SHIPPING_OPTIONS = [
-    { label: "Standard Delivery", sub: "5–7 business days", cost: 3000 },
-    { label: "Express Delivery",  sub: "2–3 business days", cost: 7000 },
-  ];
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
 
-  const shippingCost = SHIPPING_OPTIONS[selectedShipping].cost;
-  const total = subtotal + shippingCost;
+  // Load admin-defined shipping methods from the DB.
+  useEffect(() => {
+    fetch("/api/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: SHIPPING_QUERY }),
+    })
+      .then((r) => r.json())
+      .then((d) => setShippingOptions(d?.data?.shippingMethods ?? []))
+      .catch(() => setShippingOptions([]));
+  }, []);
+
+  const shippingCost = shippingOptions[selectedShipping]?.cost ?? 0;
+  const discount = coupon?.discount ?? 0;
+  const total = Math.max(0, subtotal - discount) + shippingCost;
 
   const update = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -83,16 +126,75 @@ export default function CheckoutPage() {
     fetchUser();
   }, []);
 
-const handlePaystack = () => {
+const handlePaystack = async () => {
   if (!form.email || !form.name || !form.phone || !form.address || !form.city || !form.state) {
     alert("Please fill all required fields");
     return;
   }
 
   setLoading(true);
+
+  // 1) Confirm everything is still in stock BEFORE taking payment.
+  try {
+    const checkRes = await fetch("/api/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: CHECK_STOCK,
+        variables: {
+          items: items.map((i) => ({ product: i.id, quantity: i.quantity })),
+        },
+      }),
+    });
+    const checkData = await checkRes.json();
+    const checks = checkData?.data?.checkStock ?? [];
+    const problem = checks.find((c: { ok: boolean }) => !c.ok);
+    if (problem) {
+      alert(
+        problem.available > 0
+          ? `"${problem.name}" only has ${problem.available} left in stock. Please reduce the quantity in your cart.`
+          : `"${problem.name}" is now sold out. Please remove it from your cart.`,
+      );
+      setLoading(false);
+      return;
+    }
+  } catch {
+    alert("Could not verify item availability. Please try again.");
+    setLoading(false);
+    return;
+  }
+
+  // 1b) Re-validate the coupon server-side so the amount we charge matches
+  //     exactly what the server will expect (otherwise the order is rejected).
+  let appliedCode: string | null = coupon?.code ?? null;
+  let appliedDiscount = 0;
+  if (appliedCode) {
+    try {
+      const cRes = await fetch("/api/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: VALIDATE_COUPON,
+          variables: { code: appliedCode, subtotal },
+        }),
+      });
+      const cData = await cRes.json();
+      const v = cData?.data?.validateCoupon;
+      if (v?.ok) {
+        appliedDiscount = v.discount;
+      } else {
+        appliedCode = null; // coupon no longer valid → drop it
+        clearCoupon();
+      }
+    } catch {
+      appliedCode = null;
+    }
+  }
+
+  const finalTotal = Math.max(0, subtotal - appliedDiscount) + shippingCost;
   const ref = `FANMID-${Date.now()}`;
 
-  // Initialize transaction via your backend, then redirect
+  // 2) Initialize transaction via your backend, then redirect
 fetch("/api/paystack/initialize", {
   method: "POST",
   headers: {
@@ -100,7 +202,7 @@ fetch("/api/paystack/initialize", {
   },
     body: JSON.stringify({
       email: form.email,
-      amount: Math.round(total * 100),
+      amount: Math.round(finalTotal * 100),
       currency: "NGN",
       reference: ref,
       callback_url: `${window.location.origin}/order-success?ref=${ref}`,
@@ -110,6 +212,9 @@ fetch("/api/paystack/initialize", {
         address: form.address,
         city: form.city,
         state: form.state,
+        // Needed by the webhook to finalize server-side if the tab closes.
+        shippingCost,
+        couponCode: appliedCode,
         cart_items: JSON.stringify(items.map((i) => ({
           product: i.id,
           name: i.name,
@@ -142,7 +247,8 @@ fetch("/api/paystack/initialize", {
           },
           subtotal,
           shippingCost,
-          totalAmount: total,
+          totalAmount: finalTotal,
+          couponCode: appliedCode,
         }));
 
         window.location.href = data.data.authorization_url;
@@ -262,8 +368,14 @@ fetch("/api/paystack/initialize", {
                   <div>
                     <label className={labelClass} style={{ color: "var(--text-muted)" }}>Shipping Method</label>
                     <div className="space-y-2">
-                      {SHIPPING_OPTIONS.map((opt, i) => (
-                        <label key={opt.label}
+                      {shippingOptions.length === 0 && (
+                        <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>
+                          Loading shipping options...
+                        </p>
+                      )}
+                      {shippingOptions.map((opt, i) => (
+                        <label key={opt.id}
+                          onClick={() => setSelectedShipping(i)}
                           className="flex items-center justify-between p-4 border cursor-pointer transition-colors"
                           style={{
                             borderColor: selectedShipping === i ? "var(--accent)" : "var(--border)",
@@ -271,15 +383,14 @@ fetch("/api/paystack/initialize", {
                           }}>
                           <div className="flex items-center gap-3">
                             <div className="w-4 h-4 rounded-full border-2 flex items-center justify-center"
-                              style={{ borderColor: "var(--accent)" }}
-                              onClick={() => setSelectedShipping(i)}>
+                              style={{ borderColor: "var(--accent)" }}>
                               {selectedShipping === i && (
                                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: "var(--accent)" }} />
                               )}
                             </div>
                             <div>
                               <p className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>{opt.label}</p>
-                              <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>{opt.sub}</p>
+                              <p className="text-xs font-['DM_Sans']" style={{ color: "var(--text-muted)" }}>{opt.description}</p>
                             </div>
                           </div>
                           <span className="text-sm font-bold font-['DM_Sans']" style={{ color: "var(--text-primary)" }}>
@@ -356,9 +467,9 @@ fetch("/api/paystack/initialize", {
               <div className="space-y-4">
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-3">
-                    <div className="relative flex-shrink-0">
+                    <div className="relative flex-shrink-0 w-14 h-16">
                       {item.image ? (
-  <img src={item.image} alt={item.name} className="w-14 h-16 object-cover" />
+  <Image src={item.image} alt={item.name} fill sizes="56px" className="object-cover" />
 ) : (
   <div className="w-14 h-16" style={{ backgroundColor: "var(--card-bg)" }} />
 )}
@@ -382,6 +493,9 @@ fetch("/api/paystack/initialize", {
               <div className="border-t pt-4 space-y-3" style={{ borderColor: "var(--border)" }}>
                 {[
                   { label: "Subtotal", value: `₦${subtotal.toLocaleString()}` },
+                  ...(discount > 0
+                    ? [{ label: `Discount${coupon?.code ? ` (${coupon.code})` : ""}`, value: `-₦${discount.toLocaleString()}` }]
+                    : []),
                   { label: "Shipping", value: `₦${shippingCost.toLocaleString()}` },
                 ].map(({ label, value }) => (
                   <div key={label} className="flex justify-between">

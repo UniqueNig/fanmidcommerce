@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { gql } from "@apollo/client";
 import AuthCard from "@/src/components/auth/AuthCard";
@@ -143,13 +144,13 @@ export default function Login() {
 
         {/* Forgot password */}
         <div className="flex justify-end -mt-2">
-          <button
-            type="button"
+          <Link
+            href="/forgot-password"
             className="text-xs font-['DM_Sans'] transition-opacity hover:opacity-60"
             style={{ color: "var(--text-muted)" }}
           >
             Forgot password?
-          </button>
+          </Link>
         </div>
 
         {/* Server error */}

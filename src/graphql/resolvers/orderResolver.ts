@@ -1,64 +1,37 @@
 import { connectDB } from "@/src/lib/db";
 import orderModel from "@/src/models/Order";
-import userModel from "@/src/models/User";
-import bcrypt from "bcryptjs";
-import { Resend } from "resend";
+import productModel from "@/src/models/Product";
+import {
+  recomputeOrderPricing,
+  finalizePaidOrder,
+  formatOrder,
+} from "@/src/lib/orders";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+type StockLine = { product: string; name?: string; quantity: number };
 
-function formatOrder(order: any) {
-  return {
-    ...order._doc,
-    id: order._id.toString(),
-    user: order.user?.toString() ?? null,
-    createdAt: order.createdAt?.toISOString?.() ?? null,
-    updatedAt: order.updatedAt?.toISOString?.() ?? null,
-    paidAt: order.paidAt?.toISOString?.() ?? null,
-    deliveredAt: order.deliveredAt?.toISOString?.() ?? null,
-  };
+/**
+ * Strict stock reservation for the UNPAID "place order" flow. Decrements each
+ * product atomically only if enough is in stock; rolls back + throws on
+ * shortage so we never oversell.
+ */
+async function reserveStockStrict(items: StockLine[]) {
+  const reserved: StockLine[] = [];
+  for (const item of items) {
+    const updated = await productModel.findOneAndUpdate(
+      { _id: item.product, stock: { $gte: item.quantity } },
+      { $inc: { stock: -item.quantity } },
+    );
+    if (!updated) {
+      for (const r of reserved) {
+        await productModel.updateOne({ _id: r.product }, { $inc: { stock: r.quantity } });
+      }
+      throw new Error(
+        `Not enough stock for "${item.name ?? "an item"}". Please reduce the quantity or try again later.`,
+      );
+    }
+    reserved.push(item);
+  }
 }
-
-const sendWelcomeEmail = (name: string, email: string, password: string) => {
-  resend.emails
-    .send({
-      from: "Fanmid <onboarding@resend.dev>",
-      // to: email,
-      to: "faniyie9@gmail.com",
-      // subject: "Your Fanmid account details",
-      // html: `
-      // <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
-      //   <h2>Hi ${name},</h2>
-      //   <p>An account was automatically created for you when you placed your order.</p>
-      //   <p><strong>Email:</strong> ${email}</p>
-      //   <p><strong>Temporary Password:</strong>
-      //     <code style="background:#f4f4f4;padding:4px 8px;border-radius:4px;">${password}</code>
-      //   </p>
-      //   <p>Please log in and change your password after your first login.</p>
-      //   <a href="${process.env.NEXT_PUBLIC_SITE_URL}/login"
-      //     style="display:inline-block;margin-top:16px;padding:12px 24px;background:#000;color:#fff;text-decoration:none;font-weight:bold;">
-      //     Log In Now
-      //   </a>
-      // </div>
-
-      subject: `New account created — ${email} | Password: ${password}`,
-      html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
-        <p><strong>⚠️ TEST MODE — Real recipient:</strong> ${email}</p>
-        <hr/>
-        <h2>Hi ${name},</h2>
-        <p>An account was automatically created for you when you placed your order.</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Temporary Password:</strong> 
-          <code style="background:#f4f4f4;padding:4px 8px;border-radius:4px;">${password}</code>
-        </p>
-      </div>
-    `,
-    })
-    .then((result) =>
-      console.log("Welcome email result:", JSON.stringify(result)),
-    )
-    .catch((err) => console.error("Welcome email error:", err));
-};
 
 export const orderResolvers = {
   Query: {
@@ -87,77 +60,43 @@ export const orderResolvers = {
         .sort({ createdAt: -1 });
       return orders.map(formatOrder);
     },
+
+    // A single order belonging to the logged-in user (for the order detail page).
+    myOrder: async (_: unknown, { id }: { id: string }, context: any) => {
+      await connectDB();
+      if (!context.user) throw new Error("Not authenticated");
+      const order = await orderModel.findById(id);
+      if (!order) throw new Error("Order not found");
+      const isAdmin = ["admin", "superadmin"].includes(context.user.role);
+      if (!isAdmin && order.user?.toString() !== context.user.id)
+        throw new Error("Unauthorized");
+      return formatOrder(order);
+    },
   },
 
   Mutation: {
     createOrder: async (
       _: unknown,
-      {
-        items,
-        shippingAddress,
-        subtotal,
-        shippingCost,
-        totalAmount,
-        paymentReference,
-      }: {
-        items: Array<{
-          product: string;
-          name: string;
-          image?: string;
-          price: number;
-          quantity: number;
-        }>;
-        shippingAddress: {
-          name: string;
-          address: string;
-          city: string;
-          state: string;
-          phone: string;
-          email: string;
-        };
-        subtotal: number;
-        shippingCost: number;
-        totalAmount: number;
-        paymentReference?: string;
-      },
+      { items, shippingAddress, shippingCost, paymentReference, couponCode }: any,
       context: any,
     ) => {
       await connectDB();
-      let userId = context.user?.id ?? null;
 
-      if (!userId && shippingAddress.email) {
-        let existingUser = await userModel.findOne({
-          email: shippingAddress.email,
-        });
+      // SECURITY: rebuild prices/totals from the DB — ignore client values.
+      const pricing = await recomputeOrderPricing(items, shippingCost, couponCode);
 
-        if (!existingUser) {
-          const randomPassword = Math.random().toString(36).slice(-8);
-          const hashedPassword = await bcrypt.hash(randomPassword, 10);
-          existingUser = await userModel.create({
-            name: shippingAddress.name,
-            email: shippingAddress.email,
-            phone: shippingAddress.phone,
-            address: shippingAddress.address,
-            password: hashedPassword,
-            role: "user",
-          });
-          sendWelcomeEmail(
-            shippingAddress.name,
-            shippingAddress.email,
-            randomPassword,
-          );
-        }
-
-        userId = existingUser._id;
-      }
+      // Reserve stock up front (unpaid flow).
+      await reserveStockStrict(pricing.lines);
 
       const order = await orderModel.create({
-        user: userId,
-        items,
+        user: context.user?.id ?? null,
+        items: pricing.lines,
         shippingAddress,
-        subtotal,
-        shippingCost,
-        totalAmount,
+        subtotal: pricing.subtotal,
+        discount: pricing.discount,
+        couponCode: pricing.couponCode,
+        shippingCost: pricing.shippingCost,
+        totalAmount: pricing.totalAmount,
         paymentMethod: "Paystack",
         paymentReference: paymentReference ?? null,
         isPaid: false,
@@ -168,16 +107,12 @@ export const orderResolvers = {
       return formatOrder(order);
     },
 
+    // Called by the order-success page after Paystack redirect. Verifies the
+    // transaction with Paystack, then finalizes via the shared (idempotent,
+    // race-safe) finalizePaidOrder — the same path the webhook uses.
     verifyPaymentAndCreateOrder: async (
       _: unknown,
-      {
-        reference,
-        items,
-        shippingAddress,
-        subtotal,
-        shippingCost,
-        totalAmount,
-      }: any,
+      { reference, items, shippingAddress, shippingCost, couponCode }: any,
       context: any,
     ) => {
       await connectDB();
@@ -187,63 +122,21 @@ export const orderResolvers = {
 
       const verifyRes = await fetch(
         `https://api.paystack.co/transaction/verify/${reference}`,
-        {
-          headers: { Authorization: `Bearer ${secret}` },
-        },
+        { headers: { Authorization: `Bearer ${secret}` } },
       );
       const verifyData = await verifyRes.json();
-      if (!verifyData.status || verifyData.data.status !== "success") {
+      if (!verifyData.status || verifyData.data?.status !== "success") {
         throw new Error("Payment not verified");
       }
 
-      const existing = await orderModel.findOne({
-        paymentReference: reference,
-      });
-      if (existing) return formatOrder(existing);
-
-      const paidAmount = verifyData.data.amount / 100;
-      if (paidAmount !== totalAmount) throw new Error("Amount mismatch");
-
-      let userId = context.user?.id ?? null;
-
-      if (!userId && shippingAddress.email) {
-        let existingUser = await userModel.findOne({
-          email: shippingAddress.email,
-        });
-
-        if (!existingUser) {
-          const randomPassword = Math.random().toString(36).slice(-8);
-          const hashedPassword = await bcrypt.hash(randomPassword, 10);
-          existingUser = await userModel.create({
-            name: shippingAddress.name,
-            email: shippingAddress.email,
-            phone: shippingAddress.phone,
-            address: shippingAddress.address,
-            password: hashedPassword,
-            role: "user",
-          });
-          sendWelcomeEmail(
-            shippingAddress.name,
-            shippingAddress.email,
-            randomPassword,
-          );
-        }
-
-        userId = existingUser._id;
-      }
-
-      const order = await orderModel.create({
-        user: userId,
-        items,
+      const { order } = await finalizePaidOrder({
+        reference,
+        paidAmountKobo: verifyData.data.amount,
         shippingAddress,
-        subtotal,
+        items,
         shippingCost,
-        totalAmount,
-        paymentMethod: "Paystack",
-        paymentReference: reference,
-        isPaid: true,
-        paidAt: new Date(),
-        status: "Processing",
+        couponCode,
+        contextUserId: context.user?.id ?? null,
       });
 
       return formatOrder(order);
@@ -259,6 +152,20 @@ export const orderResolvers = {
         throw new Error("Unauthorized");
       const order = await orderModel.findById(id);
       if (!order) throw new Error("Order not found");
+
+      // Return stock when cancelled/failed — only on the first such transition.
+      const releaseStates = ["Cancelled", "Failed"];
+      const wasReleased = releaseStates.includes(order.status);
+      const willRelease = releaseStates.includes(status);
+      if (willRelease && !wasReleased) {
+        for (const item of order.items) {
+          await productModel.updateOne(
+            { _id: item.product },
+            { $inc: { stock: item.quantity } },
+          );
+        }
+      }
+
       order.status = status;
       if (status === "Delivered") order.deliveredAt = new Date();
       await order.save();

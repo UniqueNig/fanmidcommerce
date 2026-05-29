@@ -24,9 +24,21 @@ interface OrderItem {
 interface Order {
   id: string;
   items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  couponCode: string | null;
+  shippingCost: number;
   totalAmount: number;
   status: string;
+  paymentReference: string | null;
   createdAt: string;
+  shippingAddress: {
+    name: string;
+    address: string;
+    city: string;
+    state: string;
+    phone: string;
+  } | null;
 }
 
 interface GetMyOrdersResponse {
@@ -43,9 +55,21 @@ const GET_MY_ORDERS = gql`
         price
         image
       }
+      subtotal
+      discount
+      couponCode
+      shippingCost
       totalAmount
       status
+      paymentReference
       createdAt
+      shippingAddress {
+        name
+        address
+        city
+        state
+        phone
+      }
     }
   }
 `;
@@ -347,16 +371,44 @@ export default function OrdersPage() {
                             </div>
                           </div>
                         ))}
-                        <div
-                          className="flex justify-between font-bold text-sm font-['DM_Sans'] border-t pt-2"
-                          style={{ borderColor: "var(--border)" }}
-                        >
-                          <span style={{ color: "var(--text-primary)" }}>
-                            Total
-                          </span>
-                          <span style={{ color: "var(--accent)" }}>
-                            ₦{order.totalAmount.toLocaleString()}
-                          </span>
+                        {/* Price breakdown */}
+                        <div className="border-t pt-2 space-y-1" style={{ borderColor: "var(--border)" }}>
+                          <div className="flex justify-between text-xs font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                            <span>Subtotal</span>
+                            <span>₦{(order.subtotal ?? 0).toLocaleString()}</span>
+                          </div>
+                          {order.discount > 0 && (
+                            <div className="flex justify-between text-xs font-['DM_Sans']" style={{ color: "#22c55e" }}>
+                              <span>Discount{order.couponCode ? ` (${order.couponCode})` : ""}</span>
+                              <span>-₦{order.discount.toLocaleString()}</span>
+                            </div>
+                          )}
+                          <div className="flex justify-between text-xs font-['DM_Sans']" style={{ color: "var(--text-secondary)" }}>
+                            <span>Shipping</span>
+                            <span>₦{(order.shippingCost ?? 0).toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between font-bold text-sm font-['DM_Sans'] pt-1">
+                            <span style={{ color: "var(--text-primary)" }}>Total</span>
+                            <span style={{ color: "var(--accent)" }}>₦{order.totalAmount.toLocaleString()}</span>
+                          </div>
+                        </div>
+
+                        {/* Meta */}
+                        <div className="border-t pt-3 mt-1 grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] font-['DM_Sans']" style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}>
+                          {order.paymentReference && (
+                            <div>
+                              <span className="tracking-widest uppercase block mb-0.5">Payment Ref</span>
+                              <span style={{ color: "var(--text-secondary)" }}>{order.paymentReference}</span>
+                            </div>
+                          )}
+                          {order.shippingAddress && (
+                            <div>
+                              <span className="tracking-widest uppercase block mb-0.5">Ship To</span>
+                              <span style={{ color: "var(--text-secondary)" }}>
+                                {order.shippingAddress.name}, {order.shippingAddress.address}, {order.shippingAddress.city}, {order.shippingAddress.state} · {order.shippingAddress.phone}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
