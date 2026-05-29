@@ -154,7 +154,7 @@ export default async function ProductDetailPage({
           {/* Left — image gallery */}
           <div className="w-full">
             <ProductImageGallery
-              images={product.image ? [product.image] : []}
+              images={product.images}
               productName={product.name}
             />
           </div>
@@ -173,6 +173,7 @@ export default async function ProductDetailPage({
               inStock={inStock}
               stockCount={product.stock}
               sizes={product.sizes} // real sizes from the product (empty = no size selector)
+              sizeStock={product.sizeStock} // per-size availability
               sizeGuide={(product.sizeGuide as "clothing" | "footwear" | "none") || "clothing"}
               whatsappNumber={store.whatsapp || "2348134879924"} // from store settings
             />

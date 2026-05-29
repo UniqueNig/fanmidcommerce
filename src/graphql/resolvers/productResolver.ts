@@ -33,6 +33,23 @@ async function generateUniqueProductSlug(
   return makeUniqueSlug(base, taken);
 }
 
+// Keep derived fields consistent: when a product is sized, the total `stock`
+// and the simple `sizes` list are computed from sizeStock; `image` mirrors the
+// first gallery image. Mutates and returns the same object.
+function deriveVariantFields(data: any) {
+  if (Array.isArray(data.sizeStock) && data.sizeStock.length > 0) {
+    data.stock = data.sizeStock.reduce(
+      (sum: number, s: any) => sum + (Number(s.stock) || 0),
+      0,
+    );
+    data.sizes = data.sizeStock.map((s: any) => s.size);
+  }
+  if (Array.isArray(data.images) && data.images.length > 0) {
+    data.image = data.images[0];
+  }
+  return data;
+}
+
 export const productResolvers = {
   Product: {
     id: (parent: any) => parent._id?.toString() ?? parent.id,
@@ -81,23 +98,26 @@ export const productResolvers = {
     // ✅ Pre-checkout availability check.
     checkStock: async (
       _: unknown,
-      { items }: { items: Array<{ product: string; quantity: number }> },
+      { items }: { items: Array<{ product: string; quantity: number; size?: string }> },
     ) => {
       await connectDB();
 
       const ids = items.map((i) => i.product);
       const products = await productModel
         .find({ _id: { $in: ids } })
-        .select("name stock")
+        .select("name stock sizeStock")
         .lean();
 
-      const byId = new Map(
-        products.map((p: any) => [p._id.toString(), p]),
-      );
+      const byId = new Map(products.map((p: any) => [p._id.toString(), p]));
 
       return items.map((i) => {
-        const p = byId.get(i.product);
-        const available = p?.stock ?? 0;
+        const p: any = byId.get(i.product);
+        // If the product is sized and a size was chosen, check THAT size's stock.
+        let available = p?.stock ?? 0;
+        if (p?.sizeStock?.length && i.size) {
+          const row = p.sizeStock.find((s: any) => s.size === i.size);
+          available = row?.stock ?? 0;
+        }
         return {
           product: i.product,
           name: p?.name ?? null,
@@ -145,11 +165,13 @@ export const productResolvers = {
       // Either way we run it through the uniqueness guard.
       const slug = await generateUniqueProductSlug(args.slug || args.name);
 
-      const newProduct = await productModel.create({
-        ...args,
-        slug,
-        createdBy: context.user?.id,
-      });
+      const newProduct = await productModel.create(
+        deriveVariantFields({
+          ...args,
+          slug,
+          createdBy: context.user?.id,
+        }),
+      );
 
       return await newProduct.populate("category");
     },
@@ -180,10 +202,12 @@ export const productResolvers = {
         "description",
         "price",
         "image",
+        "images",
         "stock",
         "category",
         "isNew",
         "sizes",
+        "sizeStock",
         "sizeGuide",
         "materials",
         "sizingFit",
@@ -191,6 +215,9 @@ export const productResolvers = {
       ]) {
         if (rest[key] !== undefined) updates[key] = rest[key];
       }
+
+      // Keep stock/sizes/image in sync with sizeStock & images.
+      deriveVariantFields(updates);
 
       // Slug only changes when the admin explicitly provides one, so existing
       // SEO URLs aren't silently broken on every edit.

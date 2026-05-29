@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Upload, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, Upload, Loader2, X, Plus } from "lucide-react";
 import Link from "next/link";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client/react";
@@ -124,12 +124,14 @@ type ProductFormProps = {
     price?: string;
     stock?: string;
     sizes?: string[];
+    sizeStock?: { size: string; stock: number }[];
     sizeGuide?: string;
     materials?: string;
     sizingFit?: string;
     careInstructions?: string;
     categoryId?: string; // ✅ now an ID, not a name string
     image?: string;
+    images?: string[];
     isNew?: boolean;
   };
   mode: "add" | "edit";
@@ -159,15 +161,25 @@ export default function ProductForm({
     description: initialData.description ?? "",
     price: initialData.price ?? "",
     stock: initialData.stock ?? "",
-    sizes: (initialData.sizes ?? []).join(", "), // comma-separated in the input
     sizeGuide: initialData.sizeGuide ?? "clothing",
     materials: initialData.materials ?? "",
     sizingFit: initialData.sizingFit ?? "",
     careInstructions: initialData.careInstructions ?? "",
     categoryId: initialData.categoryId ?? "", // ✅ stores the category _id
-    image: initialData.image ?? "",
     isNew: initialData.isNew ?? false,
   });
+  // Gallery images (first is the main image).
+  const [images, setImages] = useState<string[]>(
+    initialData.images?.length
+      ? initialData.images
+      : initialData.image
+        ? [initialData.image]
+        : [],
+  );
+  // Per-size stock rows. Empty = a non-sized product (uses the single Stock field).
+  const [sizeRows, setSizeRows] = useState<{ size: string; stock: string }[]>(
+    (initialData.sizeStock ?? []).map((s) => ({ size: s.size, stock: String(s.stock) })),
+  );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -219,22 +231,29 @@ export default function ProductForm({
     setSaving(true);
 
     try {
+      // Per-size stock rows → [{size, stock}]. Empty rows are dropped.
+      const sizeStock = sizeRows
+        .map((r) => ({ size: r.size.trim(), stock: Math.max(0, parseInt(r.stock) || 0) }))
+        .filter((r) => r.size);
+      const sized = sizeStock.length > 0;
+
       const variables = {
         name: form.name,
         slug: form.slug, // backend slugifies + guarantees uniqueness
         description: form.description,
         price: parseFloat(form.price),
-        stock: parseInt(form.stock),
-        sizes: form.sizes
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean), // "S, M, L" → ["S","M","L"]
+        // Sized → total is the sum of size stocks (backend re-derives too).
+        stock: sized
+          ? sizeStock.reduce((s, r) => s + r.stock, 0)
+          : parseInt(form.stock) || 0,
+        sizeStock,
         sizeGuide: form.sizeGuide,
         materials: form.materials,
         sizingFit: form.sizingFit,
         careInstructions: form.careInstructions,
         category: form.categoryId, // ✅ sending the _id
-        image: form.image,
+        images,
+        image: images[0] ?? "",
         isNew: form.isNew,
       };
 
@@ -285,7 +304,7 @@ export default function ProductForm({
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Image */}
+        {/* Images (gallery) */}
         <div
           className="border p-6"
           style={{
@@ -294,56 +313,65 @@ export default function ProductForm({
           }}
         >
           <label className={labelClass} style={{ color: "var(--text-muted)" }}>
-            Product Image
+            Product Images
           </label>
-          <div className="flex gap-4 items-start">
-            <div
-              className="w-24 h-28 flex-shrink-0 overflow-hidden border"
-              style={{
-                borderColor: "var(--border)",
-                backgroundColor: "var(--bg-secondary)",
-              }}
-            >
-              {form.image ? (
-                <img
-                  src={form.image}
-                  alt="preview"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Upload size={20} style={{ color: "var(--text-muted)" }} />
-                </div>
-              )}
-            </div>
-            <input
-              type="file"
-              accept="image/*"
-              className={inputClass}
-              style={inputStyle()}
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                setSaving(true);
-                try {
-                  const url = await uploadImage(file);
-                  update("image", url);
-                } catch (err) {
-                  console.error("Upload failed:", err);
-                } finally {
-                  setSaving(false);
-                }
-              }}
-            />
-            {saving && (
-              <p
-                className="text-xs font-['DM_Sans']"
-                style={{ color: "var(--text-muted)" }}
+          <div className="flex flex-wrap gap-3 items-start">
+            {images.map((url, i) => (
+              <div
+                key={url + i}
+                className="relative w-24 h-28 flex-shrink-0 overflow-hidden border group"
+                style={{ borderColor: i === 0 ? "var(--accent)" : "var(--border)" }}
               >
-                Uploading...
-              </p>
-            )}
+                <img src={url} alt={`image ${i + 1}`} className="w-full h-full object-cover" />
+                {i === 0 && (
+                  <span
+                    className="absolute bottom-0 left-0 right-0 text-[9px] text-center font-bold tracking-widest uppercase py-0.5"
+                    style={{ backgroundColor: "var(--accent)", color: "#000" }}
+                  >
+                    Main
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setImages((arr) => arr.filter((_, idx) => idx !== i))}
+                  className="absolute top-1 right-1 w-5 h-5 flex items-center justify-center bg-black/60 text-white"
+                  aria-label="Remove image"
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+            {/* Add image */}
+            <label
+              className="w-24 h-28 flex-shrink-0 flex flex-col items-center justify-center gap-1 border cursor-pointer hover:opacity-70 transition-opacity"
+              style={{ borderColor: "var(--border)", backgroundColor: "var(--bg-secondary)", color: "var(--text-muted)" }}
+            >
+              <Upload size={18} />
+              <span className="text-[10px] font-['DM_Sans']">Add</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={async (e) => {
+                  const files = Array.from(e.target.files ?? []);
+                  if (!files.length) return;
+                  setSaving(true);
+                  try {
+                    const urls = await Promise.all(files.map((f) => uploadImage(f)));
+                    setImages((arr) => [...arr, ...urls.filter(Boolean)]);
+                  } catch (err) {
+                    console.error("Upload failed:", err);
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+              />
+            </label>
           </div>
+          <p className="text-[11px] font-['DM_Sans'] mt-2" style={{ color: "var(--text-muted)" }}>
+            First image is the main one (shown on cards). The rest appear in the product gallery. {saving && "Uploading..."}
+          </p>
         </div>
 
         {/* Basic info */}
@@ -474,18 +502,27 @@ export default function ProductForm({
                 className={labelClass}
                 style={{ color: "var(--text-muted)" }}
               >
-                Stock Quantity *
+                Stock Quantity {sizeRows.length === 0 ? "*" : ""}
               </label>
-              <input
-                required
-                type="number"
-                min="0"
-                className={inputClass}
-                style={inputStyle()}
-                value={form.stock}
-                onChange={(e) => update("stock", e.target.value)}
-                placeholder="0"
-              />
+              {sizeRows.length === 0 ? (
+                <input
+                  type="number"
+                  min="0"
+                  className={inputClass}
+                  style={inputStyle()}
+                  value={form.stock}
+                  onChange={(e) => update("stock", e.target.value)}
+                  placeholder="0"
+                />
+              ) : (
+                <div
+                  className={inputClass}
+                  style={inputStyle({ opacity: 0.7 })}
+                >
+                  {sizeRows.reduce((s, r) => s + (parseInt(r.stock) || 0), 0)} total
+                  (per size below)
+                </div>
+              )}
             </div>
             <div className="flex flex-col justify-end">
               <label className="flex items-center gap-3 cursor-pointer">
@@ -524,23 +561,63 @@ export default function ProductForm({
             </div>
           </div>
 
-          {/* Sizes */}
+          {/* Sizes & per-size stock */}
           <div>
             <label className={labelClass} style={{ color: "var(--text-muted)" }}>
-              Sizes (optional)
+              Sizes & Stock (optional)
             </label>
-            <input
-              className={inputClass}
-              style={inputStyle()}
-              value={form.sizes}
-              onChange={(e) => update("sizes", e.target.value)}
-              placeholder="e.g. S, M, L, XL — leave blank for one-size items"
-            />
+            <div className="space-y-2">
+              {sizeRows.map((row, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <input
+                    className={`${inputClass} flex-1`}
+                    style={inputStyle()}
+                    value={row.size}
+                    onChange={(e) =>
+                      setSizeRows((rows) =>
+                        rows.map((r, idx) => (idx === i ? { ...r, size: e.target.value } : r)),
+                      )
+                    }
+                    placeholder="Size (e.g. S, M, L  •  or 40, 41, 42 for shoes)"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    className={`${inputClass} w-28`}
+                    style={inputStyle()}
+                    value={row.stock}
+                    onChange={(e) =>
+                      setSizeRows((rows) =>
+                        rows.map((r, idx) => (idx === i ? { ...r, stock: e.target.value } : r)),
+                      )
+                    }
+                    placeholder="Qty"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setSizeRows((rows) => rows.filter((_, idx) => idx !== i))}
+                    className="w-9 h-9 flex items-center justify-center border flex-shrink-0 hover:opacity-70"
+                    style={{ borderColor: "rgba(239,68,68,0.3)", color: "#ef4444" }}
+                    aria-label="Remove size"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setSizeRows((rows) => [...rows, { size: "", stock: "" }])}
+              className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-70"
+              style={{ color: "var(--accent)" }}
+            >
+              <Plus size={12} /> Add size
+            </button>
             <p
-              className="text-[11px] font-['DM_Sans'] mt-1.5"
+              className="text-[11px] font-['DM_Sans'] mt-2"
               style={{ color: "var(--text-muted)" }}
             >
-              Comma-separated. Customers must pick a size before adding to cart.
+              Add a row per size with its own stock (e.g. S=3, M=5, L=4 — or shoe sizes 40, 41…). Leave empty for one-size items and use the single Stock field above.
             </p>
           </div>
 

@@ -2,6 +2,16 @@ import gql from "graphql-tag";
 
 const productType = gql`
   #graphql
+  type SizeStock {
+    size: String!
+    stock: Int!
+  }
+
+  input SizeStockInput {
+    size: String!
+    stock: Int!
+  }
+
   type Product {
     id: ID!
     name: String!
@@ -9,8 +19,10 @@ const productType = gql`
     description: String!
     price: Float!
     image: String
+    images: [String]
     stock: Int!
     sizes: [String]
+    sizeStock: [SizeStock]
     sizeGuide: String
     materials: String
     sizingFit: String
@@ -24,6 +36,7 @@ const productType = gql`
   input StockCheckInput {
     product: ID!
     quantity: Int!
+    size: String
   }
 
   type StockCheck {
@@ -52,8 +65,10 @@ const productType = gql`
       description: String!
       price: Float!
       image: String
+      images: [String]
       stock: Int!
       sizes: [String]
+      sizeStock: [SizeStockInput]
       sizeGuide: String
       materials: String
       sizingFit: String
@@ -69,8 +84,10 @@ const productType = gql`
       description: String
       price: Float
       image: String
+      images: [String]
       stock: Int
       sizes: [String]
+      sizeStock: [SizeStockInput]
       sizeGuide: String
       materials: String
       sizingFit: String

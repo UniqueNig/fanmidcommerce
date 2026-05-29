@@ -11,6 +11,7 @@ const orderItemSchema = new mongoose.Schema({
   image:    { type: String },                  // snapshot of product image
   price:    { type: Number, required: true },  // price AT TIME of purchase
   quantity: { type: Number, required: true, default: 1 },
+  size:     { type: String, default: "" },     // chosen size (for per-size stock)
 });
 
 const orderSchema = new mongoose.Schema(

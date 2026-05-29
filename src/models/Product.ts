@@ -10,8 +10,17 @@ const productSchema = new mongoose.Schema(
     slug: { type: String, unique: true, sparse: true, index: true },
     description: { type: String, required: true },
     price: { type: Number, required: true },
-    image: { type: String },
+    image: { type: String }, // main/thumbnail image (= images[0])
+    images: { type: [String], default: [] }, // gallery shown on the product page
+    // Total stock. For sized products this is kept in sync as the SUM of
+    // sizeStock; for non-sized products it's the single source of truth.
     stock: { type: Number, required: true },
+    // Per-size inventory. When non-empty, the product is sized and each size
+    // carries its own stock (e.g. [{size:"S",stock:3},{size:"M",stock:5}]).
+    sizeStock: {
+      type: [{ size: { type: String }, stock: { type: Number, default: 0 } }],
+      default: [],
+    },
     // Optional size options (e.g. ["S","M","L"]). Empty = no size selection.
     sizes: { type: [String], default: [] },
     // Which size-guide chart to show: clothing, footwear, or none.

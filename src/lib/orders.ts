@@ -22,6 +22,7 @@ export type OrderItemInput = {
   image?: string | null;
   price?: number;
   quantity: number;
+  size?: string;
 };
 
 export type ShippingAddress = {
@@ -37,19 +38,30 @@ export type ShippingAddress = {
 
 /** Decrement stock after a confirmed payment (floored at 0 — never reject). */
 export async function reduceStockAfterPayment(
-  items: { product: string; quantity: number }[],
+  items: { product: string; quantity: number; size?: string }[],
 ) {
   for (const item of items) {
-    // Plain $inc update — Mongoose casts the string id and supports this
-    // directly. (An aggregation-pipeline update silently threw here before,
-    // which is why stock never decremented.)
-    await productModel.updateOne(
-      { _id: item.product },
-      { $inc: { stock: -Math.abs(item.quantity) } },
-    );
+    const qty = Math.abs(item.quantity);
+    if (item.size) {
+      // Sized product: decrement that specific size AND the product total.
+      // (arrayFilters only matches if the product actually has that size; for
+      // a non-sized product it just no-ops the size path and decrements total.)
+      await productModel.updateOne(
+        { _id: item.product },
+        { $inc: { "sizeStock.$[s].stock": -qty, stock: -qty } },
+        { arrayFilters: [{ "s.size": item.size }] },
+      );
+    } else {
+      await productModel.updateOne({ _id: item.product }, { $inc: { stock: -qty } });
+    }
   }
-  // Safety: never show negative stock (in case of an oversell/race).
+  // Safety: never show negative stock (product total or any size).
   await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });
+  await productModel.updateMany(
+    { "sizeStock.stock": { $lt: 0 } },
+    { $set: { "sizeStock.$[s].stock": 0 } },
+    { arrayFilters: [{ "s.stock": { $lt: 0 } }] },
+  );
 }
 
 // ── Server-authoritative pricing ─────────────────────────────────────────────
@@ -81,6 +93,7 @@ export async function recomputeOrderPricing(
       image: p.image ?? null,
       price: p.price,
       quantity,
+      size: i.size ?? "",
     };
   });
 

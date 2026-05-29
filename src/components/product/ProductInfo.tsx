@@ -23,6 +23,7 @@ type ProductInfoProps = {
   inStock: boolean;
   stockCount?: number;
   sizes: string[];
+  sizeStock?: { size: string; stock: number }[];
   sizeGuide?: "clothing" | "footwear" | "none";
   whatsappNumber: string;
 };
@@ -35,7 +36,7 @@ const GUARANTEES = [
 
 export default function ProductInfo({
   id, slug, name, price, originalPrice, description, category, image,
-  isNew, inStock, stockCount, sizes, sizeGuide = "clothing", whatsappNumber,
+  isNew, inStock, stockCount, sizes, sizeStock, sizeGuide = "clothing", whatsappNumber,
 }: ProductInfoProps) {
   const { addItem } = useCart();
   const { has, toggle } = useWishlist();
@@ -46,16 +47,37 @@ export default function ProductInfo({
   const [showGuide, setShowGuide] = useState(false);
   const wishlisted = has(id);
 
+  // Per-size inventory (if provided). Otherwise fall back to the simple sizes
+  // list + shared stockCount.
+  const sized = !!sizeStock && sizeStock.length > 0;
+  const sizeList = sized ? sizeStock!.map((s) => s.size) : sizes;
+  const stockForSize = (s: string) =>
+    sizeStock?.find((x) => x.size === s)?.stock ?? 0;
+  const selectedStock = sized
+    ? selectedSize
+      ? stockForSize(selectedSize)
+      : 0
+    : stockCount ?? 0;
+  const anySizeAvailable = sized ? sizeStock!.some((s) => s.stock > 0) : inStock;
+  // Available to add: a chosen size must have stock; non-sized uses product stock.
+  const canBuy = sized
+    ? !!selectedSize && selectedStock > 0
+    : inStock;
+  const maxForQty = sized ? selectedStock : stockCount ?? 0;
+
   const discount = originalPrice
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : null;
 
   const handleAddToCart = () => {
-    if (!inStock) return;
-    const size = selectedSize ?? (sizes.length === 0 ? "One Size" : null);
+    const size = selectedSize ?? (sizeList.length === 0 ? "One Size" : null);
     if (!size) return; // sizes exist but none selected
+    if (sized ? selectedStock <= 0 : !inStock) return;
 
-    addItem({ id, name, price, image: image || null, category, size, quantity, maxStock: stockCount });
+    addItem({
+      id, name, price, image: image || null, category, size, quantity,
+      maxStock: sized ? selectedStock : stockCount,
+    });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
   };
@@ -145,11 +167,19 @@ export default function ProductInfo({
 
       {/* Stock */}
       <div className="flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: inStock ? "#22c55e" : "#ef4444" }} />
+        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: anySizeAvailable ? "#22c55e" : "#ef4444" }} />
         <span className="text-xs font-['DM_Sans'] tracking-wide" style={{ color: "var(--text-secondary)" }}>
-          {inStock
-            ? stockCount && stockCount < 10 ? `Only ${stockCount} left in stock` : "In Stock"
-            : "Out of Stock"}
+          {!anySizeAvailable
+            ? "Out of Stock"
+            : sized && selectedSize
+              ? selectedStock < 10
+                ? `Only ${selectedStock} left in ${selectedSize}`
+                : `In Stock (${selectedSize})`
+              : sized
+                ? "In Stock — select a size"
+                : stockCount && stockCount < 10
+                  ? `Only ${stockCount} left in stock`
+                  : "In Stock"}
         </span>
       </div>
 
@@ -161,7 +191,7 @@ export default function ProductInfo({
       </p>
 
       {/* Size selector */}
-      {sizes.length > 0 && (
+      {sizeList.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-[10px] tracking-[0.25em] uppercase font-bold font-['DM_Sans']"
@@ -180,17 +210,28 @@ export default function ProductInfo({
             )}
           </div>
           <div className="flex flex-wrap gap-2">
-            {sizes.map((size) => (
-              <button key={size} onClick={() => setSelectedSize(size)}
-                className="w-11 h-11 text-xs font-bold font-['DM_Sans'] border transition-all duration-200"
-                style={{
-                  backgroundColor: selectedSize === size ? "var(--accent)" : "transparent",
-                  borderColor: selectedSize === size ? "var(--accent)" : "var(--border)",
-                  color: selectedSize === size ? "#000" : "var(--text-secondary)",
-                }}>
-                {size}
-              </button>
-            ))}
+            {sizeList.map((size) => {
+              const soldOut = sized && stockForSize(size) <= 0;
+              const active = selectedSize === size;
+              return (
+                <button
+                  key={size}
+                  onClick={() => !soldOut && setSelectedSize(size)}
+                  disabled={soldOut}
+                  title={soldOut ? "Out of stock" : undefined}
+                  className="min-w-11 h-11 px-3 text-xs font-bold font-['DM_Sans'] border transition-all duration-200 disabled:cursor-not-allowed relative"
+                  style={{
+                    backgroundColor: active ? "var(--accent)" : "transparent",
+                    borderColor: active ? "var(--accent)" : "var(--border)",
+                    color: active ? "#000" : soldOut ? "var(--text-muted)" : "var(--text-secondary)",
+                    opacity: soldOut ? 0.5 : 1,
+                    textDecoration: soldOut ? "line-through" : "none",
+                  }}
+                >
+                  {size}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -213,11 +254,9 @@ export default function ProductInfo({
           </span>
           <button
             onClick={() =>
-              setQuantity((q) =>
-                stockCount ? Math.min(q + 1, stockCount) : q + 1,
-              )
+              setQuantity((q) => (maxForQty ? Math.min(q + 1, maxForQty) : q + 1))
             }
-            disabled={!!stockCount && quantity >= stockCount}
+            disabled={!!maxForQty && quantity >= maxForQty}
             className="w-11 h-11 flex items-center justify-center transition-colors hover:opacity-60 disabled:opacity-30 disabled:cursor-not-allowed"
             style={{ color: "var(--text-secondary)" }}>
             <Plus size={14} />
@@ -229,7 +268,7 @@ export default function ProductInfo({
       <div className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={handleAddToCart}
-          disabled={!inStock || (sizes.length > 0 && !selectedSize)}
+          disabled={!canBuy || (sizeList.length > 0 && !selectedSize)}
           className="flex-1 flex items-center justify-center gap-2 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
           style={{ backgroundColor: addedToCart ? "#22c55e" : "var(--accent)", color: "#000" }}
         >

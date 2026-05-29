@@ -7,6 +7,7 @@ const orderType = gql`
     image: String
     price: Float!
     quantity: Int!
+    size: String
   }
 
   type ShippingAddress {
@@ -44,6 +45,7 @@ const orderType = gql`
     image: String
     price: Float!
     quantity: Int!
+    size: String
   }
 
   input ShippingAddressInput {

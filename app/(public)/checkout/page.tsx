@@ -204,7 +204,7 @@ const handlePaystack = async () => {
       body: JSON.stringify({
         query: CHECK_STOCK,
         variables: {
-          items: items.map((i) => ({ product: i.id, quantity: i.quantity })),
+          items: items.map((i) => ({ product: i.id, quantity: i.quantity, size: i.size })),
         },
       }),
     });
@@ -282,6 +282,7 @@ fetch("/api/paystack/initialize", {
           name: i.name,
           price: i.price,
           quantity: i.quantity,
+          size: i.size,
         }))),
       },
     }),
@@ -298,6 +299,7 @@ fetch("/api/paystack/initialize", {
             image: i.image || null,
             price: i.price,
             quantity: i.quantity,
+            size: i.size,
           })),
           shippingAddress: {
             name: form.name,

@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       reference: data.reference,
       paidAmountKobo: data.amount,
       shippingAddress,
-      items: items.map((i: any) => ({ product: i.product, quantity: i.quantity })),
+      items: items.map((i: any) => ({ product: i.product, quantity: i.quantity, size: i.size })),
       shippingCost: Number(meta.shippingCost ?? 0),
       couponCode: meta.couponCode ?? null,
       contextUserId: null,
