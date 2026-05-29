@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import { evaluateCoupon } from "@/src/lib/coupon";
 import { MAIL_FROM, mailTo } from "@/src/lib/email";
+import { renderOrderEmail, renderWelcomeEmail } from "@/src/lib/emailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -112,23 +113,12 @@ export function formatOrder(order: any) {
 // IMPORTANT: emails are AWAITED. On Vercel/serverless, un-awaited promises are
 // dropped once the response is sent, so fire-and-forget sends never deliver.
 async function sendWelcomeEmail(name: string, email: string, password: string) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
   try {
     const r = await resend.emails.send({
       from: MAIL_FROM,
       to: mailTo(email),
       subject: "Your account details",
-      html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
-        <h2>Hi ${name},</h2>
-        <p>An account was automatically created for you when you placed your order.</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Temporary Password:</strong>
-          <code style="background:#f4f4f4;padding:4px 8px;border-radius:4px;">${password}</code>
-        </p>
-        <p>Please log in and change your password after your first login.</p>
-        ${siteUrl ? `<a href="${siteUrl}/login" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#000;color:#fff;text-decoration:none;font-weight:bold;">Log In Now</a>` : ""}
-      </div>`,
+      html: renderWelcomeEmail(name, email, password),
     });
     if (r.error) console.error("Welcome email rejected:", r.error);
     else console.log("Welcome email sent to", mailTo(email));
@@ -138,32 +128,12 @@ async function sendWelcomeEmail(name: string, email: string, password: string) {
 }
 
 async function sendOrderConfirmation(order: any, email: string) {
-  const rows = (order.items ?? [])
-    .map(
-      (i: any) =>
-        `<tr><td style="padding:6px 0;">${i.name} × ${i.quantity}</td><td style="padding:6px 0;text-align:right;">₦${(i.price * i.quantity).toLocaleString()}</td></tr>`,
-    )
-    .join("");
-
   try {
     const r = await resend.emails.send({
       from: MAIL_FROM,
       to: mailTo(email),
       subject: `Order confirmed — ${order.paymentReference ?? order._id}`,
-      html: `
-      <div style="font-family: sans-serif; max-width: 520px; margin: auto;">
-        <h2>Thank you for your order!</h2>
-        <p>We've received your payment and are getting your order ready.</p>
-        <p style="color:#666;font-size:13px;">Reference: <strong>${order.paymentReference ?? order._id}</strong></p>
-        <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:14px;">
-          ${rows}
-          <tr><td style="padding-top:10px;border-top:1px solid #eee;">Subtotal</td><td style="padding-top:10px;border-top:1px solid #eee;text-align:right;">₦${order.subtotal.toLocaleString()}</td></tr>
-          ${order.discount > 0 ? `<tr><td style="color:#16a34a;">Discount${order.couponCode ? ` (${order.couponCode})` : ""}</td><td style="color:#16a34a;text-align:right;">-₦${order.discount.toLocaleString()}</td></tr>` : ""}
-          <tr><td>Shipping</td><td style="text-align:right;">₦${order.shippingCost.toLocaleString()}</td></tr>
-          <tr><td style="font-weight:bold;padding-top:6px;">Total</td><td style="font-weight:bold;text-align:right;padding-top:6px;">₦${order.totalAmount.toLocaleString()}</td></tr>
-        </table>
-        <p style="font-size:13px;color:#666;">Shipping to: ${order.shippingAddress?.address}, ${order.shippingAddress?.city}, ${order.shippingAddress?.state}</p>
-      </div>`,
+      html: renderOrderEmail(order),
     });
     if (r.error) console.error("Order email rejected:", r.error);
     else console.log("Order email sent to", mailTo(email));

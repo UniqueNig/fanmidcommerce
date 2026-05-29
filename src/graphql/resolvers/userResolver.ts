@@ -9,6 +9,7 @@ import {
 } from "@/src/lib/auth";
 import { Resend } from "resend";
 import { MAIL_FROM, mailTo } from "@/src/lib/email";
+import { renderResetEmail } from "@/src/lib/emailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -21,13 +22,7 @@ async function sendPasswordResetEmail(name: string, email: string, token: string
       from: MAIL_FROM,
       to: mailTo(email),
       subject: "Reset your password",
-      html: `
-      <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
-        <h2>Hi ${name || "there"},</h2>
-        <p>We received a request to reset your password. This link expires in 1 hour.</p>
-        <a href="${link}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#000;color:#fff;text-decoration:none;font-weight:bold;">Reset Password</a>
-        <p style="margin-top:16px;font-size:12px;color:#888;">If you didn't request this, you can safely ignore this email.</p>
-      </div>`,
+      html: renderResetEmail(name, link),
     });
     if (r.error) console.error("Reset email rejected:", r.error);
   } catch (err) {
