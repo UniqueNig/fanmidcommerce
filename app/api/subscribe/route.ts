@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { connectDB } from "@/src/lib/db";
 import subscriberModel from "@/src/models/Subscriber";
 import { rateLimitAsync, clientIp } from "@/src/lib/rateLimit";
-import { MAIL_FROM, mailTo } from "@/src/lib/email";
+import { MAIL_FROM, mailTo } from "@/src/services/email";
 import { renderSubscribeEmail } from "@/src/lib/emailTemplate";
 import { siteConfig } from "@/src/config/site";
 

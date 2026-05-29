@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 import { Resend } from "resend";
 import settingsModel from "@/src/models/Settings";
 import { evaluateCoupon } from "@/src/lib/coupon";
-import { MAIL_FROM, mailTo } from "@/src/lib/email";
+import { MAIL_FROM, mailTo } from "@/src/services/email";
 import {
   renderOrderEmail,
   renderWelcomeEmail,

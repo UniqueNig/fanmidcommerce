@@ -13,9 +13,12 @@
  * No code changes needed when you get a domain — just env vars.
  */
 
-// The "from" address. Override per client/deployment via RESEND_FROM.
+import { siteConfig } from "@/src/config/site";
+
+// The "from" address. Override per client/deployment via RESEND_FROM; otherwise
+// falls back to the store's brand name + Resend's shared sandbox sender.
 export const MAIL_FROM =
-  process.env.RESEND_FROM || "Fanmid <onboarding@resend.dev>";
+  process.env.RESEND_FROM || `${siteConfig.name} <onboarding@resend.dev>`;
 
 /**
  * Where to actually send. If EMAIL_OVERRIDE is set (sandbox), everything goes

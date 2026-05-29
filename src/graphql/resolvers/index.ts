@@ -1,7 +1,7 @@
 import { categoryResolvers } from "./categoryResolver";
 import { orderResolvers } from "./orderResolver";
 import { productResolvers } from "@/src/features/products/graphql/resolver";
-import { settingsResolvers } from "./setingsResolver";
+import { settingsResolvers } from "./settingsResolver";
 import { userResolvers } from "./userResolver";
 import { couponResolvers } from "./couponResolver";
 import { contentResolvers } from "./contentResolver";

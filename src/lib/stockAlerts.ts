@@ -2,7 +2,7 @@ import { connectDB } from "@/src/lib/db";
 import productModel from "@/src/models/Product";
 import stockAlertModel from "@/src/models/StockAlert";
 import { Resend } from "resend";
-import { MAIL_FROM, mailTo } from "@/src/lib/email";
+import { MAIL_FROM, mailTo } from "@/src/services/email";
 import { renderBackInStockEmail } from "@/src/lib/emailTemplate";
 
 const resend = new Resend(process.env.RESEND_API_KEY);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { MAIL_FROM, mailTo } from "@/src/lib/email";
+import { MAIL_FROM, mailTo } from "@/src/services/email";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
