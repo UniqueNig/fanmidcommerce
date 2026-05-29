@@ -21,6 +21,7 @@ const GET_DATA = gql`
       image
       isNew
       stock
+      sizes
       category {
         id
         name
@@ -50,6 +51,7 @@ interface Product {
   category: Category;
   isNew: boolean;
   stock: number;
+  sizes: string[];
 }
 
 interface Data {
@@ -60,7 +62,9 @@ interface Data {
 const PRODUCTS_PER_PAGE = 8;
 
 export default function ShopPage() {
-  const { data, loading, error } = useQuery<Data>(GET_DATA);
+  const { data, loading, error } = useQuery<Data>(GET_DATA, {
+    fetchPolicy: "cache-and-network", // show fresh stock on each visit
+  });
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
@@ -91,7 +95,12 @@ export default function ShopPage() {
 
       const priceMatch = p.price >= priceRange[0] && p.price <= priceRange[1];
 
-      return catMatch && priceMatch;
+      // Size filter: when sizes are selected, keep products that offer one.
+      const sizeMatch =
+        selectedSizes.length === 0 ||
+        (p.sizes ?? []).some((s) => selectedSizes.includes(s));
+
+      return catMatch && priceMatch && sizeMatch;
     });
 
     switch (sortBy) {
@@ -109,7 +118,7 @@ export default function ShopPage() {
     }
 
     return result;
-  }, [data, selectedCategory, priceRange, sortBy]);
+  }, [data, selectedCategory, priceRange, sortBy, selectedSizes]);
 
   const totalPages = Math.max(
     1,

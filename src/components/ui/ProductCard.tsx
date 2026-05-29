@@ -16,6 +16,7 @@ type ProductCardProps = {
   category: string;
   isNew?: boolean;
   stock?: number;
+  sizes?: string[];
 };
 
 export default function ProductCard({
@@ -27,6 +28,7 @@ export default function ProductCard({
   category,
   isNew,
   stock,
+  sizes,
 }: ProductCardProps) {
   const { addItem } = useCart();
   const { has, toggle } = useWishlist();
@@ -36,6 +38,9 @@ export default function ProductCard({
 
   // Treat "no stock info" as available (e.g. legacy callers); only block on 0.
   const soldOut = stock !== undefined && stock <= 0;
+  // Products with size options must be opened to pick a size first.
+  const hasSizes = !!sizes && sizes.length > 0;
+  const href = `/product/${slug ?? id}`;
 
   const handleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -76,6 +81,16 @@ export default function ProductCard({
 
         {/* Overlay actions — buttons capture clicks; empty areas fall through to the image link */}
         <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6 gap-3 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none">
+          {!soldOut && hasSizes ? (
+            // Has size options → must choose on the product page
+            <Link
+              href={href}
+              className="pointer-events-auto flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase transition-colors font-['DM_Sans']"
+              style={{ backgroundColor: "var(--accent)", color: "#000" }}
+            >
+              <ShoppingBag size={13} /> Select Options
+            </Link>
+          ) : (
           <button
             onClick={handleAddToCart}
             disabled={soldOut}
@@ -101,6 +116,7 @@ export default function ProductCard({
               </>
             )}
           </button>
+          )}
           <button
             onClick={handleWishlist}
             aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}

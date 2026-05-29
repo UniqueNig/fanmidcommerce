@@ -73,6 +73,7 @@ export type RelatedProduct = {
   image: string | null;
   isNew: boolean;
   stock: number;
+  sizes: string[];
 };
 
 /** Other products in the same category (for "You may also like"). */
@@ -96,5 +97,6 @@ export async function getRelatedProducts(
     image: p.image ?? null,
     isNew: Boolean(p.isNew),
     stock: p.stock ?? 0,
+    sizes: Array.isArray(p.sizes) ? p.sizes : [],
   }));
 }

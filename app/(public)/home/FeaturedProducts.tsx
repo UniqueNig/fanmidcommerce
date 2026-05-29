@@ -17,6 +17,7 @@ const GET_PRODUCTS = gql`
       image
       isNew
       stock
+      sizes
       category {
         id
         name
@@ -35,6 +36,7 @@ interface Product {
   category: { id: string; name: string; slug: string } | null; // ✅ object
   isNew: boolean;
   stock: number;
+  sizes: string[];
 }
 
 interface ProductsData {

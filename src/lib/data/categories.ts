@@ -20,6 +20,7 @@ export type CategoryProduct = {
   image: string | null;
   isNew: boolean;
   stock: number;
+  sizes: string[];
 };
 
 /**
@@ -97,5 +98,6 @@ export async function getProductsByCategorySlug(
     image: p.image ?? null,
     isNew: Boolean(p.isNew),
     stock: p.stock ?? 0,
+    sizes: Array.isArray(p.sizes) ? p.sizes : [],
   }));
 }

@@ -10,6 +10,7 @@ import ProductReviews from "@/src/components/product/ProductReviews";
 import ProductCard from "@/src/components/ui/ProductCard";
 import { getProductBySlug, getRelatedProducts } from "@/src/lib/data/products";
 import { getProductReviews, getReviewSummary } from "@/src/lib/data/reviews";
+import { getStoreSettings } from "@/src/lib/data/settings";
 
 // Build a short, clean meta description from the product description.
 function metaDescription(text: string): string {
@@ -64,10 +65,11 @@ export default async function ProductDetailPage({
   // Proper 404 (renders app/not-found.tsx) instead of a client error state.
   if (!product) notFound();
 
-  const [reviews, reviewSummary, related] = await Promise.all([
+  const [reviews, reviewSummary, related, store] = await Promise.all([
     getProductReviews(product.id),
     getReviewSummary(product.id),
     getRelatedProducts(product.category?.id ?? null, product.id),
+    getStoreSettings(),
   ]);
 
   const inStock = product.stock > 0;
@@ -171,7 +173,7 @@ export default async function ProductDetailPage({
               inStock={inStock}
               stockCount={product.stock}
               sizes={product.sizes} // real sizes from the product (empty = no size selector)
-              whatsappNumber="2348134879924" // replace with your real number
+              whatsappNumber={store.whatsapp || "2348134879924"} // from store settings
             />
           </div>
         </div>
@@ -237,6 +239,7 @@ export default async function ProductDetailPage({
                   category={product.category?.name ?? ""}
                   isNew={p.isNew}
                   stock={p.stock}
+                  sizes={p.sizes}
                 />
               ))}
             </div>

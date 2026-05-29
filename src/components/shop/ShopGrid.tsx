@@ -20,6 +20,7 @@ type Product = {
   };
   isNew?: boolean;
   stock?: number;
+  sizes?: string[];
 };
 
 type ShopGridProps = {
@@ -48,6 +49,8 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
   const { has, toggle } = useWishlist();
   const soldOut = product.stock !== undefined && product.stock <= 0;
   const wishlisted = has(product.id);
+  const hasSizes = (product.sizes?.length ?? 0) > 0;
+  const href = `/product/${product.slug ?? product.id}`;
 
   return (
     <div className="group relative">
@@ -62,17 +65,27 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
         </Link>
 
         <div className="absolute inset-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5 gap-2 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none">
-          <button
-            onClick={() => !soldOut && trigger(onAddToCart)}
-            disabled={soldOut}
-            className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 disabled:cursor-not-allowed"
-            style={{
-              backgroundColor: soldOut ? "var(--text-muted)" : added ? "#22c55e" : "var(--accent)",
-              color: "#000",
-            }}
-          >
-            {soldOut ? "Sold Out" : added ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Add to Cart</>}
-          </button>
+          {!soldOut && hasSizes ? (
+            <Link
+              href={href}
+              className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300"
+              style={{ backgroundColor: "var(--accent)", color: "#000" }}
+            >
+              <ShoppingBag size={12} /> Select Options
+            </Link>
+          ) : (
+            <button
+              onClick={() => !soldOut && trigger(onAddToCart)}
+              disabled={soldOut}
+              className="pointer-events-auto flex items-center gap-2 px-4 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: soldOut ? "var(--text-muted)" : added ? "#22c55e" : "var(--accent)",
+                color: "#000",
+              }}
+            >
+              {soldOut ? "Sold Out" : added ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Add to Cart</>}
+            </button>
+          )}
           <button
             onClick={() =>
               toggle({
@@ -127,6 +140,8 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
 function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
   const { added, trigger } = useAddFeedback();
   const soldOut = product.stock !== undefined && product.stock <= 0;
+  const hasSizes = (product.sizes?.length ?? 0) > 0;
+  const href = `/product/${product.slug ?? product.id}`;
 
   return (
     <div className="flex gap-5 py-5 border-b" style={{ borderColor: "var(--border)" }}>
@@ -162,17 +177,27 @@ function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
             ₦{product.price.toFixed(2)}
           </span>
         </div>
-        <button
-          onClick={() => !soldOut && trigger(onAddToCart)}
-          disabled={soldOut}
-          className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 hover:opacity-80 disabled:cursor-not-allowed"
-          style={{
-            backgroundColor: soldOut ? "var(--text-muted)" : added ? "#22c55e" : "var(--accent)",
-            color: "#000",
-          }}
-        >
-          {soldOut ? "Sold Out" : added ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Add</>}
-        </button>
+        {!soldOut && hasSizes ? (
+          <Link
+            href={href}
+            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 hover:opacity-80"
+            style={{ backgroundColor: "var(--accent)", color: "#000" }}
+          >
+            <ShoppingBag size={12} /> Select Options
+          </Link>
+        ) : (
+          <button
+            onClick={() => !soldOut && trigger(onAddToCart)}
+            disabled={soldOut}
+            className="flex items-center gap-2 px-5 py-2.5 text-xs font-bold tracking-widest uppercase font-['DM_Sans'] transition-all duration-300 hover:opacity-80 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: soldOut ? "var(--text-muted)" : added ? "#22c55e" : "var(--accent)",
+              color: "#000",
+            }}
+          >
+            {soldOut ? "Sold Out" : added ? <><Check size={12} /> Added!</> : <><ShoppingBag size={12} /> Add</>}
+          </button>
+        )}
       </div>
     </div>
   );

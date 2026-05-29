@@ -103,6 +103,7 @@ export default async function CategorySlugPage({
                 category={category.name}
                 isNew={product.isNew}
                 stock={product.stock}
+                sizes={product.sizes}
               />
             ))}
           </div>

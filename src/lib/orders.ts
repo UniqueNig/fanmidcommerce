@@ -40,10 +40,16 @@ export async function reduceStockAfterPayment(
   items: { product: string; quantity: number }[],
 ) {
   for (const item of items) {
-    await productModel.updateOne({ _id: item.product }, [
-      { $set: { stock: { $max: [0, { $subtract: ["$stock", item.quantity] }] } } },
-    ]);
+    // Plain $inc update — Mongoose casts the string id and supports this
+    // directly. (An aggregation-pipeline update silently threw here before,
+    // which is why stock never decremented.)
+    await productModel.updateOne(
+      { _id: item.product },
+      { $inc: { stock: -Math.abs(item.quantity) } },
+    );
   }
+  // Safety: never show negative stock (in case of an oversell/race).
+  await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });
 }
 
 // ── Server-authoritative pricing ─────────────────────────────────────────────
