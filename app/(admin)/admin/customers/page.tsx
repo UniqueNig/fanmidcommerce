@@ -176,7 +176,7 @@ function UserDetailModal({
                 : "—",
             },
             { label: "Total Orders", value: String(user.orders ?? 0) },
-            { label: "Total Spent", value: `₦${(user.spent ?? 0).toFixed(2)}` },
+            { label: "Total Spent", value: `₦${(user.spent ?? 0).toLocaleString()}` },
           ].map(({ label, value }) => (
             <div key={label}>
               <p
@@ -489,7 +489,7 @@ export default function AdminCustomersPage() {
                         className="font-bold font-['DM_Sans'] text-sm"
                         style={{ color: "var(--accent)" }}
                       >
-                        ₦{(customer.spent ?? 0).toFixed(2)}
+                        ₦{(customer.spent ?? 0).toLocaleString()}
                       </span>
                     </td>
 

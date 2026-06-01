@@ -7,6 +7,7 @@ import Link from "next/link";
 import gql from "graphql-tag";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { slugify } from "@/src/lib/slug";
+import { uploadImage } from "@/src/lib/uploadImage";
 
 // ── GraphQL ────────────────────────────────────────────────────────────────
 const GET_CATEGORIES = gql`
@@ -240,18 +241,8 @@ export default function ProductForm({
     update("slug", slugify(val));
   };
 
-  const uploadImage = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "fanmid_products");
-
-    const res = await fetch(
-      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
-      { method: "POST", body: formData },
-    );
-    const data = await res.json();
-    return data.secure_url;
-  };
+  // uploadImage now lives in src/lib/uploadImage.ts (configurable preset +
+  // surfaces real Cloudinary errors). Imported at the top of this file.
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -399,6 +390,7 @@ export default function ProductForm({
                     setImages((arr) => [...arr, ...urls.filter(Boolean)]);
                   } catch (err) {
                     console.error("Upload failed:", err);
+                    alert(err instanceof Error ? err.message : "Image upload failed.");
                   } finally {
                     setSaving(false);
                   }
@@ -784,6 +776,7 @@ export default function ProductForm({
                             );
                           } catch (err) {
                             console.error("Upload failed:", err);
+                    alert(err instanceof Error ? err.message : "Image upload failed.");
                           } finally {
                             setSaving(false);
                           }

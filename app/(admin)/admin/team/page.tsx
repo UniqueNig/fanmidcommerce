@@ -5,6 +5,7 @@ import { Plus, Trash2, Check, X, Loader2, RefreshCw, Users, Upload, Edit2 } from
 import ConfirmModal from "@/src/components/admindashboard/ConfirmModal";
 import { useQuery, useMutation } from "@apollo/client/react";
 import gql from "graphql-tag";
+import { uploadImage } from "@/src/lib/uploadImage";
 
 const GET = gql`
   query AdminTeam { teamMembers { id name role image sortOrder } }
@@ -43,14 +44,7 @@ export default function AdminTeamPage() {
 
   const members = data?.teamMembers ?? [];
 
-  const uploadImage = async (file: File) => {
-    const fd = new FormData();
-    fd.append("file", file);
-    fd.append("upload_preset", "fanmid_products");
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: fd });
-    const d = await res.json();
-    return d.secure_url as string;
-  };
+  // uploadImage is the shared helper (configurable preset + real error messages).
 
   const openAdd = () => { setEditId(null); setForm(EMPTY); setShowForm(true); };
   const openEdit = (m: Member) => { setEditId(m.id); setForm({ name: m.name, role: m.role, image: m.image, sortOrder: String(m.sortOrder ?? "") }); setShowForm(true); };
@@ -97,7 +91,7 @@ export default function AdminTeamPage() {
               <div>
                 <label className={labelClass} style={{ color: "var(--text-muted)" }}>Photo</label>
                 <input type="file" accept="image/*" className={inputClass} style={inputStyle}
-                  onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setUploading(true); try { const url = await uploadImage(file); setForm(f => ({ ...f, image: url })); } catch { alert("Upload failed"); } finally { setUploading(false); } }} />
+                  onChange={async (e) => { const file = e.target.files?.[0]; if (!file) return; setUploading(true); try { const url = await uploadImage(file); setForm(f => ({ ...f, image: url })); } catch (err) { alert(err instanceof Error ? err.message : "Upload failed"); } finally { setUploading(false); } }} />
                 {uploading && <p className="text-xs font-['DM_Sans'] mt-1" style={{ color: "var(--text-muted)" }}>Uploading...</p>}
               </div>
             </div>

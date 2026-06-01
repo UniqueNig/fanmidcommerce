@@ -21,6 +21,11 @@ export type ThemeTokens = {
   "border": string;
   "card-bg": string;
   "nav-bg": string;
+  // OPTIONAL second brand accent. Themes may define it for two-colour branding;
+  // ThemeStyle only emits keys a theme actually provides, so single-accent
+  // themes are unaffected. Use via var(--accent-2) / var(--accent-2-hover).
+  "accent-2"?: string;
+  "accent-2-hover"?: string;
 };
 
 export type ThemePalette = {

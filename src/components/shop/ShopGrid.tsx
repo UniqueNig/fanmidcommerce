@@ -130,7 +130,7 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
           </Link>
         </div>
         <span className="font-bold font-['Playfair_Display'] text-sm" style={{ color: "var(--accent)" }}>
-          ₦{product.price.toFixed(2)}
+          ₦{product.price.toLocaleString()}
         </span>
       </div>
     </div>
@@ -174,7 +174,7 @@ function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
             </h3>
           </Link>
           <span className="font-bold font-['Playfair_Display']" style={{ color: "var(--accent)" }}>
-            ₦{product.price.toFixed(2)}
+            ₦{product.price.toLocaleString()}
           </span>
         </div>
         {!soldOut && hasSizes ? (

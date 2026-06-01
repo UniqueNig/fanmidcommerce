@@ -10,6 +10,7 @@ A repeatable checklist for deploying this store (and future client copies) to Ve
 | `JWT_SECRET` | A long random string. **Change it from the dev value** before going live. |
 | `NEXT_PUBLIC_SITE_URL` | Your real URL, e.g. `https://yourshop.com`. Used by SEO, sitemap, canonical, OG, emails. |
 | `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name (for image uploads). |
+| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | (Optional) Unsigned upload preset name. Defaults to `fanmid_products`. |
 | `PAYSTACK_SECRET_KEY` | **LIVE** secret key (`sk_live_...`) — see §2. |
 | `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` | **LIVE** public key (`pk_live_...`). |
 | `RESEND_API_KEY` | Your Resend API key. |

@@ -49,10 +49,18 @@ async function getUserStats(userId: string) {
 
 // ── Helper: format a Mongoose user doc into GraphQL shape ─────────────────
 function formatUser(user: any) {
+  // GraphQL User.createdAt is non-nullable. Users created outside the app
+  // (e.g. the create-admin script, or legacy docs) may lack a createdAt → that
+  // would crash the Customers list and the `me` query. Fall back to the
+  // ObjectId's embedded creation timestamp, then to now.
+  const created =
+    user.createdAt ??
+    user._id?.getTimestamp?.() ??
+    new Date();
   return {
     ...user._doc,
     id: user._id.toString(),
-    createdAt: user.createdAt?.toISOString?.() ?? null,
+    createdAt: new Date(created).toISOString(),
     status: user.status ?? "Active",
   };
 }
@@ -135,8 +143,28 @@ export const userResolvers = {
     myAddresses: async (_: unknown, __: unknown, context: any) => {
       await connectDB();
       if (!context.user) throw new Error("Not authenticated");
-      const user = await userModel.findById(context.user.id).select("addresses");
-      return (user?.addresses ?? []).map(formatAddress);
+      const user = await userModel
+        .findById(context.user.id)
+        .select("addresses address name phone");
+      if (!user) return [];
+
+      // Lazy backfill: older accounts stored a single scalar `address` at
+      // registration but nothing in the `addresses` array. Migrate it once so
+      // it shows up in the picker / Addresses page.
+      if ((user.addresses?.length ?? 0) === 0 && user.address) {
+        user.addresses.push({
+          label: "",
+          name: user.name ?? "",
+          phone: user.phone ?? "",
+          address: user.address,
+          city: "",
+          state: "",
+          isDefault: true,
+        });
+        await user.save();
+      }
+
+      return (user.addresses ?? []).map(formatAddress);
     },
   },
 
@@ -170,6 +198,12 @@ export const userResolvers = {
         password: hashedPassword,
         role: "user",
         status: "Active",
+        // Also seed the saved-addresses array so the address typed at signup
+        // shows up on the Addresses page + checkout picker (which read
+        // `addresses`, not the scalar `address`).
+        addresses: address
+          ? [{ label: "", name, phone: phone ?? "", address, city: "", state: "", isDefault: true }]
+          : [],
       });
 
       return formatUser(newUser);

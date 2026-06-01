@@ -29,6 +29,9 @@ export const contentResolvers = {
     adminShippingMethods: async (_: unknown, __: unknown, ctx: any) => {
       await connectDB();
       requireAdmin(ctx);
+      // getShippingMethods() seeds the defaults on first call. Call it first so
+      // the admin sees the seeded methods even before anyone visits checkout.
+      await getShippingMethods();
       const docs = await shippingMethodModel.find().sort({ sortOrder: 1, cost: 1 });
       return docs.map(mapShipping);
     },

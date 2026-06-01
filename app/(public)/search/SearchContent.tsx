@@ -229,7 +229,7 @@ export default function SearchContent() {
                         className="font-bold font-['Playfair_Display'] text-sm"
                         style={{ color: "var(--accent)" }}
                       >
-                        ₦{product.price.toFixed(2)}
+                        ₦{product.price.toLocaleString()}
                       </span>
                     </div>
                   </Link>

@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Provider from "@/src/components/ApolloProvider";
 import ThemeStyle from "@/src/themes/ThemeStyle";
+import BackToTop from "@/src/components/ui/BackToTop";
 import { siteConfig } from "@/src/config/site";
 import { CartProvider } from "@/src/context/CartContext";
 import { ToastProvider } from "@/src/context/ToastContext";
@@ -79,6 +80,8 @@ export default function RootLayout({
             </WishlistProvider>
           </ToastProvider>
         </Provider>
+        {/* Site-wide floating back-to-top button. */}
+        <BackToTop />
         {/* Vercel Web Analytics — page views (free) + custom events below.
             No-ops in local dev and when analytics isn't enabled on the project. */}
         <Analytics />

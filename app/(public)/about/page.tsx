@@ -109,7 +109,8 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Team — only shown when the admin has added team members */}
+      {team.length > 0 && (
       <section className="py-24 px-6 lg:px-10">
         <div className="max-w-7xl mx-auto">
           <div className="mb-14">
@@ -133,6 +134,7 @@ export default async function AboutPage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA */}
       <section className="py-24 px-6 lg:px-10 border-t text-center" style={{ borderColor: "var(--border)", backgroundColor: "var(--bg-secondary)" }}>

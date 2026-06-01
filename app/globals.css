@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Tailwind v4 has no built-in `dark:` variant. next-themes toggles a `.dark`
+   class on <html>, so wire `dark:` utilities to that class instead of the OS
+   preference — otherwise the in-app theme toggle is ignored. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     /* Light mode */

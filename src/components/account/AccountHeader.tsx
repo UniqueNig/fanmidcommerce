@@ -12,11 +12,13 @@ type AccountHeaderProps = {
 };
 
 const PAGE_TITLES: Record<string, string> = {
-  "/account": "Overview",
-  "/account/orders": "My Orders",
-  "/account/wishlist": "Wishlist",
-  "/account/addresses": "Addresses",
-  "/account/profile": "Profile",
+  "/dashboard": "Overview",
+  "/dashboard/orders": "My Orders",
+  "/dashboard/wishlist": "Wishlist",
+  "/dashboard/addresses": "Addresses",
+  "/dashboard/profile": "Profile",
+  "/dashboard/products": "Products",
+  "/dashboard/settings": "Settings",
 };
 
 export default function AccountHeader({ onMenuOpen }: AccountHeaderProps) {

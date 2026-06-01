@@ -8,6 +8,7 @@ import { CheckCircle, ArrowRight, Loader2, XCircle } from "lucide-react";
 import { useCart } from "@/src/context/CartContext";
 import { authHeaderValue } from "@/src/lib/clientAuth";
 import { trackPurchase } from "@/src/lib/analytics";
+import { siteConfig } from "@/src/config/site";
 
 const VERIFY_AND_CREATE_ORDER = `
   mutation VerifyPaymentAndCreateOrder(
@@ -180,7 +181,7 @@ function OrderSuccessContent() {
               style={{ borderColor: "var(--border)", color: "var(--text-primary)" }}>
               Back to Shop
             </Link>
-            <a href="mailto:support@fanmid.com"
+            <a href={`mailto:${siteConfig.contact.email}`}
               className="flex items-center gap-2 px-8 py-4 text-sm font-bold tracking-widest uppercase font-['DM_Sans'] hover:opacity-80 transition-opacity"
               style={{ backgroundColor: "var(--accent)", color: "#000" }}>
               Contact Support

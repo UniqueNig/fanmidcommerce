@@ -59,7 +59,9 @@ async function main() {
     mongoose.models["fanmidcommerce-users"] ||
     mongoose.model(
       "fanmidcommerce-users",
-      new mongoose.Schema({}, { strict: false }),
+      // timestamps:true so new admins get createdAt/updatedAt (the app's
+      // non-nullable User.createdAt would otherwise crash on these docs).
+      new mongoose.Schema({}, { strict: false, timestamps: true }),
       "fanmidcommerce-users",
     );
 
