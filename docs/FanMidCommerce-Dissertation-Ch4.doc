@@ -10,8 +10,7 @@
   th { background:#f0f0f0; }
   pre.code { background:#f6f8fa; border:1px solid #d0d7de; padding:10px; font-family:'Consolas','Courier New',monospace; font-size:9pt; white-space:pre; }
   .shot { border:2px dashed #b9b9c9; background:#fbfbfd; padding:22px; text-align:center; color:#555; font-size:10.5pt; }
-  .caption { font-style:italic; text-align:center; font-size:10.5pt; color:#555; }
-  .listing { font-style:italic; text-align:center; font-size:10.5pt; color:#555; }
+  .caption,.listing { font-style:italic; text-align:center; font-size:10.5pt; color:#555; }
   h1.chapter { page-break-before:always; }
 </style></head><body>
 
@@ -103,7 +102,7 @@
 ├── proxy.ts                      # Edge route gate (auth) for /admin and /dashboard
 ├── next.config.ts
 └── package.json</pre>
-  <p class="listing">Listing 4.1: Abridged project folder structure.</p>
+  <p class="listing" align="center">Listing 4.1: Abridged project folder structure.</p>
   <p>
     Two aspects of this layout are worth highlighting because they realise design goals from Chapter Three.
     First, the <code>app/</code> directory uses Next.js <i>route groups</i>, the bracketed folders such as
@@ -146,7 +145,7 @@
   },
   { timestamps: true },
 );</pre>
-  <p class="listing">Listing 4.2: Abridged Mongoose schema for the Product collection.</p>
+  <p class="listing" align="center">Listing 4.2: Abridged Mongoose schema for the Product collection.</p>
   <p>
     The full database comprises the collections summarised in Chapter Three (Users, Products, Categories,
     Orders, Reviews, Coupons, Shipping methods, and content/settings). Uniqueness constraints were applied to
@@ -195,18 +194,54 @@ type Query {
   productBySlug(slug: ID!): Product
   checkStock(items: [StockCheckInput!]!): [StockCheck!]!
 }</pre>
-  <p class="listing">Listing 4.3: Extract from the product GraphQL schema.</p>
+  <p class="listing" align="center">Listing 4.3: Extract from the product GraphQL schema.</p>
   <p>
-    A central technical contribution of the study, the reliable propagation of authentication context to
-    resolvers, is implemented in the GraphQL route handler. When a request arrives, the handler reads the
-    bearer token from the authorisation header, verifies its signature on the server, and places the resulting
-    user information into the per-request context object that every resolver receives. Resolvers that perform
-    privileged actions then check this context before acting. Listing 4.4 illustrates the pattern: a resolver
-    rejects the request unless the context carries an administrator identity.
+    A central technical contribution of the study, identified in Chapters One and Two as an under-documented
+    problem, is the reliable propagation of authentication context to resolvers within the Next.js App Router.
+    The solution is implemented in the GraphQL route handler. Apollo Server is mounted onto a Next.js route
+    handler using the <code>@as-integrations/next</code> adapter, and a <code>context</code> function runs on
+    every request. That function locates the caller's token, verifies its signature on the server, and places
+    the decoded user, if any, into the context object that is then handed to every resolver. Listing 4.4 shows
+    the actual implementation.
+  </p>
+  <pre class="code">const server = new ApolloServer({ typeDefs, resolvers });
+
+// Pull the token from the Authorization header, falling back to a cookie.
+const getTokenFromRequest = (req, role) =&gt; {
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) return authHeader.split(" ")[1];
+  const cookieHeader = req.headers.get("cookie");
+  if (cookieHeader) {
+    const cookieName = role === "admin" ? "admin_token" : "user_token";
+    const match = cookieHeader.match(new RegExp(`${cookieName}=([^;]+)`));
+    if (match) return match[1];
+  }
+  return null;
+};
+
+const handler = startServerAndCreateNextHandler(server, {
+  context: async (req) =&gt; {
+    const token = getTokenFromRequest(req, "admin") || getTokenFromRequest(req, "user");
+    if (!token) return { user: null };
+    try {
+      // Real, cryptographic signature verification happens HERE, on the server.
+      const user = jwt.verify(token, process.env.JWT_SECRET);
+      return { user };           // available to every resolver
+    } catch {
+      return { user: null };     // invalid/expired token => treated as anonymous
+    }
+  },
+});</pre>
+  <p class="listing" align="center">Listing 4.4: GraphQL route handler that builds the authenticated per-request context.</p>
+  <p>
+    With the context reliably populated, each resolver that performs a privileged operation simply inspects
+    it before acting. Listing 4.5 shows the create-product resolver refusing any request whose context does
+    not carry an administrator identity. Because this check sits on the server, it cannot be bypassed by
+    manipulating the browser: hiding or showing a button in the interface changes nothing, since it is the
+    resolver, not the client, that ultimately grants or denies the action.
   </p>
   <pre class="code">createProduct: async (_parent, args, context) =&gt; {
-  // Authorisation is enforced on the server, from the verified context,
-  // regardless of what the client interface shows.
+  // Authorisation is enforced from the verified context, on the server.
   if (!context.user || !["admin", "superadmin"].includes(context.user.role)) {
     throw new Error("Unauthorized");
   }
@@ -214,22 +249,87 @@ type Query {
   const product = await productModel.create(deriveVariantFields(args));
   return product.populate("category");
 }</pre>
-  <p class="listing">Listing 4.4: Resolver enforcing role-based authorisation from the GraphQL context.</p>
+  <p class="listing" align="center">Listing 4.5: Resolver enforcing role-based authorisation from the GraphQL context.</p>
+  <p>
+    A second layer of protection operates before a page is even served. A route gate, implemented as a Next.js
+    <i>proxy</i> file at the project root, intercepts requests to the protected areas. Because this runs on the
+    Edge runtime, which lacks the Node cryptography libraries, it does not attempt full signature
+    verification; instead it cheaply decodes the token to read the role and expiry and uses that for a fast
+    redirect decision, while the authoritative verification remains in the GraphQL handler shown above.
+    Listing 4.6 shows the gate.
+  </p>
+  <pre class="code">export function proxy(req) {
+  const { pathname } = req.nextUrl;
+  if (pathname === "/admin/login") return NextResponse.next();
+
+  if (pathname.startsWith("/admin")) {
+    const token = req.cookies.get("admin_token")?.value;
+    const payload = token ? decodeJwt(token) : null;
+    if (!payload || isExpired(payload) ||
+        !["admin", "superadmin"].includes(payload.role ?? "")) {
+      return NextResponse.redirect(new URL("/admin/login", req.url));
+    }
+  }
+  if (pathname.startsWith("/dashboard")) {
+    const token = req.cookies.get("user_token")?.value;
+    const payload = token ? decodeJwt(token) : null;
+    if (!payload || isExpired(payload)) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+  }
+  return NextResponse.next();
+}
+export const config = { matcher: ["/admin/:path*", "/dashboard/:path*"] };</pre>
+  <p class="listing" align="center">Listing 4.6: Edge route gate (proxy) protecting the admin and dashboard areas.</p>
 
   <!-- 4.6 -->
   <h2>4.6 Authentication Module</h2>
   <p>
-    The authentication module allows customers to register and log in, and it distinguishes ordinary customers
-    from administrators. Passwords are hashed before storage, and a successful login issues a signed JSON Web
-    Token that the client returns on subsequent requests. Route protection is enforced on the server through a
-    proxy (formerly "middleware") file at the project root, which gates the <code>/admin</code> and
-    <code>/dashboard</code> areas before any page in them is served. Figures 4.1 and 4.2 show the registration
-    and login interfaces.
+    The authentication module is responsible for establishing who a user is and for keeping customer and
+    administrator privileges separate. It spans three concerns: securely storing credentials, issuing and
+    checking session tokens, and protecting routes. Each is described in turn.
   </p>
-  <div class="shot" align="center"><b>[SCREENSHOT 1 — Registration page]</b>Capture the customer registration form at /register (filled with sample data, before submit).</div>
+  <h3>4.6.1 Credential storage and registration</h3>
+  <p>
+    When a customer registers, the password they choose is never stored in readable form. It is passed through
+    the bcrypt hashing function, which produces a salted, one-way hash; only that hash is written to the
+    database. At login, the supplied password is hashed again and compared against the stored value, so the
+    plain password never needs to be kept. This means that even if the database were somehow exposed, the
+    passwords themselves would remain protected. The registration resolver also seeds the new customer's first
+    saved address, so that the address entered at sign-up is immediately available at checkout.
+  </p>
+  <h3>4.6.2 Token issuance</h3>
+  <p>
+    A successful login issues a signed JSON Web Token (JWT). The token encodes the user's identifier and role
+    and is signed with a secret known only to the server. Notably, administrators and ordinary customers
+    receive tokens with different lifetimes, reflecting their different risk profiles, as shown in Listing 4.7.
+  </p>
+  <pre class="code">export const generateToken = (user) =&gt; {
+  const isAdmin = ["admin", "superadmin"].includes(user.role ?? "");
+  return jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: isAdmin ? "7d" : "365d" }, // shorter life for privileged accounts
+  );
+};</pre>
+  <p class="listing" align="center">Listing 4.7: Role-aware JWT generation.</p>
+  <h3>4.6.3 Route protection</h3>
+  <p>
+    Route protection is enforced on the server in two places, already shown in Listings 4.4 and 4.6: the
+    GraphQL handler verifies the token's signature on every data request, while the Edge proxy gate redirects
+    unauthenticated users away from the <code>/admin</code> and <code>/dashboard</code> areas before any page
+    is rendered. A subtle but important detail is that the application keeps the administrator token and the
+    customer token in separate cookies (<code>admin_token</code> and <code>user_token</code>). This allows a
+    person to be signed in as an administrator in one area and as a customer in another without the two
+    sessions interfering, which proved valuable during testing. Figures 4.1 and 4.2 show the registration and
+    login interfaces.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 1, Registration page]</b>Capture the customer registration form at /register (filled with sample data, before submit).</div>
   <p class="caption" align="center">Figure 4.1: Customer registration interface.</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 2 — Login page]</b>Capture the login form at /login.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 2, Login page]</b>Capture the login form at /login.</div>
   <p class="caption" align="center">Figure 4.2: Customer login interface.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 2b, Access blocked when logged out]</b>Optional but strong evidence: capture the redirect to /admin/login when visiting /admin while logged out.</div>
+  <p class="caption" align="center">Figure 4.2b: Server-side route protection redirecting an unauthenticated visitor.</p>
 
   <!-- 4.7 -->
   <h2>4.7 Product Management Module</h2>
@@ -239,47 +339,154 @@ type Query {
     with their own photographs. Listing 4.2 and the product schema (§4.4) underpin this module, while
     Figures 4.3 and 4.4 show the product list and the add/edit product form.
   </p>
-  <div class="shot" align="center"><b>[SCREENSHOT 3 — Admin product list]</b>Capture /admin/products showing the table of products with prices and stock.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 3, Admin product list]</b>Capture /admin/products showing the table of products with prices and stock.</div>
   <p class="caption" align="center">Figure 4.3: Administrative product list.</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 4 — Add / edit product form]</b>Capture the product form showing the images, sizes &amp; stock rows, and colours section.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 4, Add / edit product form]</b>Capture the product form showing the images, sizes &amp; stock rows, and colours section.</div>
   <p class="caption" align="center">Figure 4.4: Add/edit product form with variant management.</p>
 
   <!-- 4.8 -->
   <h2>4.8 Storefront and Cart</h2>
   <p>
-    The storefront is the customer-facing part of the system. The home page is composed from configurable
-    sections; the shop page lists products with server-side search, filtering, and pagination; and each
-    product has its own page showing an image gallery, variant selection, and stock status. Items added to the
-    cart are held in the browser and summarised on a dedicated cart page. Figures 4.5 to 4.8 illustrate these
-    screens.
+    The storefront is the part of the system the customer actually sees and uses, and three of its
+    implementation details are worth examining: how the catalogue is filtered efficiently, how the cart keeps
+    track of product variants, and how the two connect at the point of adding an item.
   </p>
-  <div class="shot" align="center"><b>[SCREENSHOT 5 — Home page]</b>Capture the storefront home page (hero + featured products).</div>
+  <h3>4.8.1 Server-side catalogue browsing</h3>
+  <p>
+    An early version of the shop page fetched every product and filtered them in the browser. This is fine for
+    a handful of products but does not scale: as the catalogue grows, the page would download more and more
+    data only to discard most of it. The implementation was therefore changed so that filtering, sorting, and
+    pagination all happen in the database, and the browser receives only the single page of results it needs.
+    This is exposed through a <code>productsPage</code> query whose resolver builds a MongoDB query from the
+    supplied filter, as shown in Listing 4.8.
+  </p>
+  <pre class="code">productsPage: async (_p, { filter = {}, page = 1, limit = 12 }) =&gt; {
+  await connectDB();
+  const query = {};
+  if (filter.category &amp;&amp; filter.category !== "all") query["category.slug"] = filter.category;
+  if (filter.search) query.name = { $regex: filter.search, $options: "i" }; // case-insensitive
+  if (filter.minPrice != null || filter.maxPrice != null) {
+    query.price = {};
+    if (filter.minPrice != null) query.price.$gte = filter.minPrice;
+    if (filter.maxPrice != null) query.price.$lte = filter.maxPrice;
+  }
+  if (filter.sizes?.length) query.sizes = { $in: filter.sizes };
+
+  const sort = filter.sort === "price-asc" ? { price: 1 }
+            : filter.sort === "price-desc" ? { price: -1 }
+            : { createdAt: -1 };
+
+  const total = await productModel.countDocuments(query);
+  const items = await productModel.find(query)
+    .sort(sort).skip((page - 1) * limit).limit(limit).populate("category");
+
+  return { items, total, page, pages: Math.ceil(total / limit) };
+}</pre>
+  <p class="listing" align="center">Listing 4.8: Server-side filtering, sorting, and pagination in the product resolver.</p>
+  <h3>4.8.2 The shopping cart and product variants</h3>
+  <p>
+    The cart is held in the browser using a React context backed by local storage, so that its contents
+    survive page refreshes without requiring the customer to be logged in. A design decision that proved
+    important is how the cart identifies a line item. Because a single product can be added in different sizes
+    and colours, the cart does not key items by product alone; it treats a particular product in a particular
+    size and colour as its own distinct line. Listing 4.9 shows the helper used for this comparison.
+  </p>
+  <pre class="code">// Two cart lines are the same only if product, size, AND colour all match.
+const sameLine = (a, b) =&gt;
+  a.id === b.id &amp;&amp; a.size === b.size &amp;&amp; a.color === b.color;</pre>
+  <p class="listing" align="center">Listing 4.9: Variant-aware identification of cart line items.</p>
+  <p>
+    When an item is added, the quantity is also capped at the available stock so that the cart can never hold
+    more units than exist, and the customer is given immediate visual feedback through a toast notification.
+    These small touches reflect the usability heuristics discussed in Chapter Two, in particular keeping the
+    system's status visible and preventing errors before they happen. Figures 4.5 to 4.8 illustrate the
+    storefront screens.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 5, Home page]</b>Capture the storefront home page (hero + featured products).</div>
   <p class="caption" align="center">Figure 4.5: Storefront home page.</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 6 — Shop / catalogue page]</b>Capture /shop showing products, filters, and pagination.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 6, Shop / catalogue page]</b>Capture /shop showing products, filters, and pagination.</div>
   <p class="caption" align="center">Figure 4.6: Shop page with filtering and pagination.</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 7 — Product detail page]</b>Capture a product page showing the gallery, size/colour selection, and price.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 7, Product detail page]</b>Capture a product page showing the gallery, size/colour selection, and price.</div>
   <p class="caption" align="center">Figure 4.7: Product detail page with variant selection.</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 8 — Cart page]</b>Capture the cart with two or three items and the order summary.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 8, Cart page]</b>Capture the cart with two or three items and the order summary.</div>
   <p class="caption" align="center">Figure 4.8: Shopping cart.</p>
 
   <!-- 4.9 -->
   <h2>4.9 Checkout and Paystack Integration</h2>
   <p>
-    Checkout is the most security-sensitive workflow in the system, and its design reflects that. When the
-    customer proceeds to pay, the server does not trust the totals supplied by the browser. Instead it
-    re-checks stock, re-validates any coupon, and recomputes the authoritative amount from the database. The
-    payment itself is handled by Paystack, which supports card, bank transfer, and USSD. After payment, the
-    application verifies the outcome directly with Paystack before creating the order, and a uniqueness
-    constraint on the payment reference guarantees that the order is created only once even if two
-    confirmation paths run at the same time (the browser redirect and Paystack's asynchronous webhook). This
-    makes order finalisation both idempotent and race-safe. Figure 4.9 shows the checkout page and Figure 4.10
-    the Paystack payment interface.
+    Checkout is the most security-sensitive workflow in the entire system, because it is where money changes
+    hands, and its implementation was approached with that seriousness. Four mechanisms work together to make
+    it trustworthy: server-authoritative pricing, verified payment, idempotent order creation, and accurate
+    stock adjustment. Each is described below.
   </p>
-  <div class="shot" align="center"><b>[SCREENSHOT 9 — Checkout page]</b>Capture the checkout step showing address, shipping options, and order summary.</div>
+  <h3>4.9.1 Server-authoritative pricing</h3>
+  <p>
+    A naive online store trusts the total that the browser sends. This is dangerous, because a determined user
+    can alter values in the browser before they are submitted. FanMidCommerce therefore never trusts the
+    client total. When the customer proceeds to pay, the server independently re-checks that every item is
+    still in stock, re-validates any coupon, and recomputes the amount due from the prices held in the
+    database. Only this recomputed figure is used to initialise the payment, so the amount charged always
+    matches the store's own records rather than anything the browser claimed.
+  </p>
+  <h3>4.9.2 Payment and server-side verification</h3>
+  <p>
+    The payment itself is delegated to Paystack, a Nigerian payment gateway that supports card payments, bank
+    transfer, and USSD, the three channels Chapter Two identified as important for local trust. After the
+    customer pays, the application does not simply believe the browser's report of success. It confirms the
+    outcome in two independent ways: a verification call back to Paystack when the customer returns to the
+    site, and a webhook that Paystack calls directly, server to server. The webhook is authenticated by
+    recomputing a cryptographic signature over the raw request body and comparing it with the signature
+    Paystack attached, as shown in Listing 4.10; a request whose signature does not match is rejected
+    outright.
+  </p>
+  <pre class="code">const raw = await req.text();                       // verify against the RAW body
+const signature = req.headers.get("x-paystack-signature") || "";
+const expected = crypto.createHmac("sha512", secret).update(raw).digest("hex");
+if (expected !== signature) {
+  return NextResponse.json({ ok: false, error: "invalid signature" }, { status: 401 });
+}</pre>
+  <p class="listing" align="center">Listing 4.10: HMAC-SHA512 verification of the Paystack webhook.</p>
+  <h3>4.9.3 Idempotent, race-safe order creation</h3>
+  <p>
+    Because two independent confirmation paths exist, the return redirect and the webhook, there is a real
+    risk that both could try to create the same order at the same moment, producing a duplicate. This is
+    prevented at the database level by a uniqueness constraint on the order's payment reference. Whichever path
+    arrives first creates the order; the second attempt fails the uniqueness check and is safely ignored. The
+    operation is therefore <i>idempotent</i>: running it once or twice yields exactly one order. This is a
+    direct, practical application of the reliability requirement stated in Chapter Three.
+  </p>
+  <h3>4.9.4 Accurate stock adjustment</h3>
+  <p>
+    Once an order is confirmed, stock must be reduced, and for products with per-size inventory the reduction
+    has to apply to the specific size purchased as well as to the overall total. Listing 4.11 shows how this is
+    achieved using a MongoDB positional array filter, with a final safeguard that clamps any value that might
+    otherwise fall below zero.
+  </p>
+  <pre class="code">for (const item of items) {
+  const qty = Math.abs(item.quantity);
+  if (item.size) {
+    // Decrement THIS size and the overall total together.
+    await productModel.updateOne(
+      { _id: item.product },
+      { $inc: { "sizeStock.$[s].stock": -qty, stock: -qty } },
+      { arrayFilters: [{ "s.size": item.size }] },
+    );
+  } else {
+    await productModel.updateOne({ _id: item.product }, { $inc: { stock: -qty } });
+  }
+}
+// Safety net: never display negative stock.
+await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });</pre>
+  <p class="listing" align="center">Listing 4.11: Per-size stock decrement after a confirmed payment.</p>
+  <p>
+    Figure 4.9 shows the checkout page, Figure 4.10 the Paystack payment interface, and Figure 4.11 the
+    confirmation the customer sees once payment has been verified and the order created.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 9, Checkout page]</b>Capture the checkout step showing address, shipping options, and order summary.</div>
   <p class="caption" align="center">Figure 4.9: Checkout interface.</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 10 — Paystack payment]</b>Capture the Paystack payment screen (test mode) showing card / transfer / USSD options.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 10, Paystack payment]</b>Capture the Paystack payment screen (test mode) showing card / transfer / USSD options.</div>
   <p class="caption" align="center">Figure 4.10: Paystack payment interface (test mode).</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 11 — Order confirmation / success]</b>Capture the order-success page after a test payment, and (optionally) the confirmation email.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 11, Order confirmation / success]</b>Capture the order-success page after a test payment, and (optionally) the confirmation email.</div>
   <p class="caption" align="center">Figure 4.11: Order confirmation page.</p>
 
   <!-- 4.10 -->
@@ -290,7 +497,7 @@ type Query {
     customer, and a verified-purchase flag distinguishes genuine buyers. Figure 4.12 shows the review section
     on a product page.
   </p>
-  <div class="shot" align="center"><b>[SCREENSHOT 12 — Product reviews]</b>Capture the reviews section of a product page (with at least one review and the rating form).</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 12, Product reviews]</b>Capture the reviews section of a product page (with at least one review and the rating form).</div>
   <p class="caption" align="center">Figure 4.12: Customer reviews on a product page.</p>
 
   <!-- 4.11 -->
@@ -302,9 +509,9 @@ type Query {
     changes trigger automatic email notifications to the customer. Figures 4.13 and 4.14 show the dashboard
     overview and the orders-management screen.
   </p>
-  <div class="shot" align="center"><b>[SCREENSHOT 13 — Admin dashboard overview]</b>Capture /admin showing the statistics cards and navigation.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 13, Admin dashboard overview]</b>Capture /admin showing the statistics cards and navigation.</div>
   <p class="caption" align="center">Figure 4.13: Administrative dashboard overview.</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 14 — Admin orders]</b>Capture /admin/orders showing orders and the status controls.</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 14, Admin orders]</b>Capture /admin/orders showing orders and the status controls.</div>
   <p class="caption" align="center">Figure 4.14: Order management in the admin dashboard.</p>
 
   <!-- 4.12 -->
@@ -319,7 +526,7 @@ type Query {
     environment variables, and deploying, without changing the application's core logic. Figure 4.15 shows the
     deployment dashboard.
   </p>
-  <div class="shot" align="center"><b>[SCREENSHOT 15 — Vercel deployment]</b>Capture the Vercel project dashboard showing a successful production deployment (and optionally the live URL).</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 15, Vercel deployment]</b>Capture the Vercel project dashboard showing a successful production deployment (and optionally the live URL).</div>
   <p class="caption" align="center">Figure 4.15: Vercel deployment dashboard.</p>
 
   <!-- 4.13 -->
@@ -366,7 +573,7 @@ type Query {
     <tr><td>Shop page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
   </table>
   <p class="caption" align="center">Table 4.3: Google Lighthouse scores for representative pages.</p>
-  <div class="shot" align="center"><b>[SCREENSHOT 16 — Lighthouse report]</b>Capture a Lighthouse report panel for one page (showing the four score circles).</div>
+  <div class="shot" align="center"><b>[SCREENSHOT 16, Lighthouse report]</b>Capture a Lighthouse report panel for one page (showing the four score circles).</div>
   <p class="caption" align="center">Figure 4.16: Lighthouse performance report (home page).</p>
   
 
