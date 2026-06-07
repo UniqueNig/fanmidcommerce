@@ -1220,24 +1220,25 @@
 
   <h2>3.10 Tools and Technologies</h2>
   <table class="fig">
-    <tr><th>Category</th><th>Technology</th><th>Role in the study</th></tr>
-    <tr><td>Framework</td><td>Next.js (App Router)</td><td>Server and client rendering, routing, build pipeline.</td></tr>
-    <tr><td>Language</td><td>TypeScript</td><td>Static typing across the full stack.</td></tr>
-    <tr><td>API</td><td>GraphQL with Apollo Server</td><td>Typed, client-driven data access.</td></tr>
-    <tr><td>Database</td><td>MongoDB with Mongoose</td><td>Document storage and object-data modelling.</td></tr>
-    <tr><td>Styling / theming</td><td>Tailwind CSS, next-themes</td><td>Responsive UI and dynamic theming.</td></tr>
-    <tr><td>Payments</td><td>Paystack (sandbox)</td><td>Card, transfer, and USSD payments with server-side verification.</td></tr>
-    <tr><td>Email</td><td>Resend</td><td>Transactional email (order and status notifications).</td></tr>
-    <tr><td>Media</td><td>Cloudinary</td><td>Image upload, storage, and delivery.</td></tr>
-    <tr><td>Version control</td><td>Git</td><td>Change tracking and branch-based workflow.</td></tr>
-    <tr><td>Deployment</td><td>Vercel</td><td>Hosting and continuous deployment for evaluation.</td></tr>
+    <tr><th>Category</th><th>Technology</th><th>Version</th><th>Role in the study</th></tr>
+    <tr><td>Framework</td><td>Next.js (App Router)</td><td>16.1.7</td><td>Server and client rendering, routing, build pipeline.</td></tr>
+    <tr><td>UI library</td><td>React</td><td>19.2.3</td><td>Component-based user interface.</td></tr>
+    <tr><td>Language</td><td>TypeScript</td><td>5.9</td><td>Static typing across the full stack.</td></tr>
+    <tr><td>API</td><td>GraphQL with Apollo Server</td><td>GraphQL 16; Apollo Server 5</td><td>Typed, client-driven data access.</td></tr>
+    <tr><td>Database</td><td>MongoDB with Mongoose</td><td>Mongoose 9.3</td><td>Document storage and object-data modelling.</td></tr>
+    <tr><td>Styling / theming</td><td>Tailwind CSS, next-themes</td><td>Tailwind 4</td><td>Responsive UI and dynamic theming.</td></tr>
+    <tr><td>Payments</td><td>Paystack (sandbox)</td><td>—</td><td>Card, transfer, and USSD payments with server-side verification.</td></tr>
+    <tr><td>Email</td><td>Resend</td><td>6.10</td><td>Transactional email (order and status notifications).</td></tr>
+    <tr><td>Media</td><td>Cloudinary</td><td>—</td><td>Image upload, storage, and delivery.</td></tr>
+    <tr><td>Version control</td><td>Git</td><td>—</td><td>Change tracking and branch-based workflow.</td></tr>
+    <tr><td>Deployment</td><td>Vercel</td><td>—</td><td>Hosting and continuous deployment for evaluation.</td></tr>
   </table>
-  <p class="caption">Table 3.4: Tools and technologies employed in the study.</p>
-  <div class="note">
-    Note on versions: the original proposal referenced Next.js 15. The implementation has since been
-    developed on a current release of Next.js; state the exact version here (for example, “Next.js 16.x”),
-    confirmed against the project’s <code>package.json</code>, before submission.
-  </div>
+  <p class="caption">Table 3.4: Tools and technologies employed in the study, with versions.</p>
+  <p>
+    The implementation was developed on Next.js version 16.1.7 with React 19, using TypeScript 5.9, Apollo
+    Server 5 for the GraphQL layer, and Mongoose 9.3 over MongoDB. (The original proposal referenced Next.js
+    15; the project was subsequently developed on the current major release, version 16.)
+  </p>
   <p>
     The platform is deployed on Vercel, a cloud platform optimised for Next.js applications, which provides
     continuous deployment from the project’s Git repository: each change pushed to the main branch triggers an

@@ -1,17 +1,15 @@
 ﻿<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>
-  @page { size:A4; margin:1in 1in 1in 1.5in; }
-  body { font-family:'Times New Roman',serif; font-size:12pt; line-height:1.5; }
-  h1 { font-size:17pt; text-transform:uppercase; }
-  h2.chtitle { font-size:15pt; font-weight:bold; }
-  h2 { font-size:13.5pt; } h3 { font-size:12.5pt; }
-  p { text-align:justify; margin:0 0 12px; }
-  table { border-collapse:collapse; width:100%; }
-  th,td { border:1px solid #999; padding:6px 8px; vertical-align:top; font-size:11pt; }
-  th { background:#f0f0f0; }
-  pre.code { background:#f6f8fa; border:1px solid #d0d7de; padding:10px; font-family:'Consolas','Courier New',monospace; font-size:9pt; white-space:pre; }
-  .shot { border:2px dashed #b9b9c9; background:#fbfbfd; padding:22px; text-align:center; color:#555; font-size:10.5pt; }
-  .caption,.listing { font-style:italic; text-align:center; font-size:10.5pt; color:#555; }
-  h1.chapter { page-break-before:always; }
+  @page{size:A4;margin:1in 1in 1in 1.5in;}
+  body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.5;}
+  h1{font-size:17pt;text-transform:uppercase;} h2.chtitle{font-size:15pt;font-weight:bold;}
+  h2{font-size:13.5pt;} h3{font-size:12.5pt;} h4{font-size:12pt;font-style:italic;}
+  p{text-align:justify;margin:0 0 12px;}
+  .refs p{padding-left:36px;text-indent:-36px;text-align:left;}
+  table{border-collapse:collapse;width:100%;} th,td{border:1px solid #999;padding:6px 8px;vertical-align:top;font-size:11pt;} th{background:#f0f0f0;}
+  pre.code{background:#f6f8fa;border:1px solid #d0d7de;padding:10px;font-family:'Consolas','Courier New',monospace;font-size:9pt;white-space:pre;}
+  .shot{border:2px dashed #b9b9c9;background:#fbfbfd;padding:22px;text-align:center;color:#555;font-size:10.5pt;}
+  .caption,.listing{font-style:italic;text-align:center;font-size:10.5pt;color:#555;}
+  h1.chapter{page-break-before:always;} .titlepage{page-break-after:always;} .pagebreak{page-break-before:always;}
 </style></head><body>
 
   
@@ -45,21 +43,22 @@
     recorded in the project's configuration.
   </p>
   <table class="fig">
-    <tr><th>Tool / technology</th><th>Role in the implementation</th></tr>
-    <tr><td>Next.js (App Router)</td><td>React framework providing routing, server and client rendering, and the build pipeline.</td></tr>
-    <tr><td>TypeScript</td><td>Typed language used across the entire codebase.</td></tr>
-    <tr><td>Apollo Server (@apollo/server) with @as-integrations/next</td><td>GraphQL server mounted on a Next.js route handler.</td></tr>
-    <tr><td>@apollo/client</td><td>GraphQL client used by the React front end.</td></tr>
-    <tr><td>MongoDB with Mongoose</td><td>Document database and object-data-modelling layer.</td></tr>
-    <tr><td>Tailwind CSS, next-themes</td><td>Utility-first styling and light/dark theming.</td></tr>
-    <tr><td>Paystack</td><td>Payment gateway (card, bank transfer, USSD).</td></tr>
-    <tr><td>Resend</td><td>Transactional email (order and status notifications).</td></tr>
-    <tr><td>Cloudinary</td><td>Image upload, storage, and delivery.</td></tr>
-    <tr><td>Visual Studio Code, Node.js, npm, Git, GitHub</td><td>Editor, runtime, package manager, and version control.</td></tr>
-    <tr><td>Vercel</td><td>Hosting and continuous deployment.</td></tr>
+    <tr><th>Tool / technology</th><th>Version</th><th>Role in the implementation</th></tr>
+    <tr><td>Next.js (App Router)</td><td>16.1.7</td><td>React framework providing routing, server and client rendering, and the build pipeline.</td></tr>
+    <tr><td>React</td><td>19.2.3</td><td>Component-based user-interface library.</td></tr>
+    <tr><td>TypeScript</td><td>5.9</td><td>Typed language used across the entire codebase.</td></tr>
+    <tr><td>Apollo Server (@apollo/server) with @as-integrations/next</td><td>5.4</td><td>GraphQL server mounted on a Next.js route handler.</td></tr>
+    <tr><td>@apollo/client</td><td>4.1</td><td>GraphQL client used by the React front end.</td></tr>
+    <tr><td>GraphQL</td><td>16.13</td><td>Query language and runtime for the API.</td></tr>
+    <tr><td>MongoDB with Mongoose</td><td>Mongoose 9.3</td><td>Document database and object-data-modelling layer.</td></tr>
+    <tr><td>Tailwind CSS, next-themes</td><td>Tailwind 4</td><td>Utility-first styling and light/dark theming.</td></tr>
+    <tr><td>Paystack</td><td>—</td><td>Payment gateway (card, bank transfer, USSD).</td></tr>
+    <tr><td>Resend</td><td>6.10</td><td>Transactional email (order and status notifications).</td></tr>
+    <tr><td>Cloudinary</td><td>—</td><td>Image upload, storage, and delivery.</td></tr>
+    <tr><td>Visual Studio Code, Node.js, npm, Git, GitHub</td><td>—</td><td>Editor, runtime, package manager, and version control.</td></tr>
+    <tr><td>Vercel</td><td>—</td><td>Hosting and continuous deployment.</td></tr>
   </table>
-  <p class="caption" align="center">Table 4.1: Tools and technologies used in the implementation.</p>
-  
+  <p class="caption" align="center">Table 4.1: Tools and technologies used in the implementation, with versions.</p>
 
   <!-- 4.3 -->
   <h2>4.3 Project and Folder Structure</h2>
