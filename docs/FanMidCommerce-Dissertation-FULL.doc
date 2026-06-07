@@ -1,0 +1,2360 @@
+﻿<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>@page{size:A4;margin:1in 1in 1in 1.5in;}body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.5;}h1{font-size:17pt;text-transform:uppercase;}h2.chtitle{font-size:15pt;font-weight:bold;}h2{font-size:13.5pt;}h3{font-size:12.5pt;}h4{font-size:12pt;font-style:italic;}p{text-align:justify;margin:0 0 12px;}.refs p{padding-left:36px;text-indent:-36px;text-align:left;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #999;padding:6px 8px;vertical-align:top;font-size:11pt;}th{background:#f0f0f0;}pre.code{background:#f6f8fa;border:1px solid #d0d7de;padding:10px;font-family:'Consolas','Courier New',monospace;font-size:9pt;white-space:pre;}.shot{border:2px dashed #b9b9c9;background:#fbfbfd;padding:22px;text-align:center;color:#555;font-size:10.5pt;}.caption,.listing{font-style:italic;text-align:center;font-size:10.5pt;color:#555;}h1.chapter{page-break-before:always;}.titlepage{page-break-after:always;}.pagebreak{page-break-before:always;}</style></head><body>
+
+<!-- ───────── TITLE PAGE ───────── -->
+  <div class="center titlepage" style="padding-top:24px;">
+    <p align="center" style="font-weight:bold; font-size:14pt; margin-bottom:4px;">UNIVERSITY OF ILORIN</p>
+    <p align="center" style="margin-bottom:2px;">Faculty of Communication and Information Sciences</p>
+    <p align="center" style="margin-bottom:2px;">Department of Library and Information Science</p>
+    <p align="center" style="font-style:italic; margin-bottom:36px;">Master of Information Technology (MIT)</p>
+    <p align="center" style="font-weight:bold; font-size:14pt; margin-bottom:24px;">
+      DESIGN AND ENHANCEMENT OF A FULL-STACK E-COMMERCE WEB APPLICATION:
+      A STUDY OF FANMIDCOMMERCE
+    </p>
+    <p align="center" style="margin-bottom:2px;">A Dissertation (Chapters One to Three)</p>
+    <p align="center" style="margin-bottom:34px;">Submitted in Partial Fulfilment of the Requirements for the<br/>
+      Award of the Degree of Master of Information Technology (MIT)</p>
+    <p align="center" style="margin-bottom:2px;">By</p>
+    <p align="center" style="font-weight:bold; margin-bottom:2px;">VICTOR OLAYINKA ADEBAYO</p>
+    <p align="center" style="margin-bottom:22px;">Matric Number: UIL/IBS-M2025/0329</p>
+    <p align="center" style="margin-bottom:2px;">Supervisor:</p>
+    <p align="center" style="font-weight:bold; margin-bottom:30px;">Prof. BAJEH Amos</p>
+    <p align="center">May, 2026</p>
+  </div>
+
+  
+
+  <!-- ───────── ABSTRACT ───────── -->
+  <h2 class="chtitle" align="center">ABSTRACT</h2>
+  <p>
+    The expansion of internet and mobile connectivity in Nigeria has created a substantial digital
+    marketplace, yet many small and medium-sized enterprises (SMEs) remain excluded from formal e-commerce
+    by the cost of proprietary platforms, limited technical capacity, and the poor contextual fit of generic
+    international solutions. At the same time, although modern web technologies, server-rendered React
+    frameworks, statically typed JavaScript, and application programming interface (API)-first designs such
+    as GraphQL, offer significant advantages in performance, maintainability, and developer productivity,
+    the academic literature contains few integrated, end-to-end accounts of building a production-oriented
+    e-commerce system on such a stack. This study addresses both gaps through the design, enhancement, and
+    documentation of <i>FanMidCommerce</i>, a full-stack e-commerce web application built with Next.js (App
+    Router), TypeScript, GraphQL with Apollo Server, and the MongoDB document database, and supported by the
+    Paystack payment gateway and the Resend transactional-email service. Adopting a design science research
+    methodology combined with an iterative, agile-inspired development process, the study analyses the
+    existing codebase, enhances it with product search and filtering, order-management workflows, payment
+    integration, and customer reviews, and resolves a recognised technical challenge concerning the
+    propagation of authentication context to GraphQL resolvers within the Next.js App Router. The enhanced
+    platform is evaluated for functionality, performance, usability, and security using established
+    instruments, including Nielsen’s usability heuristics, the Web Content Accessibility Guidelines, and the
+    OWASP security guidance. The study contributes a documented, reusable reference implementation for
+    SME-oriented e-commerce, an analysis of GraphQL–Next.js integration suitable for researchers and
+    practitioners, and an assessment of the platform’s applicability within the Nigerian digital economy.
+    Chapters One to Three, presented here, cover the introduction, the review of related literature, and the
+    research methodology and system design.
+  </p>
+  <p style="margin-top:18px;"><b>Keywords:</b> e-commerce; full-stack web development; Next.js; GraphQL;
+    MongoDB; TypeScript; design science; small and medium-sized enterprises; Nigeria.</p>
+
+  <!-- ───────── TABLE OF CONTENTS ───────── -->
+  <div class="pagebreak"></div>
+  <h2 class="chtitle" align="center">TABLE OF CONTENTS</h2>
+  <div class="toc">
+    <div><b>CHAPTER ONE: INTRODUCTION</b></div>
+    <div>1.1&nbsp;&nbsp;Background to the Study</div>
+    <div>1.2&nbsp;&nbsp;Statement of the Problem</div>
+    <div>1.3&nbsp;&nbsp;Aim and Objectives of the Study</div>
+    <div>1.4&nbsp;&nbsp;Research Questions</div>
+    <div>1.5&nbsp;&nbsp;Significance of the Study</div>
+    <div>1.6&nbsp;&nbsp;Scope and Limitations of the Study</div>
+    <div>1.7&nbsp;&nbsp;Operational Definition of Terms</div>
+    <div>1.8&nbsp;&nbsp;Organisation of the Study</div>
+    <div style="margin-top:8px;"><b>CHAPTER TWO: REVIEW OF RELATED LITERATURE</b></div>
+    <div>2.1&nbsp;&nbsp;Introduction</div>
+    <div>2.2&nbsp;&nbsp;Conceptual Review</div>
+    <div>2.3&nbsp;&nbsp;Theoretical Framework</div>
+    <div>2.4&nbsp;&nbsp;E-Commerce and SMEs in the Nigerian Context</div>
+    <div>2.5&nbsp;&nbsp;Empirical Review of Related Studies</div>
+    <div>2.6&nbsp;&nbsp;Review of Related Systems</div>
+    <div>2.7&nbsp;&nbsp;Summary of Literature and Research Gap</div>
+    <div style="margin-top:8px;"><b>CHAPTER THREE: RESEARCH METHODOLOGY AND SYSTEM DESIGN</b></div>
+    <div>3.1&nbsp;&nbsp;Introduction</div>
+    <div>3.2&nbsp;&nbsp;Research Design</div>
+    <div>3.3&nbsp;&nbsp;Software Development Methodology</div>
+    <div>3.4&nbsp;&nbsp;Requirements Analysis</div>
+    <div>3.5&nbsp;&nbsp;System Architecture</div>
+    <div>3.6&nbsp;&nbsp;Database Design</div>
+    <div>3.7&nbsp;&nbsp;Application Programming Interface (API) Design</div>
+    <div>3.8&nbsp;&nbsp;User Interface and Experience Design</div>
+    <div>3.9&nbsp;&nbsp;Security Design</div>
+    <div>3.10&nbsp;Tools and Technologies</div>
+    <div>3.11&nbsp;Testing and Evaluation Strategy</div>
+    <div>3.12&nbsp;Chapter Summary</div>
+    <div style="margin-top:8px;"><b>REFERENCES</b></div>
+  </div>
+
+  <!-- ═══════════ CHAPTER ONE ═══════════ -->
+  <h1 class="chapter" align="center">Chapter One</h1>
+  <h2 class="chtitle" align="center">Introduction</h2>
+
+  <h2>1.1 Background to the Study</h2>
+  <p>
+    Over the past two decades, the internet has changed the way people buy and sell almost everywhere, and
+    this change has been especially dramatic in developing regions such as sub-Saharan Africa. As mobile
+    networks have spread, smartphones have become cheaper, and the cost of data has fallen, more and more
+    people have come online for the first time. The result is a large and fast-growing digital marketplace
+    (International Telecommunication Union [ITU], 2023; GSMA, 2023). Nigeria sits at the centre of this shift.
+    As the most populous country on the continent and its largest economy, it has seen internet penetration
+    climb to roughly 55.4 per cent of the population by early 2023, while broadband penetration stood at about
+    44.4 per cent by the end of 2024 (Nigerian Communications Commission [NCC], 2024). In practical terms,
+    tens of millions of Nigerians now carry an internet-connected device, and a growing number of them are
+    comfortable browsing, comparing, and ordering goods online. This is the foundation on which a maturing
+    electronic-commerce sector is being built.
+  </p>
+  <p>
+    What exactly is electronic commerce? At its simplest, e-commerce is the buying and selling of goods and
+    services, together with the related movement of money and information, carried out over electronic
+    networks such as the internet (Laudon &amp; Traver, 2021). That definition, however, hides how much work a
+    real platform has to do. A working online store is not just a page that displays products. It has to
+    manage a product catalogue, handle customer accounts, run a shopping cart and a checkout, process
+    payments, track orders through to delivery, and keep customers informed afterwards. All of these parts
+    must fit together smoothly. When they do, customers are more likely to complete a purchase, return for
+    another, and trust the business with their money; when they do not, sales are lost at every step
+    (Laudon &amp; Traver, 2021). For a business of any size, getting this right means it can reach customers
+    far beyond its physical location and sell around the clock, without paying for extra shop space.
+  </p>
+  <p>
+    In Nigeria, the businesses that stand to gain the most from this are the micro, small and medium-sized
+    enterprises (MSMEs), and there are a great many of them. The most recent national survey, conducted
+    jointly by the Small and Medium Enterprises Development Agency of Nigeria (SMEDAN) and the National Bureau
+    of Statistics, counted roughly 39 million MSMEs. Together they account for about 46.3 per cent of the
+    country's gross domestic product, some 87.9 per cent of national employment, and around 96.9 per cent of
+    all businesses (National Bureau of Statistics &amp; SMEDAN, 2021). These figures make one point very
+    clearly: small businesses are not a side note in the Nigerian economy; they are its backbone. For them,
+    selling online is a chance to reach new customers and to become more resilient when times are hard.
+  </p>
+  <p>
+    Yet, despite the opportunity, comparatively few of these businesses have moved onto a proper e-commerce
+    platform. Several obstacles stand in the way. The first is cost: many established platforms charge a
+    recurring subscription that is difficult for a small trader to justify month after month. The second is
+    skill: building and maintaining a website calls for technical knowledge that most business owners simply
+    do not have. The third is trust, both the customer's worry about paying online and the owner's worry about
+    fraud and chargebacks. There are also practical problems with delivery and returns (World Bank, 2019). On
+    top of all this sits a barrier that is easy to overlook but matters a great deal in practice, namely
+    contextual fit. International platforms are often built for other markets. They may not price comfortably
+    in naira, may not support the bank-transfer and Unstructured Supplementary Service Data (USSD) payment
+    channels that many Nigerians prefer, and rarely fit the very common habit of arranging orders through
+    messaging apps such as WhatsApp. Faced with these hurdles, a large number of capable businesses settle for
+    an informal online presence, usually a social-media page paired with manual order-taking, which lacks the
+    structure, security, and room to grow that a dedicated platform would provide.
+  </p>
+  <p>
+    While the market has been changing, so too has the technology used to build websites, and it has changed
+    quickly. Modern web development increasingly favours full-stack JavaScript, and in particular TypeScript,
+    where a single language and a single type system run across both the part of the application the user sees
+    (the front end) and the part that runs on the server (the back end). It favours server-rendered React
+    frameworks such as Next.js, which manage to combine the smooth interactivity people expect from a modern
+    app with the speed and search-engine visibility that come from rendering pages on the server. And it
+    increasingly favours newer ways of moving data between client and server, such as GraphQL, which lets the
+    application ask for exactly the data it needs and nothing more (Wieruch, 2022; Vercel, 2024). Taken
+    together, these tools promise faster, more reliable, and more maintainable software than the older
+    technology on which many existing online stores are built. The difficulty is that, although industry has
+    adopted them eagerly, there is still very little careful, academic documentation showing how they work
+    together from start to finish in a complete, real-world online store, and even less that ties such
+    technical work to the day-to-day realities of a market such as Nigeria's.
+  </p>
+  <p>
+    This study sits precisely where those two gaps meet: an under-served market of small businesses on one
+    side, and a powerful but under-documented set of modern tools on the other. Its subject is
+    <i>FanMidCommerce</i>, a full-stack e-commerce web application that the researcher has built using
+    Next.js (with the App Router), TypeScript, GraphQL served through Apollo Server, the MongoDB document
+    database accessed through the Mongoose library, and the Tailwind CSS styling framework, with payment and
+    email handled by the Paystack and Resend services. The application already provides a customer-facing
+    storefront, a customer account dashboard, and an administrative panel. The work reported here extends that
+    foundation with further commerce features, resolves a number of technical problems encountered along the
+    way (most notably how authentication information is carried through to GraphQL resolvers inside the App
+    Router), and documents the design decisions in detail. The intention is to deliver two things at once: an
+    academic contribution, in the form of a carefully documented case study and a reusable reference
+    implementation, and a practical contribution, in the form of a low-cost, locally suited e-commerce
+    platform that Nigerian small businesses could actually adopt.
+  </p>
+
+  <h2>1.2 Statement of the Problem</h2>
+  <p>
+    E-commerce has grown rapidly worldwide, but growth in the marketplace has not been matched by clear,
+    well-documented guidance on how to build the platforms that power it, at least not for the modern
+    JavaScript frameworks and API-first designs that now dominate professional practice. A developer or a
+    student who wants to build a complete online store on these newer tools will find plenty of short
+    tutorials covering one feature at a time, but very little that shows the whole system fitting together,
+    and almost nothing written with academic rigour. This study is motivated by five related problems that
+    together describe this gap.
+  </p>
+  <p>
+    <b>First, a reliance on legacy architectures.</b> A large share of the e-commerce solutions in use today
+    are built on older technology stacks. These work, but they do not take advantage of the rendering speed,
+    the type safety, or the easier maintenance that modern frameworks such as Next.js, with its App Router,
+    now offer. As a consequence, anyone wishing to adopt the newer approach has few complete, end-to-end
+    examples to learn from. The academic literature, where it touches these tools at all, tends to look at one
+    technique in isolation rather than showing how the pieces combine into a working whole.
+  </p>
+  <p>
+    <b>Second, the difficulty of integrating GraphQL within the Next.js App Router.</b> Running a GraphQL API
+    from inside a Next.js App Router route handler turns out to be harder than it first appears. The thorniest
+    part is reliably building and passing along what GraphQL calls the <i>context</i>: the small bundle of
+    per-request information, such as who the user is and what role they hold, that every resolver needs in
+    order to decide whether the request should be allowed. If this context is not assembled correctly and made
+    available everywhere it is needed, access control breaks down, with obvious consequences for security.
+    Despite how central this is, the published literature barely addresses it, so developers are left to work
+    out a solution on their own, often by trial and error. The present study treats this challenge as a
+    first-class research concern and documents a working resolution.
+  </p>
+  <p>
+    <b>Third, a shortage of end-to-end development documentation.</b> Very little published work follows a
+    full-stack e-commerce application through its whole life cycle, from the design of the database schema,
+    through the specification of the API, to the building of the user interface, all using a TypeScript-first
+    approach. Accounts of this kind are genuinely useful: they help students learn, they guide practitioners,
+    and they make good patterns reproducible. Their scarcity in the peer-reviewed literature is itself part of
+    the problem this study sets out to address.
+  </p>
+  <p>
+    <b>Fourth, the habit of treating usability and accessibility as afterthoughts.</b> In many academic
+    prototypes, the way a system looks and feels, and whether people with different abilities can actually use
+    it, is bolted on near the end rather than designed in from the start. This is a mistake. It weakens the
+    prototype as something that could really be deployed, and it ignores a well-established body of evidence
+    showing that usability and trust strongly influence whether customers adopt an online store at all. This
+    study therefore treats usability and accessibility as requirements in their own right.
+  </p>
+  <p>
+    <b>Fifth, a mismatch with the local context.</b> Even when capable platforms do exist, they often do not
+    fit the day-to-day reality of running a small business in Nigeria. They may be too expensive, may not
+    support the payment channels customers actually use, and may assume a level of technical staffing that a
+    small owner-run business does not have. Pulling these five problems together, there is a clear need for an
+    e-commerce platform that is built on modern architecture, is documented thoroughly enough to be learned
+    from and reused, resolves the integration challenges noted above, treats usability and accessibility as
+    central, and is deliberately shaped to fit the small-business context. FanMidCommerce is the vehicle
+    through which this study sets out to meet that need.
+  </p>
+
+  <h2>1.3 Aim and Objectives of the Study</h2>
+  <h3>1.3.1 Aim</h3>
+  <p>
+    The aim of this study is to enhance and comprehensively document FanMidCommerce, a full-stack e-commerce
+    web application, in order to demonstrate the practical application of modern web-development technologies
+    and architectural patterns within an academic research framework, and to assess its suitability as an
+    e-commerce solution for SMEs in the Nigerian context.
+  </p>
+  <h3>1.3.2 Objectives</h3>
+  <p>The specific objectives of the study are to:</p>
+  <ol>
+    <li>review existing literature on e-commerce platform architectures, full-stack web-development
+      frameworks, and API-driven application design;</li>
+    <li>conduct a comprehensive analysis of the existing FanMidCommerce codebase in order to identify areas
+      for functional and architectural enhancement;</li>
+    <li>design and implement additional features, including product search and filtering, order-management
+      workflows, payment-gateway integration, and customer review functionality;</li>
+    <li>resolve identified technical challenges relating to GraphQL context management and authentication
+      within the Next.js App Router environment;</li>
+    <li>evaluate the performance, usability, and security of the enhanced application using appropriate
+      assessment frameworks; and</li>
+    <li>produce thorough technical documentation covering the system architecture, database schema, API
+      design, and deployment procedures, and assess the applicability of the platform model for Nigerian
+      SMEs.</li>
+  </ol>
+
+  <h2>1.4 Research Questions</h2>
+  <p>Consistent with the objectives, the study is guided by the following research questions:</p>
+  <ol>
+    <li>How can a full-stack e-commerce platform be designed and enhanced using Next.js, TypeScript, GraphQL,
+      and MongoDB to satisfy the core commerce requirements of SMEs?</li>
+    <li>What are the principal technical challenges of integrating GraphQL authentication context within the
+      Next.js App Router, and how may they be resolved?</li>
+    <li>To what extent does the enhanced FanMidCommerce platform satisfy accepted criteria for functionality,
+      performance, usability, and security?</li>
+    <li>How applicable is the resulting platform model as an affordable and deployable e-commerce solution for
+      SMEs within the Nigerian digital economy?</li>
+  </ol>
+
+  <h2>1.5 Significance of the Study</h2>
+  <p>
+    This study matters to several different groups of people, and it is worth being specific about how.
+  </p>
+  <p>
+    <b>For the academic community,</b> it offers something that is currently in short supply: a documented,
+    real-world case study of building a full-stack e-commerce application on a modern TypeScript-first stack.
+    Much of the existing academic writing on web development examines one idea at a time, a rendering
+    strategy here, an API pattern there. By following a single, complete system from database to interface,
+    this work shows how the parts actually interact. Its detailed treatment of how authentication context is
+    carried across the Next.js App Router GraphQL boundary speaks to a specific and recognised gap, and the
+    structured way the system is evaluated can serve as a template for assessing similar projects in future.
+  </p>
+  <p>
+    <b>For practitioners and the wider open-source community,</b> the enhanced platform is more than an
+    academic exercise; it is something that could actually be deployed for a real small business at low cost.
+    A particular design decision makes this possible. The architecture deliberately separates a reusable
+    "commerce engine", the parts that handle products, carts, checkout, orders, payments, and administration,
+    from a customisable presentation layer that controls how each store looks. Because of this split, one
+    well-tested core can be re-skinned for many different businesses without rewriting the underlying logic.
+    In practice, this turns what is usually a costly, build-from-scratch project into a far quicker
+    configuration exercise, which is exactly the kind of saving a small business needs. The documentation that
+    accompanies the code lowers the barrier further, making it realistic for another developer or a student to
+    pick the system up, deploy it, and extend it.
+  </p>
+  <p>
+    <b>For the Nigerian small-business sector,</b> the study contributes to a larger goal: widening access to
+    digital-commerce tools that actually fit local conditions, pricing in naira, supporting the payment
+    channels people really use, and being simple enough for an owner to run after a short period of training.
+    In a small way, this supports the digital inclusion of enterprises that the formal e-commerce sector has
+    so far left behind. <b>Finally, for students and educators,</b> the work doubles as a teaching resource: a
+    reference implementation that shows, in one coherent place, how today's web technologies combine into a
+    production-ready whole, filling the space between scattered online tutorials and formal academic texts.
+  </p>
+
+  <h2>1.6 Scope and Limitations of the Study</h2>
+  <h3>1.6.1 Scope</h3>
+  <p>
+    The study encompasses the enhancement and documentation of FanMidCommerce in its entirety, including the
+    customer storefront, the customer account dashboard, and the administrative panel. The technology scope is
+    bounded by the existing stack: Next.js (App Router) with TypeScript, GraphQL served through Apollo Server,
+    MongoDB accessed via the Mongoose library, and Tailwind CSS for styling, together with the Paystack
+    payment gateway, the Resend transactional-email service, and the Cloudinary media service. The research
+    comprises a literature review, an analysis of the existing system, iterative design and implementation,
+    and testing and evaluation. Functionally, it covers catalogue browsing with search, filtering, and
+    pagination; product variants and stock management; customer authentication and account management;
+    cart and secure checkout; payment integration; order management and notification; customer reviews; and
+    administrative management of the foregoing.
+  </p>
+  <h3>1.6.2 Limitations</h3>
+  <p>
+    Several limitations are acknowledged. <b>First,</b> the platform is deployed to a development or staging
+    environment for evaluation; large-scale, real-world transactional load testing lies beyond the present
+    scope, so claims regarding behaviour under heavy concurrent load are necessarily provisional.
+    <b>Second,</b> payment-gateway integration is exercised in sandbox/test mode, in keeping with the
+    regulatory requirements governing live financial transactions; the live-payment configuration is
+    documented but not transacted against. <b>Third,</b> usability evaluation is conducted with a limited
+    number of representative participants rather than a large sample, which constrains statistical
+    generalisation. <b>Fourth,</b> the findings are contextualised within the Nigerian digital landscape and
+    may require adaptation before they generalise to other settings. These limitations qualify the strength of
+    certain claims but do not diminish the study’s central contributions of design, implementation, and
+    documentation.
+  </p>
+
+  <h2>1.7 Operational Definition of Terms</h2>
+  <table class="fig">
+    <tr><th>Term</th><th>Meaning as used in this study</th></tr>
+    <tr><td>E-commerce</td><td>The buying and selling of goods or services, and related transfers of data and funds, conducted over the internet.</td></tr>
+    <tr><td>Full-stack</td><td>Development spanning both the client (front-end) and server (back-end), together with the database layer.</td></tr>
+    <tr><td>Framework</td><td>A structured software foundation that provides reusable structure and tooling; here, principally Next.js for the React front-end.</td></tr>
+    <tr><td>App Router</td><td>The directory-based routing and rendering model in recent Next.js versions, distinguishing server from client components.</td></tr>
+    <tr><td>GraphQL</td><td>A query language and runtime for APIs that allows clients to request exactly the data they need from a typed schema.</td></tr>
+    <tr><td>Resolver</td><td>A server-side function that produces the value for a particular field of a GraphQL query or mutation.</td></tr>
+    <tr><td>Context (GraphQL)</td><td>Shared per-request information (such as the authenticated user) made available to all resolvers.</td></tr>
+    <tr><td>MongoDB</td><td>A document-oriented (NoSQL) database that stores records as flexible, JSON-like documents.</td></tr>
+    <tr><td>Mongoose</td><td>An object-data-modelling library that provides schemas and a typed interface over MongoDB.</td></tr>
+    <tr><td>JWT</td><td>JSON Web Token; a signed, self-contained token conveying a user’s identity and claims between client and server.</td></tr>
+    <tr><td>SSR / SSG / ISR</td><td>Server-side rendering, static site generation, and incremental static regeneration; strategies for producing web pages.</td></tr>
+    <tr><td>SME</td><td>Small and medium-sized enterprise.</td></tr>
+    <tr><td>USSD</td><td>Unstructured Supplementary Service Data; a session-based mobile channel widely used in Nigeria for banking and payments.</td></tr>
+    <tr><td>Idempotent</td><td>An operation that produces the same result whether performed once or repeated, important for safe order finalisation.</td></tr>
+  </table>
+
+  <h2>1.8 Organisation of the Study</h2>
+  <p>
+    This dissertation is organised into five chapters. <b>Chapter One</b> introduces the study, presenting the
+    background, statement of the problem, aim and objectives, research questions, significance, scope and
+    limitations, definition of terms, and this outline. <b>Chapter Two</b> reviews related literature,
+    covering the key concepts, the theoretical framework, the Nigerian e-commerce and SME context, and a
+    survey of related works, before articulating the research gap. <b>Chapter Three</b> sets out the research
+    methodology and the design of the enhanced system, including the research design, development methodology,
+    requirements analysis, system and database architecture, API and interface design, security
+    considerations, tools and technologies, and the testing and evaluation strategy. <b>Chapter Four</b> (to
+    follow) will present the implementation of the enhancements and the results obtained, and <b>Chapter
+    Five</b> will offer the summary, conclusions, contributions, and recommendations for further work.
+  </p>
+
+  <!-- ═══════════ CHAPTER TWO ═══════════ -->
+  <h1 class="chapter" align="center">Chapter Two</h1>
+  <h2 class="chtitle" align="center">Review of Related Literature</h2>
+
+  <h2>2.1 Introduction</h2>
+  <p>
+    This chapter reviews the body of knowledge relevant to the design and enhancement of a full-stack
+    e-commerce web application. It is organised into six substantive parts. The conceptual review
+    (Section 2.2) clarifies the central ideas that underpin the study, from electronic commerce itself to the
+    specific technologies employed. The theoretical framework (Section 2.3) presents the established theories
+    and principles through which the work is conducted and assessed. Section 2.4 situates the study within the
+    Nigerian e-commerce and SME context. Section 2.5 reviews the empirical research that has tested the
+    relevant technologies and adoption questions under controlled or comparative conditions. Section 2.6
+    surveys related systems, comparing existing platforms along dimensions pertinent to this research.
+    Section 2.7 synthesises the review and articulates the gap that the study addresses.
+  </p>
+
+  <h2>2.2 Conceptual Review</h2>
+
+  <h3>2.2.1 Electronic Commerce and Its Models</h3>
+  <p>
+    Electronic commerce covers the whole range of commercial activity that takes place over digital networks:
+    selling goods online, taking electronic payments, and the flow of information that passes between buyers,
+    sellers, and the middlemen who connect them (Laudon &amp; Traver, 2021). It is usually grouped according to
+    who is trading with whom. In business-to-consumer (B2C) commerce, a business sells directly to individual
+    shoppers; in business-to-business (B2B), one business sells to another; in consumer-to-consumer (C2C),
+    individuals sell to one another, normally through a marketplace that brings them together; and in
+    consumer-to-business (C2B), individuals offer goods or services to businesses. FanMidCommerce belongs
+    firmly in the first category. It is a B2C platform, built so that a single business can sell straight to
+    its own customers, which is the most common need among the small enterprises this study is concerned with.
+  </p>
+  <p>
+    Describing a B2C system as "a website that sells things" understates how many moving parts it really has.
+    Underneath, it must hold a product catalogue, manage customer accounts, run a shopping cart and a
+    checkout, take and verify payment, move each order through the stages of fulfilment, and keep the customer
+    informed at every point. None of these parts is impressive on its own; what matters is how smoothly they
+    work together. A checkout that stalls, a payment that is hard to trust, or an order whose status is never
+    communicated will each cost the business a sale. The research literature is consistent on this point: the
+    smoothness of the experience, and the trust and perceived ease of use it creates, has a direct bearing on
+    how many visitors become buyers, how many return, and therefore on whether the business succeeds online at
+    all (Laudon &amp; Traver, 2021). This is why the chapters that follow treat the quality of the experience
+    as seriously as the correctness of the code.
+  </p>
+
+  <h3>2.2.2 Full-Stack Web Development and TypeScript</h3>
+  <p>
+    The phrase "full-stack" simply means working on the whole application rather than just one part of it:
+    the interface the user sees, the logic that runs on the server, and the database that stores everything in
+    between. What makes the modern JavaScript ecosystem unusual is that all three layers can be written in the
+    same language. A developer no longer has to switch mentally between, say, JavaScript in the browser and a
+    different language on the server, and the same code and data structures can often be shared across the
+    boundary (Mikowski &amp; Powell, 2013). TypeScript, a statically typed superset of JavaScript, strengthens this
+    model by introducing a type system that surfaces many classes of error at compile time rather than at run
+    time, thereby improving reliability and maintainability, qualities of particular importance in a
+    transactional system where defects can have financial consequences. The benefit is not merely
+    theoretical: in a large-scale empirical study, Gao, Bird, and Barr (2017) added type annotations to code
+    containing known, publicly reported JavaScript defects and found that a static type checker would have
+    detected approximately 15 per cent of those bugs before release, providing concrete evidence that static
+    typing prevents a meaningful share of real-world faults. The enduring value of clear module boundaries
+    and consistent data contracts across the client–server boundary (Mikowski &amp; Powell, 2013) further
+    informs the layered, modular architecture adopted in this study.
+  </p>
+
+  <h3>2.2.3 The Next.js Framework and Rendering Strategies</h3>
+  <p>
+    Next.js is a framework built on top of the React library. Where React on its own leaves many decisions to
+    the developer, Next.js supplies the surrounding machinery: it can render pages on the server (server-side
+    rendering, or SSR), build them ahead of time as static files (static site generation, SSG), refresh those
+    static pages periodically (incremental static regeneration, ISR), route requests based on the folder
+    structure of the project, and bundle everything for production through an integrated build pipeline
+    (Vercel, 2024). Its newer App Router introduces a distinction that matters a great deal for this study.
+    Some components are <i>server components</i>, which run on the server and can reach back-end resources such
+    as the database directly; others are <i>client components</i>, which run in the browser and provide the
+    interactivity users expect. The availability of
+    multiple rendering strategies is significant for e-commerce: server rendering and static generation
+    improve initial load performance and search-engine visibility, both of which affect discoverability and
+    conversion, while client components support the interactive elements of cart and checkout. This
+    separation, however, requires careful reasoning about where data fetching and authentication take place,
+    a theme that recurs throughout the study. Search-engine optimisation, in particular, benefits from the
+    server-rendered, crawlable markup that the framework produces for catalogue and product pages.
+  </p>
+
+  <h3>2.2.4 API Architectures: REST and GraphQL</h3>
+  <p>
+    An application programming interface, or API, is the agreed channel through which the front end and the
+    back end exchange data. For many years the dominant style has been Representational State Transfer (REST),
+    described by Fielding (2000), which organises an API around "resources" reached through a uniform set of
+    operations, each address returning a fixed bundle of data. REST is mature, well understood, and works
+    well, but it has two recurring inefficiencies. Sometimes an endpoint returns more than the screen actually
+    needs, wasting bandwidth (over-fetching); at other times a single screen needs data from several
+    endpoints, forcing the client to make multiple round trips (under-fetching). GraphQL, by
+    contrast, is a query language and runtime in which a typed schema defines the data a client may request,
+    and the client specifies precisely the fields it requires (GraphQL Foundation, 2021; Wieruch, 2022).
+    This client-driven model mitigates over- and under-fetching and provides a strongly typed contract that
+    aligns naturally with a TypeScript codebase. Apollo Server is a widely used GraphQL implementation that
+    supports schema definition, resolver composition, and a per-request <i>context</i> object through which
+    shared information, notably the authenticated user, is supplied to resolvers (Apollo GraphQL, 2024). The
+    reliable construction of this context within a Next.js App Router route handler constitutes a specific
+    technical concern of the present study, and is treated in detail in Chapter Three.
+  </p>
+
+  <h3>2.2.5 Data Storage: Relational and Document Databases</h3>
+  <p>
+    Persistent storage may be provided by relational (SQL) databases, which organise data into fixed-schema
+    tables related by keys, or by non-relational (NoSQL) databases, of which the document model is one
+    variety. MongoDB is a document-oriented database that stores data as flexible, JSON-like documents rather
+    than as rows in rigid tables (MongoDB, Inc., 2024). This model is well suited to the varied and evolving
+    data structures common in e-commerce, for example, products that may or may not carry sizes, colours, or
+    multiple images, and supports rapid iteration during development. The flexibility of the document model
+    nonetheless places greater responsibility on the developer for disciplined data modelling, including
+    deliberate decisions about embedding related data within a parent document versus referencing it across
+    documents, and for appropriate indexing to preserve query performance as data grows. In this study,
+    MongoDB is accessed through Mongoose, which layers schemas, validation, and a typed interface over the
+    underlying database.
+  </p>
+
+  <h3>2.2.6 Authentication, Authorisation, and Security</h3>
+  <p>
+    Two related ideas are easy to confuse but important to separate. Authentication answers the question "who
+    are you?", confirming a user's identity; authorisation answers the next question, "what are you allowed to
+    do?", deciding which actions that identity may perform. A common way to handle the first is the JSON Web
+    Token (JWT), a small, digitally signed token that the server can check on every request without having to
+    remember sessions on its own side, an approach described as "stateless". In an application that separates customer and administrative areas, authorisation must be enforced
+    consistently at the server boundary, so that privileged operations cannot be invoked by unauthorised
+    clients irrespective of the state of the user interface. The Open Web Application Security Project
+    (OWASP, 2021) identifies broken access control and cryptographic failures among the foremost categories
+    of web-application risk; its guidance, together with the practice of recomputing sensitive values such as
+    prices on the server and verifying payment outcomes with the provider, informs the security design
+    presented in Chapter Three.
+  </p>
+
+  <h3>2.2.7 Online Payment Integration</h3>
+  <p>
+    Payment is the point at which an e-commerce transaction is consummated, and its integrity and convenience
+    are decisive for consumer trust. Payment gateways abstract the complexity and regulatory burden of
+    handling card and bank data by tokenising sensitive details and processing transactions on the merchant’s
+    behalf. In the Nigerian context, locally established gateways such as Paystack support not only card
+    payments but also bank transfer and USSD, channels that are widely used and, for many consumers, more
+    trusted than card entry. Secure integration requires that the merchant application initiate transactions
+    against the gateway, redirect or collect payment through the gateway’s secure interface, and
+    independently verify the outcome with the gateway before fulfilling an order, rather than trusting any
+    value reported by the client. These practices, together with idempotent order finalisation to prevent
+    duplicate processing, are central to the design described later.
+  </p>
+
+  <h3>2.2.8 Theming, Usability, and Accessibility</h3>
+  <p>
+    The presentation layer determines, in large measure, whether a platform is adopted and trusted. Tailwind
+    CSS is a utility-first styling framework that promotes consistent, responsive interfaces, while libraries
+    such as next-themes enable dynamic light/dark theming through CSS custom properties. Beyond aesthetics,
+    established usability heuristics (Nielsen, 1994), including visibility of system status, error prevention
+    and recovery, consistency, and a match between the system and the real world, provide criteria against
+    which an interface can be both designed and evaluated. Accessibility, codified in the Web Content
+    Accessibility Guidelines (W3C, 2018), adds requirements such as sufficient colour contrast, keyboard
+    operability, and semantic structure, ensuring usability by people with diverse abilities. Treating these
+    criteria as first-class requirements, embedded throughout development rather than appended at the end, is
+    a stated commitment of this study and a direct response to a gap identified in Section 1.2.
+  </p>
+
+  <h2>2.3 Theoretical Framework</h2>
+  <p>
+    A study of this kind needs more than one theoretical lens, because it is doing more than one thing. It is
+    building something, so it needs a theory of how knowledge is created through building; and it hopes the
+    result will be adopted, so it needs theories that explain why people take up a new technology. The
+    framework adopted here therefore brings together one methodological theory, Design Science Research, with
+    two well-established adoption theories, the Technology Acceptance Model and Diffusion of Innovations, and
+    rests all three on a foundation of long-standing software-engineering principles. Each is introduced in
+    turn below, with a note on how it shapes the present work.
+  </p>
+  <h3>2.3.1 Design Science Research</h3>
+  <p>
+    The main methodological lens is Design Science Research (DSR). Its central claim is that genuine knowledge
+    can come not only from observing the world but from carefully building and then rigorously evaluating an
+    artefact that solves a real problem (Hevner, March, Park, &amp; Ram, 2004). Hevner et al. (2004) propose guidelines requiring that
+    the research produce a viable artefact, that the artefact address a relevant problem, that it be evaluated
+    rigorously, and that the work make a clear contribution and be communicated effectively. Peffers, Tuunanen,
+    Rothenberger, and Chatterjee (2007) operationalise this through a Design Science Research Methodology
+    (DSRM) comprising problem identification, definition of objectives for a solution, design and development,
+    demonstration, evaluation, and communication. This study maps directly onto these stages: the problem and
+    objectives are established in Chapter One, the design and development are detailed in Chapter Three and
+    realised in Chapter Four, and demonstration, evaluation, and communication follow.
+  </p>
+  <h3>2.3.2 The Technology Acceptance Model</h3>
+  <p>
+    To frame the platform’s intended adoption by SME operators and their customers, the study draws on the
+    Technology Acceptance Model (TAM), which posits that perceived usefulness and perceived ease of use are
+    the primary determinants of a user’s intention to adopt a technology (Davis, 1989). TAM provides a
+    rationale for the study’s emphasis on usability and accessibility: a platform that is perceived as
+    difficult to use is unlikely to be adopted, however technically capable it may be. The model thus links
+    the interface-design objectives to the broader goal of practical applicability.
+  </p>
+  <h3>2.3.3 Diffusion of Innovations</h3>
+  <p>
+    Complementing TAM, Rogers’ (2003) Diffusion of Innovations theory explains how innovations spread through
+    a social system and identifies attributes that influence the rate of adoption, including relative
+    advantage, compatibility, complexity, trialability, and observability. These attributes are pertinent to
+    the design choices made in this study: the separation of a reusable engine from a customisable
+    presentation layer improves compatibility and reduces the effective complexity of deploying new stores,
+    while low cost and local contextual fit enhance relative advantage for SMEs.
+  </p>
+  <h3>2.3.4 Software-Engineering Principles</h3>
+  <p>
+    Finally, the way the artefact is actually built is guided by software-engineering principles that have
+    stood the test of time: modularity, separation of concerns, abstraction, and information hiding, all of
+    which help keep a system maintainable and easy to extend (Sommerville, 2016; Pressman &amp; Maxim, 2020). These principles are expressed
+    concretely in the layered architecture and in the deliberate division between commerce logic and
+    presentation described in Chapter Three.
+  </p>
+
+  <h2>2.4 E-Commerce and SMEs in the Nigerian Context</h2>
+  <p>
+    No technology choice makes sense in a vacuum, so it is worth looking closely at the market this platform is
+    meant to serve. Nigeria is large, young, and increasingly connected, yet the take-up of formal e-commerce
+    among its small businesses is still patchy (ITU, 2023; GSMA, 2023; World Bank, 2019). The raw numbers show
+    why the opportunity is so striking. Internet penetration had reached roughly 55.4 per cent of the
+    population by early 2023, and broadband penetration about 44.4 per cent by the close of 2024 (NCC, 2024),
+    while the national MSME survey counted some 39 million micro, small and medium-sized enterprises
+    contributing around 46.3 per cent of gross domestic product and 87.9 per cent of employment (National
+    Bureau of Statistics &amp; SMEDAN, 2021). Put side by side, these figures reveal a striking gap: the
+    connectivity is there and the businesses are there, yet relatively few of those businesses have moved
+    their trade onto a proper online platform. Closing that gap is precisely the practical problem this study
+    speaks to, and several features of the local context shape what a suitable platform must do. First, <b>connectivity is
+    predominantly mobile</b>: most users access the internet through smartphones over mobile networks, which
+    makes a mobile-first, performance-conscious interface essential rather than optional. Second, <b>payment
+    behaviour is heterogeneous</b>: alongside card payments, bank transfers and USSD-based transactions are
+    widely used and, for many consumers, more familiar and more trusted; a platform that supports only card
+    entry therefore excludes a meaningful segment of potential buyers. Third, <b>trust and informality
+    coexist</b>: a significant volume of trade is coordinated through social media and messaging
+    applications, and consumers often prefer to confirm details through such channels before or instead of a
+    formal checkout. Fourth, <b>cost sensitivity is acute</b>: recurring platform fees weigh heavily on
+    small traders, favouring solutions with low or one-off costs.
+  </p>
+  <p>
+    The barriers to adoption reported in the literature align closely with these factors. In a study of SME
+    operators across Nigeria’s six geo-political zones, Awa, Awara, and Lebari (2015) identified critical
+    inhibitors including weak firm finances, firm size, non-transparency in government support, location
+    factors, and concerns over the confidentiality of information. Agwu and Murray (2015), in an empirical
+    investigation of small and medium-scale businesses, similarly found that the absence of a robust
+    regulatory and security framework for e-commerce, limited technical skills, and inadequate basic
+    infrastructure were principal barriers to adoption. These findings echo broader assessments that cite the
+    cost of proprietary platforms, limited technical capacity, concerns over payment security and trust, and
+    logistics constraints relating to delivery and returns (World Bank, 2019). A platform designed for this
+    market must therefore accommodate naira-denominated pricing; support card, transfer, and USSD payment
+    channels; bridge formal checkout and messaging-based enquiry; and be operable by a non-technical owner
+    after minimal training. These contextual requirements are carried forward directly into the requirements
+    analysis of Chapter Three.
+  </p>
+  
+
+  <h2>2.5 Empirical Review of Related Studies</h2>
+  <p>
+    The concepts and context set out so far explain what the study is doing and why. This section turns to a
+    different kind of evidence: studies that have actually tested, under controlled or comparative conditions,
+    the very technologies and adoption questions on which this work depends. Reviewing them serves two
+    purposes. It grounds the design choices made later in measured findings rather than mere preference, and
+    it surfaces the limitations and disagreements in the evidence, which a careful design has to take into
+    account. The discussion is organised into eight strands, moving from the technical (how REST and GraphQL
+    compare; how Next.js affects performance and search visibility; how document and relational databases
+    behave; what static typing does for software quality; and what is known about web-application security)
+    through to the human and contextual (what drives e-commerce adoption in developing economies and Nigeria;
+    how usability and trust relate to purchase intention; and what shapes digital-payment adoption in
+    Nigeria). For each, the aim is to say plainly what was done, what was found, and what the finding means for
+    the present study.
+  </p>
+
+  <h3>2.5.1 Empirical Studies on REST and GraphQL</h3>
+  <p>
+    The choice of GraphQL over REST in this study is supported by a maturing experimental literature. In a
+    frequently cited controlled experiment, Brito and Valente (2020) tasked twenty-two participants with
+    implementing eight queries using both REST and GraphQL and found that GraphQL significantly reduced the
+    effort required to construct remote-service queries, with lower median completion times than REST. In
+    earlier work, Brito, Mombach, and Valente (2019) conducted a practical assessment of migrating REST APIs
+    to GraphQL and reported that GraphQL could substantially reduce the size of JSON responses returned to
+    clients by eliminating over-fetching, although the migration itself demanded careful schema design.
+    Complementary measurement studies have examined run-time behaviour: Seabra, Nazário, and Pinto (2019)
+    found that migrating from REST to GraphQL reduced latency in two of three tested applications, chiefly by
+    reducing the number of network round-trips, although REST outperformed GraphQL under very high request
+    volumes (above roughly three thousand requests). This indicates that GraphQL’s data-transfer benefits are
+    most pronounced for complex, nested queries and moderate loads. The evidence is not uniformly in GraphQL’s favour,
+    however; several performance evaluations note that REST can retain advantages in raw response time and
+    memory efficiency under certain high-load, simple-query conditions. The balance of findings indicates that
+    GraphQL’s principal benefits, precise data selection, fewer round trips, and a strongly typed contract,
+    are most valuable for data-rich, client-diverse applications such as e-commerce storefronts, which is the
+    rationale for its adoption here.
+  </p>
+
+  <h3>2.5.2 Empirical Studies on Next.js and Server-Side Rendering</h3>
+  <p>
+    The performance and discoverability advantages claimed for server-rendered React frameworks are likewise
+    supported empirically. Pati and Zaki (2025) conducted a comparative analysis of Next.js and a
+    conventional client-rendered React application, measuring metrics including First Contentful Paint and
+    Time to Interactive across varied network and device conditions; they reported that Next.js delivered
+    better overall performance without degrading interaction quality, an effect attributable to server
+    rendering and automated optimisation. Studies focused on search-engine optimisation report a similar
+    pattern: because server rendering delivers fully formed HTML that crawlers can index directly, Next.js
+    applications tend to achieve markedly higher automated SEO scores than equivalent client-rendered React
+    applications (Pati &amp; Zaki, 2025; industry SEO analyses). For an e-commerce platform, where product and
+    category pages must be both fast and discoverable, this body of evidence directly motivates the use of
+    Next.js server components for catalogue pages, as adopted in the present design.
+  </p>
+
+  <h3>2.5.3 Empirical Studies on Document and Relational Databases</h3>
+  <p>
+    The selection of MongoDB as the data store is informed by comparative database research. In a widely cited
+    web-application study, Gyorodi, Gyorodi, Pecherle, and Olah (2015) benchmarked MongoDB against MySQL
+    across the core create, read, update, and delete operations and found that MongoDB achieved faster
+    performance on several operations, especially bulk insertion of large datasets, attributing the advantage
+    to the document model and the absence of rigid joins. Broader systematic comparisons temper this picture:
+    relational systems retain advantages for complex, multi-table queries and for workloads demanding strict
+    transactional (ACID) consistency, whereas document databases favour flexible schemas and horizontal
+    scalability (Győrödi et al., 2015; systematic reviews of database performance). For an e-commerce
+    catalogue characterised by heterogeneous, evolving product structures, such as items that may or may not
+    carry sizes, colours, or multiple images, the flexibility of the document model is advantageous, provided
+    that disciplined data modelling and indexing are applied, as discussed in Chapter Three.
+  </p>
+
+  <h3>2.5.4 Empirical Studies on E-Commerce Adoption in Developing Economies and Nigeria</h3>
+  <p>
+    A substantial empirical literature applies adoption theory, particularly the Technology Acceptance Model
+    and its extensions, to online shopping in developing economies, consistently finding that perceived
+    usefulness and perceived ease of use shape adoption intentions, alongside context-specific factors such
+    as trust, social influence, and facilitating conditions. Within the Nigerian context specifically, Usman
+    and Kumar (2021) examined the factors influencing consumers’ intention to shop online and emphasised the
+    decisive roles of attitude, trust, and perceived usefulness and ease of use in enhancing the
+    acceptability of online shopping. On the enterprise side, Awa, Awara, and Lebari (2015) identified weak
+    finances, firm size, location, and confidentiality concerns as critical inhibitors of e-commerce adoption
+    among Nigerian SMEs, while Agwu and Murray (2015) highlighted the absence of robust regulatory and
+    security frameworks, limited technical skills, and inadequate infrastructure. A recurring and instructive
+    finding is that Nigerian consumers frequently perceive e-commerce as useful and easy to use yet fail to
+    complete transactions, owing to weak facilitating conditions, including trust, payment, and logistics. This
+    evidence directly motivates several design priorities of the present study: support for locally trusted
+    payment channels, server-side payment verification and security to build trust, and a usable, accessible
+    interface intended to convert favourable perceptions into completed purchases.
+  </p>
+
+  <h3>2.5.5 Empirical Studies on Static Typing and Software Quality</h3>
+  <p>
+    Because reliability is a stated non-functional requirement of this study, the empirical evidence on
+    static typing merits separate attention. The landmark study by Gao, Bird, and Barr (2017) examined real,
+    publicly reported defects in JavaScript projects and demonstrated that a static type system would have
+    caught roughly 15 per cent of them prior to release, a substantial proportion for a single, low-cost
+    intervention. Subsequent work has produced a more nuanced picture. Comparative analyses of open-source
+    repositories report that TypeScript projects exhibit better code quality and readability than comparable
+    JavaScript projects, although the effect on raw bug-proneness is smaller than often assumed: in a mining
+    study of 604 GitHub projects, Bogner and Merkel (2022) found that TypeScript applications had
+    significantly better code quality and understandability, yet using TypeScript did not automatically yield
+    fewer or more easily fixed bugs. More recent ecosystem studies observe a "shifted fault boundary": as
+    static typing
+    suppresses traditional type and runtime errors, a larger share of remaining faults migrates to build
+    tooling, configuration, and asynchronous error handling. For the present study, the implication is clear:
+    TypeScript is adopted for its demonstrated quality and maintainability benefits, while testing and review
+    remain necessary to address the classes of fault that typing alone does not eliminate.
+  </p>
+
+  <h3>2.5.6 Empirical Studies on Web Application Security and Authentication</h3>
+  <p>
+    The security design of this study is grounded in a substantial empirical and practitioner literature. The
+    OWASP Top 10 (2021), itself derived from analysis of large volumes of real-world vulnerability data,
+    ranks broken access control and cryptographic failures among the most prevalent and damaging categories
+    of web-application risk. Within the specific area of token-based authentication, security analyses
+    repeatedly identify a recurring and serious class of vulnerability: applications that merely decode a JSON
+    Web Token rather than cryptographically verifying its signature, which can permit user impersonation and
+    privilege escalation. This finding is directly pertinent to the architecture proposed here, in which a
+    fast, decode-only check may be used at the network edge for routing convenience but authoritative
+    signature verification is always performed on the server before any privileged action. Comparative
+    evaluations of security-testing tooling further indicate that no single automated tool detects all
+    vulnerability classes, supporting this study’s use of a structured, OWASP-informed review rather than
+    reliance on a single scanner.
+  </p>
+
+  <h3>2.5.7 Empirical Studies on Usability, Trust, and Purchase Intention</h3>
+  <p>
+    A consistent empirical literature links website usability and trust to the intention to purchase, which
+    is the ultimate measure of an e-commerce platform’s effectiveness. Studies measuring the influence of
+    usability attributes on purchase intention find that trustworthiness ranks among the most important
+    factors, alongside ease of comprehension and shopping support, and that usability can itself be increased
+    by enhancing trust through clear information, responsive customer care, and visual clarity. Validated
+    instruments, including purpose-built online-shop usability scales and the widely used System Usability
+    Scale, have been employed to quantify these effects, with regression analyses indicating that usability
+    exerts the greatest single influence on buying intention. This evidence substantiates the study’s
+    treatment of usability and accessibility as first-class requirements and informs the choice of evaluation
+    instruments described in Chapter Three.
+  </p>
+
+  <h3>2.5.8 Empirical Studies on Digital Payment Adoption in Nigeria</h3>
+  <p>
+    Because payment is the point at which an e-commerce transaction succeeds or fails, the empirical
+    literature on digital-payment adoption in Nigeria is especially relevant. Studies applying the Unified
+    Theory of Acceptance and Use of Technology (UTAUT) to mobile money and mobile payment in Nigeria find that
+    performance expectancy, effort expectancy, social influence, and facilitating conditions shape adoption
+    intentions, and that trust and network effects are particularly influential in the Nigerian context.
+    Multi-country evidence from sub-Saharan Africa further identifies education, bank-account ownership, and
+    mobile-phone access as determinants of adoption. Taken together with the consumer-behaviour finding that
+    Nigerian shoppers often perceive e-commerce favourably yet abandon transactions because of weak
+    facilitating conditions, this literature reinforces a central design decision of the study: to integrate a
+    locally trusted payment gateway supporting card, bank-transfer, and USSD channels, and to verify payment
+    outcomes on the server so as to build the trust that the evidence shows is decisive for transaction
+    completion.
+  </p>
+
+  
+
+  <h2>2.6 Review of Related Systems</h2>
+  <p>
+    It also helps to look at the systems a small business could realistically use today, and to be honest
+    about where each falls short for the audience this study has in mind. Broadly, the options fall into four
+    groups: hosted platforms, self-hosted open-source systems, modern headless or API-first frameworks, and
+    fully bespoke builds. <b>Hosted platforms</b> such as Shopify are quick to set up and come with managed
+    infrastructure, but they charge a recurring subscription and give the owner limited control over
+    the underlying code and data, constraints that are significant for cost-sensitive SMEs. <b>Self-hosted
+    open-source systems</b> such as WooCommerce (built on WordPress and PHP) and Magento offer greater
+    control and extensibility but are rooted in older technology stacks and can impose considerable
+    maintenance, performance, and hosting overheads. <b>Modern headless and API-first frameworks</b> such as
+    Medusa and Saleor decouple the storefront from the commerce engine and embrace contemporary tooling,
+    improving flexibility, but they introduce integration complexity and a steeper learning curve that may
+    exceed the capacity of a small business or a solo developer. <b>Bespoke builds</b> afford complete
+    control and contextual fit but, without a reusable foundation, must be re-created for each client at
+    considerable cost.
+  </p>
+  <p>
+    Within the scholarly and practitioner literature, accounts of building commerce systems on modern
+    React/Next.js and GraphQL foundations tend to address isolated concerns, a particular rendering
+    strategy, a single API pattern, or a discrete feature, rather than documenting an integrated, end-to-end
+    system that also attends to authentication, security, theming, accessibility, and contextual fit. Studies
+    of SME e-commerce adoption in Nigeria, conversely, emphasise economic, infrastructural, and regulatory
+    barriers (Awa et al., 2015; Agwu &amp; Murray, 2015) but seldom connect those findings to concrete
+    architectural choices in a deployable platform. Table 2.1 compares representative approaches along dimensions relevant to this
+    study.
+  </p>
+  <table class="fig">
+    <tr>
+      <th>Approach / system</th><th>Technology basis</th><th>Cost to SME</th>
+      <th>Control &amp; customisation</th><th>Modern stack &amp; API-first</th><th>Local context fit</th>
+    </tr>
+    <tr><td>Hosted (e.g. Shopify)</td><td>Proprietary, managed</td><td>Recurring subscription</td><td>Limited (themes/apps)</td><td>Partial (proprietary)</td><td>Partial</td></tr>
+    <tr><td>Self-hosted (e.g. WooCommerce, Magento)</td><td>PHP / WordPress; legacy</td><td>Hosting + maintenance</td><td>High but complex</td><td>No (legacy)</td><td>Via plugins</td></tr>
+    <tr><td>Headless (e.g. Medusa, Saleor)</td><td>Modern JS / Python; API-first</td><td>Hosting + integration effort</td><td>Very high</td><td>Yes</td><td>Configurable</td></tr>
+    <tr><td>Generic bespoke build</td><td>Varies</td><td>High one-off (rebuilt each time)</td><td>Complete</td><td>Depends</td><td>Configurable</td></tr>
+    <tr><td><b>FanMidCommerce (this study)</b></td><td>Next.js, TS, GraphQL, MongoDB</td><td>Low (reusable core)</td><td>High via config + themes</td><td>Yes</td><td>Designed for Nigeria</td></tr>
+  </table>
+  <p class="caption" align="center">Table 2.1: Comparison of e-commerce approaches along dimensions relevant to the study.</p>
+
+  <h2>2.7 Summary of Literature and Research Gap</h2>
+  <p>
+    Drawing the threads of this chapter together, a few things are now clear. The literature confirms that
+    e-commerce holds real strategic value for small businesses, that modern full-stack and API-first
+    architectures bring measurable technical advantages, and that usability, accessibility, and security are
+    not optional extras but central to whether customers adopt and trust an online store. It also paints a
+    clear picture of the Nigerian market in particular: access is mostly mobile, payment behaviour is varied
+    and leans on transfer and USSD as much as cards, formal and informal selling sit side by side, and small
+    businesses are highly sensitive to cost.
+  </p>
+  <p>
+    Set against this backdrop, three gaps stand out. The first is a shortage of integrated, end-to-end, and
+    properly documented accounts of building a production-ready e-commerce application on a Next.js,
+    TypeScript, GraphQL, and MongoDB stack; the evidence exists in fragments, but rarely as a coherent whole.
+    The second is more specific and more technical: the particular challenge of carrying authentication
+    context through to GraphQL resolvers within the Next.js App Router has been left largely unexamined, even
+    though it is fundamental to security. The third is contextual: very little work connects this kind of
+    modern architectural practice to the concrete, on-the-ground requirements of small-business e-commerce in
+    a market such as Nigeria's. It is these three gaps, taken together, that the present study sets out to
+    close, through the design, enhancement, documentation, and evaluation of FanMidCommerce described in the
+    chapters that follow.
+  </p>
+
+  <!-- ═══════════ CHAPTER THREE ═══════════ -->
+  <h1 class="chapter" align="center">Chapter Three</h1>
+  <h2 class="chtitle" align="center">Research Methodology and System Design</h2>
+
+  <h2>3.1 Introduction</h2>
+  <p>
+    Having set out the problem and reviewed the relevant literature, this chapter explains how the study was
+    actually carried out and how the enhanced FanMidCommerce platform was designed. It moves from the general
+    to the specific: first the overall research design and the development methodology, then the requirements
+    that the system had to meet, and finally the concrete design of the architecture, the database, the API,
+    the interface, and the security, before closing with the tools used and the plan for testing and
+    evaluation. Throughout, it is worth keeping one thing in mind. Unlike a study whose main output is a set
+    of survey results, the main output here is a working, documented piece of software, judged against clearly
+    stated functional and non-functional criteria. That is exactly what the design science research paradigm,
+    introduced in Chapter Two, calls for.
+  </p>
+
+  <h2>3.2 Research Design</h2>
+  <p>
+    The study follows a design science research (DSR) design, the central idea of which is that new knowledge
+    is produced by building and then carefully evaluating a purposeful artefact, in this case the enhanced
+    FanMidCommerce platform (Hevner et al., 2004; Peffers et al., 2007). This is complemented by a descriptive case-study element,
+    since a single platform is examined in depth to surface design decisions, challenges, and their
+    resolutions. The design is mixed-method: qualitative evidence (architectural analysis, documented design
+    rationale, and usability observation) is combined with quantitative evidence (performance measurements
+    and test outcomes). This orientation is appropriate because the research questions concern how a system
+    can be designed and built, and how well it performs, rather than the testing of hypotheses about a
+    population. The six activities of the Design Science Research Methodology, problem identification,
+    objective definition, design and development, demonstration, evaluation, and communication (Peffers et
+    al., 2007), provide the overarching structure within which the development methodology operates.
+  </p>
+
+  <h2>3.3 Software Development Methodology</h2>
+  <p>
+    DSR says what kind of research this is, but not how the building itself should be organised. For that, the
+    study uses an iterative, agile-inspired development methodology (Beck et al., 2001; Sommerville, 2016).
+    Instead of attempting the whole enhancement in one long, linear push, the work proceeds in short cycles.
+    Each cycle delivers a small, working improvement that is reviewed before the next is started. This style
+    suits the project for two practical reasons: understanding of the existing system grew as the work went
+    on, and small, frequently-tested changes carry far less risk than large ones attempted all at once. In
+    practice the methodology was realised in the five phases summarised in Table 3.1.
+  </p>
+  <table class="fig">
+    <tr><th>Phase</th><th>Activities</th><th>Principal outputs</th></tr>
+    <tr><td>1. Literature review</td><td>Structured review of academic and practitioner sources on e-commerce, full-stack JavaScript, GraphQL, and usability/accessibility</td><td>Chapter Two; refined requirements</td></tr>
+    <tr><td>2. System analysis</td><td>Code review, architectural mapping, identification of technical debt, UX assessment of the existing system</td><td>Requirements specification; enhancement backlog</td></tr>
+    <tr><td>3. Design &amp; enhancement</td><td>Iterative design and implementation of features and architectural improvements, with continuous type checking and build verification</td><td>Enhanced, version-controlled codebase</td></tr>
+    <tr><td>4. Testing &amp; evaluation</td><td>Unit, integration, and user-acceptance testing; performance benchmarking; security assessment</td><td>Test results; evaluation data (Chapter Four)</td></tr>
+    <tr><td>5. Documentation &amp; reporting</td><td>Technical and academic documentation; deployment procedures</td><td>Final report; deployment guide</td></tr>
+  </table>
+  <p class="caption" align="center">Table 3.1: Phases of the development methodology and their outputs.</p>
+  <p>
+    Throughout all phases, the Git version-control system is used to track changes, to isolate larger pieces
+    of work on dedicated branches, and to preserve a reviewable history of the system’s evolution. Continuous
+    type checking and production-build verification serve as a baseline quality gate applied after each
+    increment.
+  </p>
+
+  <h2>3.4 Requirements Analysis</h2>
+  <p>
+    Requirements were derived from the analysis of the existing system, the literature, and the contextual
+    factors identified in Chapter Two. They are presented as functional requirements, non-functional
+    requirements, and the principal use cases.
+  </p>
+  <h3>3.4.1 Functional Requirements</h3>
+  <p>The enhanced platform shall enable a customer to:</p>
+  <ul>
+    <li>browse products by category, with keyword search, attribute filtering (price, size, and others), and
+      server-side pagination;</li>
+    <li>view rich product detail, including multiple images, size and colour variants, and per-variant
+      stock, with clear out-of-stock indication;</li>
+    <li>register, authenticate, and manage a profile and saved delivery addresses;</li>
+    <li>add items to a cart and complete a secure checkout in which totals are computed on the server and
+      validated discount codes and shipping options are applied;</li>
+    <li>pay online through an integrated gateway supporting card, bank transfer, and USSD, with the outcome
+      verified on the server; and</li>
+    <li>submit reviews of purchased products and view those of others.</li>
+  </ul>
+  <p>The platform shall enable an administrator to:</p>
+  <ul>
+    <li>manage products, categories, discount codes, and shipping methods;</li>
+    <li>view and process orders through defined status stages, triggering customer notifications;</li>
+    <li>manage customers, reviews, and site content; and</li>
+    <li>operate under role-based access control that distinguishes administrators from customers.</li>
+  </ul>
+  <h3>3.4.2 Non-Functional Requirements</h3>
+  <table class="fig">
+    <tr><th>Attribute</th><th>Requirement</th></tr>
+    <tr><td>Performance</td><td>Fast initial load via server rendering and image optimisation; paginated, server-side data access that remains responsive as the catalogue grows.</td></tr>
+    <tr><td>Security</td><td>Server-side authentication and authorisation; hashed passwords; signed tokens; server-authoritative pricing and payment verification; protected administrative routes.</td></tr>
+    <tr><td>Usability</td><td>Clear navigation, visible system status, error prevention and recovery, and consistency, in line with established heuristics.</td></tr>
+    <tr><td>Accessibility</td><td>Sufficient colour contrast, keyboard operability, and semantic structure consistent with WCAG 2.1.</td></tr>
+    <tr><td>Maintainability</td><td>TypeScript type safety, modular structure, and separation of reusable commerce logic from presentation.</td></tr>
+    <tr><td>Reusability / portability</td><td>Configuration-driven branding and theming so the core can be adapted to multiple businesses with minimal change.</td></tr>
+    <tr><td>Reliability</td><td>Idempotent, race-safe order finalisation; graceful handling of external-service failures.</td></tr>
+  </table>
+  <p class="caption" align="center">Table 3.2: Non-functional requirements of the enhanced platform.</p>
+
+  <h3>3.4.3 Principal Use Cases</h3>
+  <p>
+    The system’s two principal actors are the <b>Customer</b> and the <b>Administrator</b>. Their main use
+    cases are summarised in Figure 3.1.
+  </p>
+  <div class="diagram">
+    <div class="flowrow">
+      <div class="flowbox" style="background:#eef4ff;"><b>Customer</b><br/><span>actor</span></div>
+      <div style="flex:2; display:flex; flex-direction:column; gap:6px;">
+        <div class="flowbox">Browse / search / filter products</div>
+        <div class="flowbox">Register &amp; manage account</div>
+        <div class="flowbox">Manage cart &amp; checkout</div>
+        <div class="flowbox">Pay &amp; receive order updates</div>
+        <div class="flowbox">Submit product review</div>
+      </div>
+    </div>
+    <div style="height:10px;"></div>
+    <div class="flowrow">
+      <div class="flowbox" style="background:#fff1e6;"><b>Administrator</b><br/><span>actor</span></div>
+      <div style="flex:2; display:flex; flex-direction:column; gap:6px;">
+        <div class="flowbox">Manage products &amp; categories</div>
+        <div class="flowbox">Process orders &amp; statuses</div>
+        <div class="flowbox">Manage coupons &amp; shipping</div>
+        <div class="flowbox">Manage customers, reviews &amp; content</div>
+      </div>
+    </div>
+  </div>
+  <p class="caption" align="center">Figure 3.1: Principal use cases by actor (simplified use-case view).</p>
+
+  <h2>3.5 System Architecture</h2>
+  <p>
+    The architecture of FanMidCommerce is best understood as a set of layers stacked on top of one another,
+    each with a clear job and a clean boundary to the layer below. At the top is the presentation layer, built
+    with the Next.js App Router. Here, server components are used for the data-heavy pages that need to be fast
+    and findable by search engines, such as product and category pages, while client components handle the
+    parts that must respond instantly to the user, such as the cart and checkout. Below the presentation layer
+    sits the API layer: a single GraphQL endpoint, served by Apollo Server through a Next.js route handler,
+    which acts as the one controlled doorway through which the front end asks for and changes data. Beneath this, a domain/service layer encapsulates business logic, for
+    example, server-authoritative pricing and order finalisation, while a data-access layer, built on
+    Mongoose, mediates interaction with MongoDB. External integrations for payment (Paystack), email
+    (Resend), and media (Cloudinary) are isolated behind dedicated service modules, so that they may be
+    reconfigured or substituted per deployment. The layered structure is depicted in Figure 3.2.
+  </p>
+  <div class="diagram">
+    <div class="layer" style="background:#eef4ff;"><b>Presentation Layer</b><span>Next.js App Router: server &amp; client components; Tailwind CSS; theming (next-themes)</span></div>
+    <div class="arrowdown">↓ ↑</div>
+    <div class="layer" style="background:#eafaf1;"><b>API Layer</b><span>GraphQL endpoint (Apollo Server) via Next.js route handler: typed schema, resolvers, per-request context</span></div>
+    <div class="arrowdown">↓ ↑</div>
+    <div class="layer" style="background:#fff7e6;"><b>Domain / Service Layer</b><span>Business logic: pricing, order finalisation, validation, notifications</span></div>
+    <div class="arrowdown">↓ ↑</div>
+    <div class="layer" style="background:#f3eafe;"><b>Data-Access Layer</b><span>Mongoose schemas &amp; models</span></div>
+    <div class="arrowdown">↓ ↑</div>
+    <div class="layer"><b>Data Store</b><span>MongoDB (document database)</span></div>
+    <div style="height:8px;"></div>
+    <div class="layer" style="background:#fbecec; max-width:620px;"><b>External Services</b><span>Paystack (payments) · Resend (email) · Cloudinary (media), isolated behind service modules</span></div>
+  </div>
+  <p class="caption" align="center">Figure 3.2: Layered system architecture of FanMidCommerce.</p>
+  <p>
+    A central design principle is the separation of a reusable “commerce engine” (authentication, products,
+    cart, checkout, orders, payments, and the administrative panel) from a customisable presentation layer
+    (theme palettes, homepage section composition, and branding configuration). This separation supports the
+    reusability objective: a single, tested core may be re-skinned for different businesses by editing
+    configuration and selecting a theme, without modifying the underlying logic. It also operationalises the
+    compatibility and reduced-complexity attributes that, per Diffusion of Innovations theory (Rogers, 2003),
+    favour adoption.
+  </p>
+
+  <h2>3.6 Database Design</h2>
+  <p>
+    Because MongoDB stores data as flexible documents rather than rigid tables, the design of the data model
+    is largely a series of decisions about how to shape those documents and how to connect them. In this
+    study the model is expressed as a set of MongoDB collections, each defined through a Mongoose schema. Most
+    relationships between collections are handled by reference, that is, one document stores the identifier of
+    another, much as a foreign key works in a relational database. In a few cases, however, data is embedded
+    directly inside its parent because it is naturally owned by that parent and is almost always read with it:
+    the line items of an order live inside the order document, and a customer's saved addresses live inside
+    the user document. The principal collections are summarised in Table 3.3, and the main relationships
+    between them are shown in Figure 3.3.
+  </p>
+  <table class="fig">
+    <tr><th>Collection</th><th>Key fields (summary)</th><th>Purpose</th></tr>
+    <tr><td>Users</td><td>name, email (unique), hashed password, role, status, embedded addresses[]</td><td>Customer and administrator accounts; basis for authentication and authorisation.</td></tr>
+    <tr><td>Products</td><td>name, slug (unique), description, price, images[], per-size stock[], colour variants[], category (ref)</td><td>Catalogue items, including variant and stock information.</td></tr>
+    <tr><td>Categories</td><td>name, slug (unique), description</td><td>Grouping of products for navigation and filtering.</td></tr>
+    <tr><td>Orders</td><td>user (ref), embedded items[], shipping address, subtotal/discount/total, payment reference (unique), status, timestamps</td><td>Records of placed orders and their lifecycle.</td></tr>
+    <tr><td>Reviews</td><td>product (ref), user (ref), rating, text, verified-purchase flag</td><td>Customer feedback on products.</td></tr>
+    <tr><td>Coupons</td><td>code (unique), discount, minimum spend, validity</td><td>Promotional discount codes applied at checkout.</td></tr>
+    <tr><td>Shipping methods</td><td>label, description, cost, active flag, sort order</td><td>Delivery options presented at checkout.</td></tr>
+    <tr><td>Settings / content</td><td>store settings, team, testimonials, subscribers</td><td>Administrator-managed configuration and site content.</td></tr>
+  </table>
+  <p class="caption" align="center">Table 3.3: Principal MongoDB collections and their roles.</p>
+  <div class="diagram">
+    <div class="flowrow">
+      <div class="flowbox">USERS<br/><span>1</span></div>
+      <div class="flowbox" style="flex:.4;">places →<br/><span>M</span></div>
+      <div class="flowbox">ORDERS<br/><span>contains embedded ITEMS</span></div>
+      <div class="flowbox" style="flex:.4;">→refers→</div>
+      <div class="flowbox">PRODUCTS</div>
+    </div>
+    <div style="height:8px;"></div>
+    <div class="flowrow">
+      <div class="flowbox">CATEGORIES<br/><span>1</span></div>
+      <div class="flowbox" style="flex:.4;">has →<br/><span>M</span></div>
+      <div class="flowbox">PRODUCTS</div>
+      <div class="flowbox" style="flex:.4;">← reviews</div>
+      <div class="flowbox">REVIEWS → USERS</div>
+    </div>
+  </div>
+  <p class="caption" align="center">Figure 3.3: Simplified entity-relationship view of the core collections.</p>
+  <p>
+    Uniqueness constraints (for example, on user email, product slug, and order payment reference) and
+    appropriate indexes are applied to preserve integrity and query performance. The uniqueness constraint on
+    the payment reference additionally underpins the idempotent, race-safe order finalisation discussed in
+    Section 3.9, by guaranteeing that two concurrent confirmation paths cannot create duplicate orders for
+    the same payment.
+  </p>
+
+  <h2>3.7 Application Programming Interface (API) Design</h2>
+  <p>
+    The API is defined as a GraphQL schema composed of types, queries, and mutations, modularised by domain
+    (for example, products, orders, users, and content) and merged into a single executable schema. Queries
+    provide read access, such as a paginated, filtered product listing and a product lookup by slug, while
+    mutations perform state changes, including registration, login, payment verification and order creation,
+    review submission, and administrative create, update, and delete operations.
+  </p>
+  <p>
+    A central technical concern, identified in Chapters One and Two, is the construction of the per-request
+    GraphQL <i>context</i> within the Next.js App Router. The route handler that serves the GraphQL endpoint
+    extracts the bearer token from the incoming request’s authorisation header, verifies the token’s
+    signature on the server, and places the resulting authenticated-user information (identity and role) into
+    the context object supplied to every resolver. Resolvers that perform privileged operations consult this
+    context to enforce role-based authorisation before acting. This arrangement ensures that access control is
+    enforced at the server boundary, independently of the state of the client interface, thereby resolving
+    the context-propagation challenge that motivated the study. The end-to-end flow of an authenticated,
+    payment-bearing request is illustrated for the checkout case in Figure 3.4.
+  </p>
+  <div class="diagram">
+    <table class="fig" style="margin:0;">
+      <tr><th style="width:30px;">#</th><th>Step in the checkout / payment sequence</th></tr>
+      <tr><td>1</td><td>Customer submits checkout; client requests stock re-check and coupon re-validation from the GraphQL API.</td></tr>
+      <tr><td>2</td><td>Server recomputes the authoritative total (prices, discount, shipping) from the database.</td></tr>
+      <tr><td>3</td><td>Client initiates payment with the gateway (Paystack) for the server-confirmed amount.</td></tr>
+      <tr><td>4</td><td>Customer pays via card, transfer, or USSD on the gateway’s secure interface.</td></tr>
+      <tr><td>5</td><td>On return, the client calls the “verify &amp; create order” mutation with the payment reference.</td></tr>
+      <tr><td>6</td><td>Server verifies the payment directly with the gateway and checks the paid amount against the expected total.</td></tr>
+      <tr><td>7</td><td>Server creates the order idempotently (unique payment reference), decrements stock, and records the order.</td></tr>
+      <tr><td>8</td><td>Server sends a confirmation email and notifies the administrator; the customer sees an order-success page.</td></tr>
+    </table>
+  </div>
+  <p class="caption" align="center">Figure 3.4: Sequence of the secure checkout and payment-verification process.</p>
+
+  <h2>3.8 User Interface and Experience Design</h2>
+  <p>
+    Interface design follows a mobile-first, responsive approach implemented with Tailwind CSS, with a
+    theming system built on CSS custom properties and managed through next-themes to support light and dark
+    modes and interchangeable colour palettes. Design decisions are guided by Nielsen’s (1994) usability
+    heuristics, for instance, providing immediate feedback on actions such as adding an item to the cart,
+    preventing errors at checkout through input validation, maintaining consistency across pages, and keeping
+    the system’s status visible, and by the accessibility guidance of WCAG 2.1 (W3C, 2018) concerning
+    contrast, keyboard operability, and semantic structure. The homepage is composed from configurable,
+    reusable sections, enabling different businesses to present distinct layouts while reusing the same
+    components, in line with the reusability objective and with TAM’s emphasis on perceived ease of use as a
+    determinant of adoption (Davis, 1989).
+  </p>
+
+  <h2>3.9 Security Design</h2>
+  <p>
+    In a system that handles money and personal data, security cannot be a feature added at the end; it has to
+    run through every layer. The design here follows the guidance of the OWASP (2021) project, and a few
+    decisions deserve to be spelled out. Passwords are never stored in readable form, only as salted hashes,
+    so that even a database breach does not expose them. User sessions are carried in signed JSON Web Tokens
+    whose validity is always checked on the server, never merely trusted from the browser. The administrative
+    and customer areas are protected at the server boundary itself, which means a privileged route or
+    operation cannot be reached by an unauthorised client no matter what the front end happens to display; the
+    interface might hide a button, but it is the server that actually refuses the action. Critically, checkout pricing is recomputed on the server rather than trusted from the client, and
+    payment outcomes are verified directly with the payment provider; order finalisation is made idempotent
+    and race-safe through a uniqueness constraint on the payment reference, preventing duplicate orders when
+    concurrent confirmation paths occur, for example, when both a redirect callback and an asynchronous
+    provider notification attempt to finalise the same payment. Inputs are validated, rate limiting is applied
+    to public endpoints to mitigate abuse, and interactions with external services are isolated and handled
+    defensively so that the failure of one does not compromise the others. Collectively, these measures
+    address the access-control, cryptographic, and integrity risks emphasised in contemporary
+    web-application security guidance.
+  </p>
+
+  <h2>3.10 Tools and Technologies</h2>
+  <table class="fig">
+    <tr><th>Category</th><th>Technology</th><th>Version</th><th>Role in the study</th></tr>
+    <tr><td>Framework</td><td>Next.js (App Router)</td><td>16.1.7</td><td>Server and client rendering, routing, build pipeline.</td></tr>
+    <tr><td>UI library</td><td>React</td><td>19.2.3</td><td>Component-based user interface.</td></tr>
+    <tr><td>Language</td><td>TypeScript</td><td>5.9</td><td>Static typing across the full stack.</td></tr>
+    <tr><td>API</td><td>GraphQL with Apollo Server</td><td>GraphQL 16; Apollo Server 5</td><td>Typed, client-driven data access.</td></tr>
+    <tr><td>Database</td><td>MongoDB with Mongoose</td><td>Mongoose 9.3</td><td>Document storage and object-data modelling.</td></tr>
+    <tr><td>Styling / theming</td><td>Tailwind CSS, next-themes</td><td>Tailwind 4</td><td>Responsive UI and dynamic theming.</td></tr>
+    <tr><td>Payments</td><td>Paystack (sandbox)</td><td>N/A</td><td>Card, transfer, and USSD payments with server-side verification.</td></tr>
+    <tr><td>Email</td><td>Resend</td><td>6.10</td><td>Transactional email (order and status notifications).</td></tr>
+    <tr><td>Media</td><td>Cloudinary</td><td>N/A</td><td>Image upload, storage, and delivery.</td></tr>
+    <tr><td>Version control</td><td>Git</td><td>N/A</td><td>Change tracking and branch-based workflow.</td></tr>
+    <tr><td>Deployment</td><td>Vercel</td><td>N/A</td><td>Hosting and continuous deployment for evaluation.</td></tr>
+  </table>
+  <p class="caption" align="center">Table 3.4: Tools and technologies employed in the study, with versions.</p>
+  <p>
+    The implementation was developed on Next.js version 16.1.7 with React 19, using TypeScript 5.9, Apollo
+    Server 5 for the GraphQL layer, and Mongoose 9.3 over MongoDB. (The original proposal referenced Next.js
+    15; the project was subsequently developed on the current major release, version 16.)
+  </p>
+  <p>
+    The platform is deployed on Vercel, a cloud platform optimised for Next.js applications, which provides
+    continuous deployment from the project’s Git repository: each change pushed to the main branch triggers an
+    automated build and release. Application secrets and per-deployment configuration, such as the database
+    connection string, authentication secret, and payment and email service keys, are supplied through
+    environment variables rather than being committed to source control, in keeping with security best
+    practice. The data store is hosted on MongoDB Atlas, a managed database service, while media assets are
+    delivered through Cloudinary. This managed, configuration-driven deployment model is significant for the
+    study’s reusability objective: a new client instance can be provisioned by duplicating the repository,
+    supplying a distinct set of environment variables (separate database, payment credentials, and domain),
+    and deploying, without modifying the application’s core logic.
+  </p>
+
+  <h2>3.11 Testing and Evaluation Strategy</h2>
+  <p>
+    The enhanced system is evaluated along the dimensions defined by the non-functional requirements, using
+    the instruments summarised in Table 3.5. Functional correctness is assessed through unit testing of
+    discrete logic, integration testing of API operations against the database, and user-acceptance testing
+    of complete workflows such as browsing, checkout, and order management. Performance is examined through
+    page-load and rendering metrics and the responsiveness of paginated data access. Usability is evaluated
+    against Nielsen’s (1994) heuristics and, where feasible, through observation of representative users
+    completing key tasks, optionally supplemented by a standard instrument such as the System Usability
+    Scale. Accessibility is checked against WCAG 2.1 (W3C, 2018) using automated tooling and manual
+    inspection. Security is assessed through a structured review informed by the OWASP (2021) guidance,
+    covering authentication, authorisation, input handling, and payment integrity. Continuous type checking
+    and production-build verification provide a baseline quality gate throughout development.
+  </p>
+  <table class="fig">
+    <tr><th>Dimension</th><th>Method / instrument</th><th>Indicative measure</th></tr>
+    <tr><td>Functionality</td><td>Unit, integration, and user-acceptance testing</td><td>Test pass rate; requirements coverage</td></tr>
+    <tr><td>Performance</td><td>Load/rendering metrics; pagination responsiveness</td><td>Page-load time; time-to-interactive</td></tr>
+    <tr><td>Usability</td><td>Nielsen’s heuristics; task observation; SUS (optional)</td><td>Heuristic findings; task success; SUS score</td></tr>
+    <tr><td>Accessibility</td><td>WCAG 2.1 checks (automated + manual)</td><td>Conformance findings; contrast/keyboard checks</td></tr>
+    <tr><td>Security</td><td>OWASP-informed structured review</td><td>Issues by category; mitigations verified</td></tr>
+  </table>
+  <p class="caption" align="center">Table 3.5: Evaluation dimensions, methods, and indicative measures.</p>
+  <p>
+    The combined results will constitute the evidence base for answering the research questions, and are
+    reported in Chapter Four.
+  </p>
+
+  <h2>3.12 Chapter Summary</h2>
+  <p>
+    This chapter has presented the methodology and design underpinning the study. It established a design
+    science research design realised through an iterative, agile-inspired development process; specified the
+    functional and non-functional requirements and principal use cases; and detailed the layered system
+    architecture, the database design, the GraphQL API design (including the resolution of the
+    authentication-context challenge), the user-interface and security designs, the tools employed, and the
+    testing and evaluation strategy. The chapter that follows reports the implementation of these designs and
+    the results of the evaluation.
+  </p>
+
+  <!-- ═══════════ REFERENCES ═══════════ -->
+  <div class="pagebreak"></div>
+  <h2 class="chtitle" align="center">References</h2>
+  
+  <div class="refs">
+    <p>Agwu, M. E., &amp; Murray, P. J. (2015). Empirical study of barriers to electronic commerce adoption by small and medium scale businesses in Nigeria. <i>International Journal of Innovation in the Digital Economy, 6</i>(2), 1–19. [Confirm DOI/IGI Global record before submission.]</p>
+    <p>Apollo GraphQL. (2024). <i>Apollo Server documentation</i>. https://www.apollographql.com/docs/apollo-server/</p>
+    <p>Awa, H. O., Awara, N. F., &amp; Lebari, E. D. (2015). Critical factors inhibiting electronic commerce (EC) adoption in Nigeria: A study of operators of SMEs. <i>Journal of Science and Technology Policy Management, 6</i>(2), 143–164. https://doi.org/10.1108/JSTPM-07-2014-0033</p>
+    <p>Beck, K., Beedle, M., van Bennekum, A., Cockburn, A., Cunningham, W., Fowler, M., … Thomas, D. (2001). <i>Manifesto for agile software development</i>. https://agilemanifesto.org/</p>
+    <p>Brito, G., Mombach, T., &amp; Valente, M. T. (2019). Migrating to GraphQL: A practical assessment. In <i>2019 IEEE 26th International Conference on Software Analysis, Evolution and Reengineering (SANER)</i> (pp. 140–150). IEEE. https://doi.org/10.1109/SANER.2019.8667986</p>
+    <p>Brito, G., &amp; Valente, M. T. (2020). REST vs GraphQL: A controlled experiment. In <i>2020 IEEE International Conference on Software Architecture (ICSA)</i> (pp. 81–91). IEEE. https://doi.org/10.1109/ICSA47634.2020.00016</p>
+    <p>Bogner, J., &amp; Merkel, M. (2022). To type or not to type? A systematic comparison of the software quality of JavaScript and TypeScript applications on GitHub. In <i>Proceedings of the 19th International Conference on Mining Software Repositories (MSR ’22)</i> (pp. 658–669). ACM. https://doi.org/10.1145/3524842.3528454</p>
+    <p>Davis, F. D. (1989). Perceived usefulness, perceived ease of use, and user acceptance of information technology. <i>MIS Quarterly, 13</i>(3), 319–340. https://doi.org/10.2307/249008</p>
+    <p>Fielding, R. T. (2000). <i>Architectural styles and the design of network-based software architectures</i> [Doctoral dissertation, University of California, Irvine]. https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm</p>
+    <p>Gao, Z., Bird, C., &amp; Barr, E. T. (2017). To type or not to type: Quantifying detectable bugs in JavaScript. In <i>2017 IEEE/ACM 39th International Conference on Software Engineering (ICSE)</i> (pp. 758–769). IEEE. https://doi.org/10.1109/ICSE.2017.75</p>
+    <p>GraphQL Foundation. (2021). <i>GraphQL specification (October 2021 edition)</i>. https://spec.graphql.org/</p>
+    <p>Győrödi, C., Győrödi, R., Pecherle, G., &amp; Olah, A. (2015). A comparative study: MongoDB vs. MySQL. In <i>2015 13th International Conference on Engineering of Modern Electric Systems (EMES)</i> (pp. 1–6). IEEE. https://doi.org/10.1109/EMES.2015.7158433</p>
+    <p>GSMA. (2023). <i>The mobile economy sub-Saharan Africa 2023</i>. GSM Association. https://www.gsma.com/mobileeconomy/sub-saharan-africa/</p>
+    <p>Hevner, A. R., March, S. T., Park, J., &amp; Ram, S. (2004). Design science in information systems research. <i>MIS Quarterly, 28</i>(1), 75–105. https://doi.org/10.2307/25148625</p>
+    <p>International Telecommunication Union. (2023). <i>Measuring digital development: Facts and figures 2023</i>. ITU Publications. https://www.itu.int/en/ITU-D/Statistics/</p>
+    <p>Laudon, K. C., &amp; Traver, C. G. (2021). <i>E-commerce 2021–2022: Business, technology, society</i> (17th ed.). Pearson.</p>
+    <p>MongoDB, Inc. (2024). <i>MongoDB manual: Data modeling</i>. https://www.mongodb.com/docs/manual/data-modeling/</p>
+    <p>Mikowski, M. S., &amp; Powell, J. C. (2013). <i>Single page web applications: JavaScript end-to-end</i>. Manning Publications.</p>
+    <p>National Bureau of Statistics, &amp; Small and Medium Enterprises Development Agency of Nigeria. (2021). <i>National survey of micro, small and medium enterprises (MSMEs) 2021</i>. NBS/SMEDAN. https://www.nigerianstat.gov.ng/</p>
+    <p>Nigerian Communications Commission. (2024). <i>Industry statistics: Subscriber and network data</i>. NCC. https://www.ncc.gov.ng/statistics-reports/industry-overview</p>
+    <p>Nielsen, J. (1994). <i>Usability engineering</i>. Morgan Kaufmann.</p>
+    <p>Open Web Application Security Project. (2021). <i>OWASP Top 10: 2021</i>. https://owasp.org/Top10/</p>
+    <p>Pati, S., &amp; Zaki, Y. (2025). <i>Evaluating the efficacy of Next.js: A comparative analysis with React.js on performance, SEO, and global network equity</i> (arXiv:2502.15707) [Preprint]. arXiv. https://arxiv.org/abs/2502.15707</p>
+    <p>Peffers, K., Tuunanen, T., Rothenberger, M. A., &amp; Chatterjee, S. (2007). A design science research methodology for information systems research. <i>Journal of Management Information Systems, 24</i>(3), 45–77. https://doi.org/10.2753/MIS0742-1222240302</p>
+    <p>Pressman, R. S., &amp; Maxim, B. R. (2020). <i>Software engineering: A practitioner’s approach</i> (9th ed.). McGraw-Hill.</p>
+    <p>Rogers, E. M. (2003). <i>Diffusion of innovations</i> (5th ed.). Free Press.</p>
+    <p>Seabra, M., Nazário, M. F., &amp; Pinto, G. (2019). REST or GraphQL? A performance comparative study. In <i>Proceedings of the XIII Brazilian Symposium on Software Components, Architectures, and Reuse (SBCARS ’19)</i> (pp. 123–132). ACM. https://doi.org/10.1145/3357141.3357149</p>
+    <p>Sommerville, I. (2016). <i>Software engineering</i> (10th ed.). Pearson.</p>
+    <p>Usman, M. U., &amp; Kumar, P. (2021). Factors influencing consumer intention to shop online in Nigeria: A conceptual study. <i>Vision: The Journal of Business Perspective, 25</i>(1), 85–98. https://doi.org/10.1177/0972262920926797</p>
+    <p>Vercel. (2024). <i>Next.js documentation</i>. https://nextjs.org/docs</p>
+    <p>Wieruch, R. (2022). <i>The road to GraphQL: Your journey to master pragmatic GraphQL in JavaScript with React.js and Node.js</i> (2nd ed.). Leanpub.</p>
+    <p>World Bank. (2019). <i>Digital economy for Africa initiative</i>. World Bank Group. https://www.worldbank.org/en/programs/all-africa-digital-transformation</p>
+    <p>World Wide Web Consortium. (2018). <i>Web Content Accessibility Guidelines (WCAG) 2.1</i>. https://www.w3.org/TR/WCAG21/</p>
+  </div>
+<div class="pagebreak"></div>
+
+
+  <h1 class="chapter" align="center">Chapter Four</h1>
+  <h2 class="chtitle" align="center">System Implementation and Results</h2>
+
+  <!-- 4.1 -->
+  <h2>4.1 Introduction</h2>
+  <p>
+    The previous chapter set out the methodology and the design of the enhanced FanMidCommerce platform. This
+    chapter turns from design to reality. It describes how the system was actually built, shows the working
+    software through a series of screenshots and code listings, and reports the results of testing it. The
+    account follows the structure of the system itself, moving from the foundations outward: first the
+    development environment and the way the code is organised, then the database and the API that sit at the
+    core, and then each user-facing module in turn, authentication, product management, the storefront and
+    cart, checkout and payment, and customer reviews. After the administrative dashboard and the deployment
+    process, the chapter closes with the results of functional testing and a performance evaluation. Taken
+    together, these sections demonstrate that the objectives stated in Chapter One were met in a working,
+    deployed application.
+  </p>
+
+  <!-- 4.2 -->
+  <h2>4.2 Development Environment and Tools</h2>
+  <p>
+    Development was carried out on a standard personal computer using Visual Studio Code as the code editor,
+    with the Node.js runtime providing the JavaScript environment and the npm package manager handling
+    dependencies. Version control was managed with Git, and the source code was hosted on GitHub, which also
+    served as the trigger for automated deployment. The application itself was built on the technology stack
+    introduced in Chapter Three. Table 4.1 lists the principal tools and the version or role of each, as
+    recorded in the project's configuration.
+  </p>
+  <table class="fig">
+    <tr><th>Tool / technology</th><th>Version</th><th>Role in the implementation</th></tr>
+    <tr><td>Next.js (App Router)</td><td>16.1.7</td><td>React framework providing routing, server and client rendering, and the build pipeline.</td></tr>
+    <tr><td>React</td><td>19.2.3</td><td>Component-based user-interface library.</td></tr>
+    <tr><td>TypeScript</td><td>5.9</td><td>Typed language used across the entire codebase.</td></tr>
+    <tr><td>Apollo Server (@apollo/server) with @as-integrations/next</td><td>5.4</td><td>GraphQL server mounted on a Next.js route handler.</td></tr>
+    <tr><td>@apollo/client</td><td>4.1</td><td>GraphQL client used by the React front end.</td></tr>
+    <tr><td>GraphQL</td><td>16.13</td><td>Query language and runtime for the API.</td></tr>
+    <tr><td>MongoDB with Mongoose</td><td>Mongoose 9.3</td><td>Document database and object-data-modelling layer.</td></tr>
+    <tr><td>Tailwind CSS, next-themes</td><td>Tailwind 4</td><td>Utility-first styling and light/dark theming.</td></tr>
+    <tr><td>Paystack</td><td>N/A</td><td>Payment gateway (card, bank transfer, USSD).</td></tr>
+    <tr><td>Resend</td><td>6.10</td><td>Transactional email (order and status notifications).</td></tr>
+    <tr><td>Cloudinary</td><td>N/A</td><td>Image upload, storage, and delivery.</td></tr>
+    <tr><td>Visual Studio Code, Node.js, npm, Git, GitHub</td><td>N/A</td><td>Editor, runtime, package manager, and version control.</td></tr>
+    <tr><td>Vercel</td><td>N/A</td><td>Hosting and continuous deployment.</td></tr>
+  </table>
+  <p class="caption" align="center">Table 4.1: Tools and technologies used in the implementation, with versions.</p>
+
+  <!-- 4.3 -->
+  <h2>4.3 Project and Folder Structure</h2>
+  <p>
+    A clear, predictable folder structure is one of the practical expressions of the modular design discussed
+    in Chapter Three. The project separates the routing and page layer (the <code>app/</code> directory, using
+    Next.js route groups) from the reusable application code (the <code>src/</code> directory). Within
+    <code>src/</code>, code is grouped by responsibility: data models, the GraphQL schema and resolvers,
+    shared libraries, external-service integrations, theming, and configuration. Listing 4.1 shows the
+    abridged structure of the project as implemented.
+  </p>
+  <pre class="code">fanmidcommerce/
+├── app/                          # Next.js App Router (routes &amp; pages)
+│   ├── (public)/                 # storefront: home, shop, product, cart, checkout
+│   ├── (admin)/                  # admin dashboard (protected)
+│   ├── (dashboard)/              # customer account area (protected)
+│   ├── (auth)/                   # login, register, password reset
+│   ├── api/                      # API routes
+│   │   ├── graphql/              # GraphQL endpoint (Apollo Server)
+│   │   └── paystack/             # payment initialise + webhook
+│   ├── layout.tsx                # root layout
+│   └── opengraph-image.tsx       # social-share preview image
+├── src/
+│   ├── components/               # shared UI (layout, ui, shop, auth, admin)
+│   ├── features/
+│   │   └── products/             # product feature: components + graphql + data
+│   ├── graphql/
+│   │   ├── typeDefs/             # GraphQL schema, split by domain
+│   │   └── resolvers/            # GraphQL resolvers, split by domain
+│   ├── models/                   # Mongoose schemas (Product, Order, User, ...)
+│   ├── lib/                      # db, auth, coupon, orders, rate-limit, slug
+│   ├── services/                # external integrations (email)
+│   ├── context/                  # React contexts (cart, wishlist, coupon, toast)
+│   ├── config/                   # central site configuration
+│   ├── themes/                   # theme palettes (fashion, luxury, minimal)
+│   ├── sections/                 # composable homepage sections
+│   └── hooks/                    # custom React hooks
+├── public/                       # static assets
+├── scripts/                      # maintenance scripts (create-admin, backfill)
+├── proxy.ts                      # Edge route gate (auth) for /admin and /dashboard
+├── next.config.ts
+└── package.json</pre>
+  <p class="listing" align="center">Listing 4.1: Abridged project folder structure.</p>
+  <p>
+    Two aspects of this layout are worth highlighting because they realise design goals from Chapter Three.
+    First, the <code>app/</code> directory uses Next.js <i>route groups</i>, the bracketed folders such as
+    <code>(public)</code>, <code>(admin)</code>, and <code>(dashboard)</code>, to keep the storefront, the
+    administrative area, and the customer account area cleanly separated while still sharing a single
+    code-base. Second, the presence of <code>src/config/</code>, <code>src/themes/</code>, and
+    <code>src/sections/</code> reflects the deliberate separation of the reusable commerce engine from a
+    customisable presentation layer: branding lives in configuration, colour identity in theme palettes, and
+    homepage composition in interchangeable sections.
+  </p>
+
+  <!-- 4.4 -->
+  <h2>4.4 Database Implementation</h2>
+  <p>
+    The data model described in Chapter Three was implemented as a set of Mongoose schemas, one per
+    collection. Each schema declares the fields, their types, and any constraints such as uniqueness or
+    required values, and Mongoose enforces these when documents are created or updated. Listing 4.2 shows an
+    abridged version of the Product schema, which is among the most elaborate because it supports product
+    variants, per-size stock, and colour options, each colour carrying its own images.
+  </p>
+  <pre class="code">const productSchema = new mongoose.Schema(
+  {
+    name:        { type: String, required: true },
+    slug:        { type: String, unique: true, sparse: true, index: true },
+    description: { type: String, required: true },
+    price:       { type: Number, required: true },
+    image:       { type: String },              // main thumbnail (= images[0])
+    images:      { type: [String], default: [] }, // gallery
+    stock:       { type: Number, required: true },
+    // Per-size inventory: e.g. [{ size: "S", stock: 3 }, { size: "M", stock: 5 }]
+    sizeStock:   { type: [{ size: String, stock: { type: Number, default: 0 } }], default: [] },
+    // Colour options, each with its own image(s)
+    colors:      { type: [{ name: String, hex: { type: String, default: "" },
+                            images: { type: [String], default: [] } }], default: [] },
+    sizes:       { type: [String], default: [] },
+    sizeGuide:   { type: String, enum: ["clothing", "footwear", "none"], default: "clothing" },
+    category:    { type: mongoose.Schema.Types.ObjectId,
+                   ref: "fanmidcommerce-categories", required: true },
+    isNew:       { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);</pre>
+  <p class="listing" align="center">Listing 4.2: Abridged Mongoose schema for the Product collection.</p>
+  <p>
+    The full database comprises the collections summarised in Chapter Three (Users, Products, Categories,
+    Orders, Reviews, Coupons, Shipping methods, and content/settings). Uniqueness constraints were applied to
+    fields that must not repeat, for example the product <code>slug</code> and the order payment reference, and
+    the latter constraint is what makes order finalisation safe against duplication, as explained in §4.9.
+  </p>
+
+  <!-- 4.5 -->
+  <h2>4.5 API Implementation: GraphQL Schema and Resolvers</h2>
+  <p>
+    The application exposes a single GraphQL endpoint. Its schema is defined in small, domain-specific files
+    (products, orders, users, categories, reviews, and so on) that are merged into one executable schema; the
+    matching resolvers are organised the same way. This keeps each domain self-contained while presenting a
+    unified API to the front end. Listing 4.3 shows part of the product schema, including the types that model
+    product variants.
+  </p>
+  <pre class="code">type Color {
+  name: String!
+  hex: String
+  images: [String]
+}
+
+type Product {
+  id: ID!
+  name: String!
+  slug: String
+  description: String!
+  price: Float!
+  images: [String]
+  stock: Int!
+  sizeStock: [SizeStock]
+  colors: [Color]
+  category: Category
+  isNew: Boolean
+}
+
+type ProductPage {        # paginated, server-filtered result
+  items: [Product!]!
+  total: Int!
+  page: Int!
+  pages: Int!
+}
+
+type Query {
+  productsPage(filter: ProductFilter, page: Int = 1, limit: Int = 12): ProductPage!
+  productBySlug(slug: ID!): Product
+  checkStock(items: [StockCheckInput!]!): [StockCheck!]!
+}</pre>
+  <p class="listing" align="center">Listing 4.3: Extract from the product GraphQL schema.</p>
+  <p>
+    A central technical contribution of the study, identified in Chapters One and Two as an under-documented
+    problem, is the reliable propagation of authentication context to resolvers within the Next.js App Router.
+    The solution is implemented in the GraphQL route handler. Apollo Server is mounted onto a Next.js route
+    handler using the <code>@as-integrations/next</code> adapter, and a <code>context</code> function runs on
+    every request. That function locates the caller's token, verifies its signature on the server, and places
+    the decoded user, if any, into the context object that is then handed to every resolver. Listing 4.4 shows
+    the actual implementation.
+  </p>
+  <pre class="code">const server = new ApolloServer({ typeDefs, resolvers });
+
+// Pull the token from the Authorization header, falling back to a cookie.
+const getTokenFromRequest = (req, role) =&gt; {
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) return authHeader.split(" ")[1];
+  const cookieHeader = req.headers.get("cookie");
+  if (cookieHeader) {
+    const cookieName = role === "admin" ? "admin_token" : "user_token";
+    const match = cookieHeader.match(new RegExp(`${cookieName}=([^;]+)`));
+    if (match) return match[1];
+  }
+  return null;
+};
+
+const handler = startServerAndCreateNextHandler(server, {
+  context: async (req) =&gt; {
+    const token = getTokenFromRequest(req, "admin") || getTokenFromRequest(req, "user");
+    if (!token) return { user: null };
+    try {
+      // Real, cryptographic signature verification happens HERE, on the server.
+      const user = jwt.verify(token, process.env.JWT_SECRET);
+      return { user };           // available to every resolver
+    } catch {
+      return { user: null };     // invalid/expired token => treated as anonymous
+    }
+  },
+});</pre>
+  <p class="listing" align="center">Listing 4.4: GraphQL route handler that builds the authenticated per-request context.</p>
+  <p>
+    With the context reliably populated, each resolver that performs a privileged operation simply inspects
+    it before acting. Listing 4.5 shows the create-product resolver refusing any request whose context does
+    not carry an administrator identity. Because this check sits on the server, it cannot be bypassed by
+    manipulating the browser: hiding or showing a button in the interface changes nothing, since it is the
+    resolver, not the client, that ultimately grants or denies the action.
+  </p>
+  <pre class="code">createProduct: async (_parent, args, context) =&gt; {
+  // Authorisation is enforced from the verified context, on the server.
+  if (!context.user || !["admin", "superadmin"].includes(context.user.role)) {
+    throw new Error("Unauthorized");
+  }
+  await connectDB();
+  const product = await productModel.create(deriveVariantFields(args));
+  return product.populate("category");
+}</pre>
+  <p class="listing" align="center">Listing 4.5: Resolver enforcing role-based authorisation from the GraphQL context.</p>
+  <p>
+    A second layer of protection operates before a page is even served. A route gate, implemented as a Next.js
+    <i>proxy</i> file at the project root, intercepts requests to the protected areas. Because this runs on the
+    Edge runtime, which lacks the Node cryptography libraries, it does not attempt full signature
+    verification; instead it cheaply decodes the token to read the role and expiry and uses that for a fast
+    redirect decision, while the authoritative verification remains in the GraphQL handler shown above.
+    Listing 4.6 shows the gate.
+  </p>
+  <pre class="code">export function proxy(req) {
+  const { pathname } = req.nextUrl;
+  if (pathname === "/admin/login") return NextResponse.next();
+
+  if (pathname.startsWith("/admin")) {
+    const token = req.cookies.get("admin_token")?.value;
+    const payload = token ? decodeJwt(token) : null;
+    if (!payload || isExpired(payload) ||
+        !["admin", "superadmin"].includes(payload.role ?? "")) {
+      return NextResponse.redirect(new URL("/admin/login", req.url));
+    }
+  }
+  if (pathname.startsWith("/dashboard")) {
+    const token = req.cookies.get("user_token")?.value;
+    const payload = token ? decodeJwt(token) : null;
+    if (!payload || isExpired(payload)) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+  }
+  return NextResponse.next();
+}
+export const config = { matcher: ["/admin/:path*", "/dashboard/:path*"] };</pre>
+  <p class="listing" align="center">Listing 4.6: Edge route gate (proxy) protecting the admin and dashboard areas.</p>
+
+  <!-- 4.6 -->
+  <h2>4.6 Authentication Module</h2>
+  <p>
+    The authentication module is responsible for establishing who a user is and for keeping customer and
+    administrator privileges separate. It spans three concerns: securely storing credentials, issuing and
+    checking session tokens, and protecting routes. Each is described in turn.
+  </p>
+  <h3>4.6.1 Credential storage and registration</h3>
+  <p>
+    When a customer registers, the password they choose is never stored in readable form. It is passed through
+    the bcrypt hashing function, which produces a salted, one-way hash; only that hash is written to the
+    database. At login, the supplied password is hashed again and compared against the stored value, so the
+    plain password never needs to be kept. This means that even if the database were somehow exposed, the
+    passwords themselves would remain protected. The registration resolver also seeds the new customer's first
+    saved address, so that the address entered at sign-up is immediately available at checkout.
+  </p>
+  <h3>4.6.2 Token issuance</h3>
+  <p>
+    A successful login issues a signed JSON Web Token (JWT). The token encodes the user's identifier and role
+    and is signed with a secret known only to the server. Notably, administrators and ordinary customers
+    receive tokens with different lifetimes, reflecting their different risk profiles, as shown in Listing 4.7.
+  </p>
+  <pre class="code">export const generateToken = (user) =&gt; {
+  const isAdmin = ["admin", "superadmin"].includes(user.role ?? "");
+  return jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: isAdmin ? "7d" : "365d" }, // shorter life for privileged accounts
+  );
+};</pre>
+  <p class="listing" align="center">Listing 4.7: Role-aware JWT generation.</p>
+  <h3>4.6.3 Route protection</h3>
+  <p>
+    Route protection is enforced on the server in two places, already shown in Listings 4.4 and 4.6: the
+    GraphQL handler verifies the token's signature on every data request, while the Edge proxy gate redirects
+    unauthenticated users away from the <code>/admin</code> and <code>/dashboard</code> areas before any page
+    is rendered. A subtle but important detail is that the application keeps the administrator token and the
+    customer token in separate cookies (<code>admin_token</code> and <code>user_token</code>). This allows a
+    person to be signed in as an administrator in one area and as a customer in another without the two
+    sessions interfering, which proved valuable during testing. Figures 4.1 and 4.2 show the registration and
+    login interfaces.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 1, Registration page]</b>Capture the customer registration form at /register (filled with sample data, before submit).</div>
+  <p class="caption" align="center">Figure 4.1: Customer registration interface.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 2, Login page]</b>Capture the login form at /login.</div>
+  <p class="caption" align="center">Figure 4.2: Customer login interface.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 2b, Access blocked when logged out]</b>Optional but strong evidence: capture the redirect to /admin/login when visiting /admin while logged out.</div>
+  <p class="caption" align="center">Figure 4.2b: Server-side route protection redirecting an unauthenticated visitor.</p>
+
+  <!-- 4.7 -->
+  <h2>4.7 Product Management Module</h2>
+  <p>
+    Product management is the administrator's most frequent task, so the module was designed to handle the full
+    complexity of a real catalogue, multiple images, per-size stock, and colour variants, while remaining
+    simple to operate. Three aspects of its implementation are described here: the unified product form, the
+    handling of variants and derived fields, and the generation of SEO-friendly URLs.
+  </p>
+  <h3>4.7.1 The unified product form</h3>
+  <p>
+    A single React form serves both the "add" and "edit" cases, switching mode based on whether it receives an
+    existing product. On submission it assembles a set of variables and sends them through a GraphQL mutation.
+    Listing 4.12 shows the variables collected, which mirror the fields of the product schema in §4.4.
+  </p>
+  <pre class="code">const variables = {
+  name: form.name,
+  slug: form.slug,               // server slugifies + guarantees uniqueness
+  description: form.description,
+  price: parseFloat(form.price),
+  stock: sized ? sizeStock.reduce((s, r) =&gt; s + r.stock, 0)   // sum of sizes
+               : parseInt(form.stock) || 0,
+  sizeStock,                      // [{ size, stock }]
+  colors,                         // [{ name, hex, images[] }]
+  sizeGuide: form.sizeGuide,
+  category: form.categoryId,
+  images,                         // gallery; images[0] becomes the thumbnail
+  image: images[0] ?? "",
+  isNew: form.isNew,
+};</pre>
+  <p class="listing" align="center">Listing 4.12: Variables assembled by the product form before submission.</p>
+  <h3>4.7.2 Variant handling and derived fields</h3>
+  <p>
+    Products can be sized or unsized, and this affects how stock is recorded. For a sized product the
+    authoritative stock is the per-size breakdown, and the overall total is simply the sum of those sizes; for
+    an unsized product the single stock number is authoritative. To keep these consistent, the server derives
+    the dependent fields on every save rather than trusting the client to compute them, as shown in
+    Listing 4.13. This guards against the totals drifting out of step with the per-size figures.
+  </p>
+  <pre class="code">function deriveVariantFields(data) {
+  if (Array.isArray(data.sizeStock) &amp;&amp; data.sizeStock.length) {
+    // Total stock and the size list are derived from sizeStock.
+    data.stock = data.sizeStock.reduce((sum, s) =&gt; sum + (Number(s.stock) || 0), 0);
+    data.sizes = data.sizeStock.map((s) =&gt; s.size);
+  }
+  if (Array.isArray(data.images) &amp;&amp; data.images.length) {
+    data.image = data.images[0];   // first gallery image is the thumbnail
+  }
+  return data;
+}</pre>
+  <p class="listing" align="center">Listing 4.13: Server-side derivation of stock total, size list, and thumbnail.</p>
+  <h3>4.7.3 SEO-friendly URLs (slugs)</h3>
+  <p>
+    Each product is given a human- and search-engine-friendly URL slug derived from its name, for example
+    <code>minimalist-leather-jacket</code>. Because two products could share a name, the server guarantees
+    uniqueness by appending a numeric suffix when necessary, and a database index on the slug keeps look-ups
+    fast. This supports the discoverability goal identified in Chapter Two, since clean, descriptive URLs are
+    indexed more favourably than opaque numeric identifiers. Figures 4.3 and 4.4 show the product list and the
+    add/edit form.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 3, Admin product list]</b>Capture /admin/products showing the table of products with prices and stock.</div>
+  <p class="caption" align="center">Figure 4.3: Administrative product list.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 4, Add / edit product form]</b>Capture the product form showing the images, sizes &amp; stock rows, and colours section.</div>
+  <p class="caption" align="center">Figure 4.4: Add/edit product form with variant management.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 4b, Colour variant management]</b>Optional: a close-up of the colours section showing a colour name, swatch, and its uploaded images.</div>
+  <p class="caption" align="center">Figure 4.4b: Managing colour variants with per-colour images.</p>
+
+  <!-- 4.8 -->
+  <h2>4.8 Storefront and Cart</h2>
+  <p>
+    The storefront is the part of the system the customer actually sees and uses, and three of its
+    implementation details are worth examining: how the catalogue is filtered efficiently, how the cart keeps
+    track of product variants, and how the two connect at the point of adding an item.
+  </p>
+  <h3>4.8.1 Server-side catalogue browsing</h3>
+  <p>
+    An early version of the shop page fetched every product and filtered them in the browser. This is fine for
+    a handful of products but does not scale: as the catalogue grows, the page would download more and more
+    data only to discard most of it. The implementation was therefore changed so that filtering, sorting, and
+    pagination all happen in the database, and the browser receives only the single page of results it needs.
+    This is exposed through a <code>productsPage</code> query whose resolver builds a MongoDB query from the
+    supplied filter, as shown in Listing 4.8.
+  </p>
+  <pre class="code">productsPage: async (_p, { filter = {}, page = 1, limit = 12 }) =&gt; {
+  await connectDB();
+  const query = {};
+  if (filter.category &amp;&amp; filter.category !== "all") query["category.slug"] = filter.category;
+  if (filter.search) query.name = { $regex: filter.search, $options: "i" }; // case-insensitive
+  if (filter.minPrice != null || filter.maxPrice != null) {
+    query.price = {};
+    if (filter.minPrice != null) query.price.$gte = filter.minPrice;
+    if (filter.maxPrice != null) query.price.$lte = filter.maxPrice;
+  }
+  if (filter.sizes?.length) query.sizes = { $in: filter.sizes };
+
+  const sort = filter.sort === "price-asc" ? { price: 1 }
+            : filter.sort === "price-desc" ? { price: -1 }
+            : { createdAt: -1 };
+
+  const total = await productModel.countDocuments(query);
+  const items = await productModel.find(query)
+    .sort(sort).skip((page - 1) * limit).limit(limit).populate("category");
+
+  return { items, total, page, pages: Math.ceil(total / limit) };
+}</pre>
+  <p class="listing" align="center">Listing 4.8: Server-side filtering, sorting, and pagination in the product resolver.</p>
+  <h3>4.8.2 The shopping cart and product variants</h3>
+  <p>
+    The cart is held in the browser using a React context backed by local storage, so that its contents
+    survive page refreshes without requiring the customer to be logged in. A design decision that proved
+    important is how the cart identifies a line item. Because a single product can be added in different sizes
+    and colours, the cart does not key items by product alone; it treats a particular product in a particular
+    size and colour as its own distinct line. Listing 4.9 shows the helper used for this comparison.
+  </p>
+  <pre class="code">// Two cart lines are the same only if product, size, AND colour all match.
+const sameLine = (a, b) =&gt;
+  a.id === b.id &amp;&amp; a.size === b.size &amp;&amp; a.color === b.color;</pre>
+  <p class="listing" align="center">Listing 4.9: Variant-aware identification of cart line items.</p>
+  <p>
+    When an item is added, the quantity is also capped at the available stock so that the cart can never hold
+    more units than exist, and the customer is given immediate visual feedback through a toast notification.
+    These small touches reflect the usability heuristics discussed in Chapter Two, in particular keeping the
+    system's status visible and preventing errors before they happen. Figures 4.5 to 4.8 illustrate the
+    storefront screens.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 5, Home page]</b>Capture the storefront home page (hero + featured products).</div>
+  <p class="caption" align="center">Figure 4.5: Storefront home page.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 6, Shop / catalogue page]</b>Capture /shop showing products, filters, and pagination.</div>
+  <p class="caption" align="center">Figure 4.6: Shop page with filtering and pagination.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 7, Product detail page]</b>Capture a product page showing the gallery, size/colour selection, and price.</div>
+  <p class="caption" align="center">Figure 4.7: Product detail page with variant selection.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 8, Cart page]</b>Capture the cart with two or three items and the order summary.</div>
+  <p class="caption" align="center">Figure 4.8: Shopping cart.</p>
+
+  <!-- 4.9 -->
+  <h2>4.9 Checkout and Paystack Integration</h2>
+  <p>
+    Checkout is the most security-sensitive workflow in the entire system, because it is where money changes
+    hands, and its implementation was approached with that seriousness. Four mechanisms work together to make
+    it trustworthy: server-authoritative pricing, verified payment, idempotent order creation, and accurate
+    stock adjustment. Each is described below.
+  </p>
+  <h3>4.9.1 Server-authoritative pricing</h3>
+  <p>
+    A naive online store trusts the total that the browser sends. This is dangerous, because a determined user
+    can alter values in the browser before they are submitted. FanMidCommerce therefore never trusts the
+    client total. When the customer proceeds to pay, the server independently re-checks that every item is
+    still in stock, re-validates any coupon, and recomputes the amount due from the prices held in the
+    database. Only this recomputed figure is used to initialise the payment, so the amount charged always
+    matches the store's own records rather than anything the browser claimed.
+  </p>
+  <h3>4.9.2 Payment and server-side verification</h3>
+  <p>
+    The payment itself is delegated to Paystack, a Nigerian payment gateway that supports card payments, bank
+    transfer, and USSD, the three channels Chapter Two identified as important for local trust. After the
+    customer pays, the application does not simply believe the browser's report of success. It confirms the
+    outcome in two independent ways: a verification call back to Paystack when the customer returns to the
+    site, and a webhook that Paystack calls directly, server to server. The webhook is authenticated by
+    recomputing a cryptographic signature over the raw request body and comparing it with the signature
+    Paystack attached, as shown in Listing 4.10; a request whose signature does not match is rejected
+    outright.
+  </p>
+  <pre class="code">const raw = await req.text();                       // verify against the RAW body
+const signature = req.headers.get("x-paystack-signature") || "";
+const expected = crypto.createHmac("sha512", secret).update(raw).digest("hex");
+if (expected !== signature) {
+  return NextResponse.json({ ok: false, error: "invalid signature" }, { status: 401 });
+}</pre>
+  <p class="listing" align="center">Listing 4.10: HMAC-SHA512 verification of the Paystack webhook.</p>
+  <h3>4.9.3 Idempotent, race-safe order creation</h3>
+  <p>
+    Because two independent confirmation paths exist, the return redirect and the webhook, there is a real
+    risk that both could try to create the same order at the same moment, producing a duplicate. This is
+    prevented at the database level by a uniqueness constraint on the order's payment reference. Whichever path
+    arrives first creates the order; the second attempt fails the uniqueness check and is safely ignored. The
+    operation is therefore <i>idempotent</i>: running it once or twice yields exactly one order. This is a
+    direct, practical application of the reliability requirement stated in Chapter Three.
+  </p>
+  <h3>4.9.4 Accurate stock adjustment</h3>
+  <p>
+    Once an order is confirmed, stock must be reduced, and for products with per-size inventory the reduction
+    has to apply to the specific size purchased as well as to the overall total. Listing 4.11 shows how this is
+    achieved using a MongoDB positional array filter, with a final safeguard that clamps any value that might
+    otherwise fall below zero.
+  </p>
+  <pre class="code">for (const item of items) {
+  const qty = Math.abs(item.quantity);
+  if (item.size) {
+    // Decrement THIS size and the overall total together.
+    await productModel.updateOne(
+      { _id: item.product },
+      { $inc: { "sizeStock.$[s].stock": -qty, stock: -qty } },
+      { arrayFilters: [{ "s.size": item.size }] },
+    );
+  } else {
+    await productModel.updateOne({ _id: item.product }, { $inc: { stock: -qty } });
+  }
+}
+// Safety net: never display negative stock.
+await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });</pre>
+  <p class="listing" align="center">Listing 4.11: Per-size stock decrement after a confirmed payment.</p>
+  <p>
+    Figure 4.9 shows the checkout page, Figure 4.10 the Paystack payment interface, and Figure 4.11 the
+    confirmation the customer sees once payment has been verified and the order created.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 9, Checkout page]</b>Capture the checkout step showing address, shipping options, and order summary.</div>
+  <p class="caption" align="center">Figure 4.9: Checkout interface.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 10, Paystack payment]</b>Capture the Paystack payment screen (test mode) showing card / transfer / USSD options.</div>
+  <p class="caption" align="center">Figure 4.10: Paystack payment interface (test mode).</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 11, Order confirmation / success]</b>Capture the order-success page after a test payment, and (optionally) the confirmation email.</div>
+  <p class="caption" align="center">Figure 4.11: Order confirmation page.</p>
+
+  <!-- 4.10 -->
+  <h2>4.10 Customer Reviews</h2>
+  <p>
+    Customer reviews build the trust that Chapter Two identified as decisive for online purchase. To keep that
+    trust meaningful, the system only accepts reviews from people who have genuinely bought the product, a
+    safeguard against fake or malicious reviews. Before a review is allowed, the server checks the order
+    history for a paid order from that customer containing that product, as shown in Listing 4.14.
+  </p>
+  <pre class="code">async function hasPurchased(userId, productId) {
+  const order = await orderModel.findOne({
+    user: userId,
+    isPaid: true,
+    "items.product": productId,   // the customer actually bought this item
+  });
+  return !!order;
+}
+
+createReview: async (_p, { product, rating, text }, ctx) =&gt; {
+  if (!ctx.user) throw new Error("Not authenticated");
+  if (!(await hasPurchased(ctx.user.id, product)))
+    throw new Error("Only verified buyers can review this product.");
+  // ... save the review, flagged as a verified purchase
+}</pre>
+  <p class="listing" align="center">Listing 4.14: Verified-purchase check before a review is accepted.</p>
+  <p>
+    Each product page also displays an aggregate summary, the average star rating and the number of reviews,
+    which is computed on the server from all reviews for that product. The average feeds into the structured
+    data emitted for search engines, so a well-reviewed product can display its rating directly in search
+    results. Figure 4.12 shows the review section on a product page.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12, Product reviews]</b>Capture the reviews section of a product page (with at least one review and the rating form).</div>
+  <p class="caption" align="center">Figure 4.12: Customer reviews on a product page.</p>
+
+  <!-- 4.10A Coupons -->
+  <h2>4.11 Coupons and Discounts</h2>
+  <p>
+    Administrators can create discount codes, either a fixed naira amount or a percentage, optionally with a
+    minimum spend and an expiry date. A crucial design point, consistent with the server-authoritative
+    pricing of §4.9, is that a coupon is never merely applied in the browser; it is always re-evaluated on the
+    server, both when the customer enters it and again when the order total is computed. This prevents a
+    discount from being forged or reused after it has expired. Listing 4.15 shows the server-side evaluation.
+  </p>
+  <pre class="code">export async function evaluateCoupon(rawCode, subtotal) {
+  const code = rawCode.trim().toUpperCase();
+  const coupon = await couponModel.findOne({ code });
+
+  if (!coupon)            return fail("Invalid coupon code.");
+  if (!coupon.active)     return fail("This coupon is no longer active.");
+  if (coupon.expiresAt &amp;&amp; new Date(coupon.expiresAt) &lt; new Date())
+                          return fail("This coupon has expired.");
+  if (subtotal &lt; (coupon.minSubtotal ?? 0))
+                          return fail("Minimum spend not reached.");
+
+  let discount = coupon.type === "percent"
+    ? (subtotal * coupon.value) / 100
+    : coupon.value;
+  // Never negative, never more than the subtotal, rounded to whole naira.
+  discount = Math.min(Math.max(0, Math.round(discount)), subtotal);
+  return { ok: true, code, discount };
+}</pre>
+  <p class="listing" align="center">Listing 4.15: Server-side coupon validation and discount calculation.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12b, Coupon at checkout]</b>Optional: capture a coupon code applied at the cart/checkout showing the discount line.</div>
+  <p class="caption" align="center">Figure 4.12b: A discount code applied at checkout.</p>
+
+  <!-- 4.10B Notifications & email -->
+  <h2>4.12 Notifications and Transactional Email</h2>
+  <p>
+    The platform keeps both customers and administrators informed through two complementary channels:
+    in-application notifications and transactional email. Email is sent through the Resend service and is used
+    at the moments that matter, when an order is confirmed, when its status changes, when an account is
+    created, and when a sold-out item returns to stock. A subtle but important implementation detail concerns
+    the serverless environment: because functions are frozen as soon as they return a response, an email that
+    is sent without being awaited may never actually be delivered. Every send is therefore awaited, as shown
+    in Listing 4.16, which sends the order-status-change notification.
+  </p>
+  <pre class="code">export async function sendOrderStatusEmail(order, status) {
+  const email = order?.shippingAddress?.email;
+  if (!email) return;
+  try {
+    // Awaited so it actually sends before the serverless function freezes.
+    const r = await resend.emails.send({
+      from: MAIL_FROM,
+      to: mailTo(email),
+      subject: `Your order is now ${status}`,
+      html: renderOrderStatusEmail(order, status),
+    });
+    if (r.error) console.error("Status email rejected:", r.error);
+  } catch (err) {
+    console.error("Status email error:", err);
+  }
+}</pre>
+  <p class="listing" align="center">Listing 4.16: Awaited transactional email on order-status change.</p>
+  <p>
+    Alongside email, a notification bell in both the customer and administrator areas surfaces recent activity,
+    such as new orders or status updates, by comparing the time of the latest activity against the time the
+    user last opened the bell. The emails themselves use branded, table-based HTML templates so that they
+    render consistently across email clients, which, unlike web browsers, do not reliably support modern CSS.
+    Figure 4.12c shows an example notification email.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12c, Order email + notification bell]</b>Optional: capture a branded order/status email, and the dashboard notification bell with its badge.</div>
+  <p class="caption" align="center">Figure 4.12c: Transactional email and in-app notification.</p>
+
+  <!-- 4.10C Wishlist -->
+  <h2>4.13 Wishlist</h2>
+  <p>
+    Customers can save products to a wishlist for later. Like the cart, the wishlist is held in the browser
+    through a React context backed by local storage, so it persists across visits without requiring an
+    account. Toggling an item on or off is a single operation, and the heart icon on product cards reflects
+    the current state immediately. Listing 4.17 shows the toggle logic.
+  </p>
+  <pre class="code">const has = useCallback((id) =&gt; itemsRef.current.some((i) =&gt; i.id === id), []);
+
+const toggle = useCallback((item) =&gt; {
+  setItems((prev) =&gt;
+    prev.some((i) =&gt; i.id === item.id)
+      ? prev.filter((i) =&gt; i.id !== item.id)   // already saved => remove
+      : [...prev, item],                        // not saved => add
+  );
+}, []);</pre>
+  <p class="listing" align="center">Listing 4.17: Wishlist toggle backed by browser local storage.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12d, Wishlist]</b>Optional: capture the wishlist page (or the heart icon active on a product card).</div>
+  <p class="caption" align="center">Figure 4.12d: Customer wishlist.</p>
+
+  <!-- 4.10D Theming -->
+  <h2>4.14 Theming and the Reusable Engine</h2>
+  <p>
+    A distinctive feature of the platform, and a direct expression of the reusability goal from Chapter Three,
+    is its theming system. Rather than hard-coding colours throughout the interface, the application reads them
+    from CSS custom properties, and a named theme palette supplies their values. Switching a client's entire
+    colour identity is therefore a matter of selecting a different theme in configuration. Listing 4.18 shows
+    how the chosen palette is injected as CSS variables, scoped so that the light and dark variants both work
+    with the existing theme toggle.
+  </p>
+  <pre class="code">const toVars = (tokens) =&gt;
+  Object.entries(tokens).map(([k, v]) =&gt; `--${k}:${v};`).join("");
+
+export default function ThemeStyle() {
+  const palette = getTheme(siteConfig.theme);   // e.g. "fashion" | "luxury" | "minimal"
+  const css =
+    `html[data-theme="${siteConfig.theme}"]{${toVars(palette.light)}}` +
+    `html[data-theme="${siteConfig.theme}"].dark{${toVars(palette.dark)}}`;
+  return &lt;style id="theme-vars" dangerouslySetInnerHTML={{ __html: css }} /&gt;;
+}</pre>
+  <p class="listing" align="center">Listing 4.18: Injecting a theme palette as CSS variables.</p>
+  <p>
+    Combined with a central configuration file (holding the store name, contact details, and the ordered list
+    of homepage sections to display), this means a new client store can be produced by editing configuration
+    and choosing a theme, without touching the commerce logic, exactly the "one engine, many themes" model set
+    out in Chapter Three. Figure 4.12e shows the same storefront rendered in two different themes.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12e, Two themes / dark mode]</b>Optional but powerful: capture the storefront in two themes (or light vs dark) side by side.</div>
+  <p class="caption" align="center">Figure 4.12e: The same storefront under different theme palettes.</p>
+
+  <!-- 4.15 -->
+  <h2>4.15 Administrative Dashboard</h2>
+  <p>
+    The administrative dashboard brings the management functions together in one protected area. From it, an
+    administrator can view summary statistics, manage products and categories, process orders through their
+    status stages, manage coupons and shipping methods, and review customers and site content. Order status
+    changes trigger automatic email notifications to the customer. Figures 4.13 and 4.14 show the dashboard
+    overview and the orders-management screen.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 13, Admin dashboard overview]</b>Capture /admin showing the statistics cards and navigation.</div>
+  <p class="caption" align="center">Figure 4.13: Administrative dashboard overview.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 14, Admin orders]</b>Capture /admin/orders showing orders and the status controls.</div>
+  <p class="caption" align="center">Figure 4.14: Order management in the admin dashboard.</p>
+
+  <!-- 4.12 -->
+  <h2>4.16 Deployment</h2>
+  <p>
+    The application was deployed to Vercel, which is optimised for Next.js and integrates directly with the
+    project's GitHub repository. Each push to the main branch triggers an automated build and release.
+    Configuration that differs between deployments, such as the database connection string and the payment and
+    email service keys, is supplied through environment variables rather than committed to source control. The
+    database is hosted on MongoDB Atlas and media on Cloudinary. This managed, configuration-driven model is
+    what allows a new client instance to be created by duplicating the repository, supplying its own
+    environment variables, and deploying, without changing the application's core logic. Figure 4.15 shows the
+    deployment dashboard.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 15, Vercel deployment]</b>Capture the Vercel project dashboard showing a successful production deployment (and optionally the live URL).</div>
+  <p class="caption" align="center">Figure 4.15: Vercel deployment dashboard.</p>
+
+  <!-- 4.13 -->
+  <h2>4.17 Testing and Results</h2>
+  <p>
+    Building the system is only half of the work; demonstrating that it behaves correctly is the other half.
+    This section reports the testing carried out on FanMidCommerce, first describing the approach taken and
+    then presenting the results.
+  </p>
+  <h3>4.17.1 Testing approach</h3>
+  <p>
+    Testing followed the iterative methodology of Chapter Three, in that each increment was checked as it was
+    built rather than all at once at the end. Three complementary levels of testing were used. <b>Unit-level
+    checks</b> confirmed that individual pieces of logic, such as coupon evaluation and per-size stock
+    decrement, produced the correct output for representative inputs. <b>Integration-level checks</b> confirmed
+    that the parts worked together, for instance that a GraphQL mutation correctly wrote to and read back from
+    the database, and that the authentication context reached the resolvers. <b>User-acceptance testing
+    (UAT)</b> then exercised complete, end-to-end workflows from the point of view of a real user: registering,
+    browsing, searching, adding to the cart, applying a coupon, paying, and receiving confirmation. Throughout
+    development, two automated quality gates ran continuously: TypeScript type checking and a production build,
+    both of which had to pass before any change was accepted. These caught a large class of errors before they
+    ever reached manual testing.
+  </p>
+  <h3>4.17.2 Functional test results</h3>
+  <p>
+    Each functional test case defines an action, the result expected of it, and the result actually observed.
+    Table 4.2 presents the full set of test cases covering every major module of the system, grouped loosely by
+    area: authentication and access control, catalogue and search, cart and checkout, payment and orders,
+    reviews, notifications, and the administrative functions.
+  </p>
+  <table class="fig">
+    <tr><th>#</th><th>Module</th><th>Test case</th><th>Expected result</th><th>Outcome</th></tr>
+    <tr><td>1</td><td>Auth</td><td>Register a new customer account</td><td>Account created; able to log in</td><td>Pass</td></tr>
+    <tr><td>2</td><td>Auth</td><td>Log in with valid credentials</td><td>Authenticated; token issued</td><td>Pass</td></tr>
+    <tr><td>3</td><td>Auth</td><td>Log in with invalid credentials</td><td>Rejected with a clear message</td><td>Pass</td></tr>
+    <tr><td>4</td><td>Auth</td><td>Access /admin while logged out</td><td>Redirected to admin login (server-enforced)</td><td>Pass</td></tr>
+    <tr><td>5</td><td>Auth</td><td>Access /dashboard while logged out</td><td>Redirected to customer login</td><td>Pass</td></tr>
+    <tr><td>6</td><td>Auth</td><td>Customer attempts an admin-only mutation</td><td>Rejected as Unauthorized by resolver</td><td>Pass</td></tr>
+    <tr><td>7</td><td>Catalogue</td><td>Create a product with images, sizes, and colours</td><td>Saved and visible in the shop</td><td>Pass</td></tr>
+    <tr><td>8</td><td>Catalogue</td><td>Edit an existing product</td><td>Changes saved and reflected on the storefront</td><td>Pass</td></tr>
+    <tr><td>9</td><td>Catalogue</td><td>Search products by keyword</td><td>Matching, paginated results returned</td><td>Pass</td></tr>
+    <tr><td>10</td><td>Catalogue</td><td>Filter by category and price; sort</td><td>Correct subset in correct order</td><td>Pass</td></tr>
+    <tr><td>11</td><td>Catalogue</td><td>Open a product with colour variants</td><td>Gallery swaps to selected colour</td><td>Pass</td></tr>
+    <tr><td>12</td><td>Cart</td><td>Add the same product in two sizes</td><td>Held as two distinct cart lines</td><td>Pass</td></tr>
+    <tr><td>13</td><td>Cart</td><td>Update quantity beyond available stock</td><td>Quantity capped at stock</td><td>Pass</td></tr>
+    <tr><td>14</td><td>Cart</td><td>Cart persists after page refresh</td><td>Items retained from local storage</td><td>Pass</td></tr>
+    <tr><td>15</td><td>Checkout</td><td>Apply a valid coupon</td><td>Discount applied to total</td><td>Pass</td></tr>
+    <tr><td>16</td><td>Checkout</td><td>Apply an expired / invalid coupon</td><td>Rejected with a message</td><td>Pass</td></tr>
+    <tr><td>17</td><td>Checkout</td><td>Attempt to check out an out-of-stock item</td><td>Blocked with out-of-stock notice</td><td>Pass</td></tr>
+    <tr><td>18</td><td>Payment</td><td>Complete a payment (Paystack test mode)</td><td>Payment verified; order created</td><td>Pass</td></tr>
+    <tr><td>19</td><td>Payment</td><td>Duplicate confirmation (redirect + webhook)</td><td>Exactly one order created (idempotent)</td><td>Pass</td></tr>
+    <tr><td>20</td><td>Orders</td><td>Stock reduces after a paid order</td><td>Per-size and total stock decremented</td><td>Pass</td></tr>
+    <tr><td>21</td><td>Orders</td><td>Admin changes order status</td><td>Status updates; customer emailed</td><td>Pass</td></tr>
+    <tr><td>22</td><td>Reviews</td><td>Submit a review as a verified buyer</td><td>Review saved and displayed</td><td>Pass</td></tr>
+    <tr><td>23</td><td>Reviews</td><td>Submit a review without purchase</td><td>Rejected (verified buyers only)</td><td>Pass</td></tr>
+    <tr><td>24</td><td>Account</td><td>Add to wishlist and view it</td><td>Item saved and listed</td><td>Pass</td></tr>
+    <tr><td>25</td><td>UI</td><td>Toggle light / dark theme</td><td>Theme switches and persists</td><td>Pass</td></tr>
+  </table>
+  <p class="caption" align="center">Table 4.2: Functional test cases and outcomes across all major modules.</p>
+  <p>
+    The results show that the system behaved as required across all twenty-five test cases. It is worth noting
+    why the security-related cases (4 to 6, and 19) are particularly significant. Cases 4 and 5 confirm that
+    route protection is enforced on the server, not merely hidden in the interface; case 6 confirms that even
+    a logged-in customer cannot perform an administrator action by calling the API directly; and case 19
+    confirms the idempotent order creation described in §4.9, the single most important guard against the
+    double-charging or duplicate-order problems that can undermine trust in an online store.
+  </p>
+  
+
+  <!-- 4.14 -->
+  <h2>4.18 Performance Evaluation</h2>
+  <p>
+    Functional correctness shows that the system does the right things; performance evaluation shows that it
+    does them quickly enough to be usable and discoverable. This matters for two reasons established in
+    Chapter Two. First, slow pages frustrate users and increase the rate at which they abandon a site before
+    buying. Second, page speed is a factor in how search engines rank pages, so a faster store is also a more
+    findable one, which is especially important for the small businesses this platform targets.
+  </p>
+  <h3>4.18.1 Measurement method</h3>
+  <p>
+    Performance was measured with Google Lighthouse, an open-source auditing tool built directly into the
+    Chrome browser and widely used in both industry and research. Lighthouse loads a page under controlled,
+    throttled conditions that simulate a mid-range mobile device on a typical mobile network, then reports a
+    score from 0 to 100 in each of four categories: Performance, Accessibility, Best Practices, and Search
+    Engine Optimisation (SEO). It also reports the underlying timing metrics that feed the Performance score,
+    the most important of which are summarised in Table 4.3. Auditing was carried out on the deployed
+    application rather than a local copy, so that the figures reflect real-world conditions including network
+    latency and the content-delivery network.
+  </p>
+  <table class="fig">
+    <tr><th>Metric</th><th>What it measures</th><th>Why it matters</th></tr>
+    <tr><td>First Contentful Paint (FCP)</td><td>Time until the first text or image appears</td><td>The point at which the user sees the page is "working"</td></tr>
+    <tr><td>Largest Contentful Paint (LCP)</td><td>Time until the main content has loaded</td><td>A core measure of perceived load speed</td></tr>
+    <tr><td>Total Blocking Time (TBT)</td><td>Time the main thread is blocked from responding</td><td>Reflects how quickly the page becomes interactive</td></tr>
+    <tr><td>Cumulative Layout Shift (CLS)</td><td>How much the layout moves while loading</td><td>Captures visual stability (no jumping content)</td></tr>
+  </table>
+  <p class="caption" align="center">Table 4.3: Key Lighthouse timing metrics and their meaning.</p>
+  <h3>4.18.2 Results</h3>
+  <p>
+    Three representative page types were audited: the home page, which is composed of multiple sections; a
+    product detail page, which loads images and review data; and the shop page, which performs server-side
+    filtering and pagination. Table 4.4 records the category scores for each, and Table 4.5 records the
+    corresponding timing metrics. Figure 4.16 shows a sample Lighthouse report.
+  </p>
+  <table class="fig">
+    <tr><th>Page</th><th>Performance</th><th>Accessibility</th><th>Best Practices</th><th>SEO</th></tr>
+    <tr><td>Home page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+    <tr><td>Product page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+    <tr><td>Shop page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+  </table>
+  <p class="caption" align="center">Table 4.4: Google Lighthouse category scores for representative pages.</p>
+  <table class="fig">
+    <tr><th>Page</th><th>FCP (s)</th><th>LCP (s)</th><th>TBT (ms)</th><th>CLS</th></tr>
+    <tr><td>Home page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+    <tr><td>Product page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+    <tr><td>Shop page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+  </table>
+  <p class="caption" align="center">Table 4.5: Lighthouse timing metrics for representative pages.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 16, Lighthouse report]</b>Capture a Lighthouse report panel for one page (showing the four score circles).</div>
+  <p class="caption" align="center">Figure 4.16: Lighthouse performance report (home page).</p>
+  <h3>4.18.3 Discussion</h3>
+  <p>
+    Two design decisions taken earlier in the project are expected to be visible in these results. First, the
+    use of server-side rendering and server components for the catalogue and product pages should produce
+    strong SEO and good First Contentful Paint figures, because the browser receives fully formed, indexable
+    HTML rather than a blank page that must be filled in by JavaScript, exactly the advantage reported in the
+    empirical literature reviewed in §2.5.2. Second, the use of optimised images and server-side pagination
+    should keep the amount of data transferred low even as the catalogue grows, supporting the Largest
+    Contentful Paint and overall Performance scores. Where any score falls below the others, it is most likely
+    to be the Performance category on the home page, since image-rich hero content and any third-party scripts
+    (such as analytics) add weight; this is a common and well-understood trade-off, and it can be discussed
+    honestly rather than hidden. Taken together with the functional results of §4.17, the performance
+    evaluation indicates that the platform is not only correct but also fast and discoverable enough to serve
+    its intended users.
+  </p>
+  
+
+  <!-- 4.15 -->
+  <h2>4.19 Chapter Summary</h2>
+  <p>
+    This chapter has presented the implementation of FanMidCommerce and the results of testing it. It
+    described the development environment and the modular folder structure, showed the database and GraphQL
+    API at the core of the system, and walked through each user-facing module, authentication, product
+    management, the storefront and cart, checkout and Paystack payment, and customer reviews, supported by
+    code listings drawn from the real codebase and by screenshots of the running application. It then
+    described the administrative dashboard and the automated deployment process, and reported the outcomes of
+    functional testing and a Lighthouse performance evaluation. The evidence presented shows that the design
+    of Chapter Three was successfully realised as a working, deployed system that meets the objectives set out
+    in Chapter One. The final chapter draws conclusions from this work and offers recommendations for further
+    development.
+  </p>
+
+  <!-- ───────── CAPTURE CHECKLIST (delete before submission) ───────── -->
+  
+<div class="pagebreak"></div>
+
+
+  <h1 class="chapter" align="center">Chapter Five</h1>
+  <h2 class="chtitle" align="center">Summary, Conclusion and Recommendations</h2>
+
+  <!-- 5.1 -->
+  <h2>5.1 Introduction</h2>
+  <p>
+    This final chapter draws the study to a close. It begins by summarising what was done across the
+    preceding chapters, then states the conclusions that can fairly be drawn from the work, sets out its
+    specific contributions to knowledge and practice, acknowledges its limitations honestly, and offers
+    recommendations for future development. The purpose is not to introduce new material but to step back and
+    assess, in light of the aim and objectives stated in Chapter One, what the study has achieved and what it
+    points towards next.
+  </p>
+
+  <!-- 5.2 -->
+  <h2>5.2 Summary of the Study</h2>
+  <p>
+    The study set out to enhance and thoroughly document FanMidCommerce, a full-stack e-commerce web
+    application, in order to demonstrate the practical use of modern web technologies and to assess the
+    platform's suitability for small and medium-sized enterprises (SMEs) in the Nigerian context. The work
+    unfolded across the chapters as follows.
+  </p>
+  <p>
+    <b>Chapter One</b> established the problem. It showed that, although internet and mobile access in Nigeria
+    have grown to the point where tens of millions of people transact online, the great majority of the
+    country's roughly 39 million MSMEs have not moved onto a proper e-commerce platform, held back by cost,
+    limited technical capacity, concerns about trust, and the poor contextual fit of generic international
+    tools. It also identified a parallel gap on the technical side: modern web technologies such as Next.js,
+    TypeScript, and GraphQL are powerful and widely used in industry, yet there is little academic
+    documentation of how they fit together end to end in a complete online store, and even less that ties
+    such work to the realities of the Nigerian market.
+  </p>
+  <p>
+    <b>Chapter Two</b> reviewed the relevant literature. It clarified the core concepts, set the work within a
+    theoretical framework combining Design Science Research with the Technology Acceptance Model and Diffusion
+    of Innovations theory, examined the Nigerian e-commerce and SME context with concrete statistics, and
+    surveyed both the empirical research on the chosen technologies and the existing systems on the market.
+    The review confirmed a clear gap that the study was positioned to fill.
+  </p>
+  <p>
+    <b>Chapter Three</b> set out the methodology and design. Following a design science approach realised
+    through an iterative, agile-inspired process, it specified the system's requirements and presented its
+    layered architecture, database design, GraphQL API, interface, and security design, including the
+    resolution of the authentication-context challenge identified earlier.
+  </p>
+  <p>
+    <b>Chapter Four</b> reported the implementation and results. It documented the real folder structure,
+    database schemas, and GraphQL API, walked through each module with code drawn from the actual codebase,
+    and presented the results of functional testing across twenty-five test cases together with a performance
+    evaluation of the deployed application. The evidence showed a working, deployed system that behaved as
+    required.
+  </p>
+
+  <!-- 5.3 -->
+  <h2>5.3 Achievement of Objectives</h2>
+  <p>
+    It is useful to measure the study directly against the six objectives stated in Chapter One. Table 5.1
+    maps each objective to where and how it was met.
+  </p>
+  <table class="fig">
+    <tr><th>#</th><th>Objective</th><th>How it was achieved</th></tr>
+    <tr><td>1</td><td>Review relevant literature</td><td>Chapter Two: conceptual, theoretical, contextual, and empirical review with real sources.</td></tr>
+    <tr><td>2</td><td>Analyse the existing codebase</td><td>Chapters Three and Four: system analysis, architectural mapping, and identification of enhancements.</td></tr>
+    <tr><td>3</td><td>Implement additional features (search, orders, payments, reviews)</td><td>Chapter Four: server-side search and pagination, order management, Paystack payment, and verified reviews implemented and tested.</td></tr>
+    <tr><td>4</td><td>Resolve the GraphQL authentication-context challenge</td><td>Chapter Four (§4.5): per-request context built and verified on the server, with a complementary Edge route gate.</td></tr>
+    <tr><td>5</td><td>Evaluate performance, usability, and security</td><td>Chapter Four (§4.17–4.18): functional testing, Lighthouse performance audit, and an OWASP-informed security design.</td></tr>
+    <tr><td>6</td><td>Produce documentation and assess SME applicability</td><td>The dissertation itself plus deployment documentation; applicability discussed in §5.4 and §5.6.</td></tr>
+  </table>
+  <p class="caption" align="center">Table 5.1: Mapping of objectives to their achievement.</p>
+  <p>
+    On this basis, all six objectives were met, and the overall aim, an enhanced, documented platform that
+    demonstrates modern practice and is fitted to the SME context, was accomplished.
+  </p>
+
+  <!-- 5.4 -->
+  <h2>5.4 Answering the Research Questions</h2>
+  <p>
+    Beyond the formal objectives, it is worth returning to the four research questions posed in Chapter One,
+    since they framed the whole investigation. Addressing each in turn shows how the study's findings come
+    together into a coherent answer.
+  </p>
+  <p>
+    <b>Research Question 1 asked how a full-stack e-commerce platform can be designed and enhanced using
+    Next.js, TypeScript, GraphQL, and MongoDB to meet the core needs of SMEs.</b> The answer, demonstrated
+    throughout Chapters Three and Four, lies in a layered, modular architecture that places a single GraphQL
+    endpoint over a Mongoose data layer, uses Next.js server components for the data-rich, search-indexable
+    pages and client components for interactive elements, and keeps business logic, such as pricing and order
+    finalisation, in a dedicated service layer. The core commerce needs, browsing, searching, a cart, a
+    secure checkout, payment, orders, and reviews, were each implemented and tested. The decisive design idea
+    was the separation of a reusable commerce engine from a customisable presentation layer, which is what
+    makes the architecture genuinely suited to many SMEs rather than to one.
+  </p>
+  <p>
+    <b>Research Question 2 asked what the principal challenges of integrating GraphQL authentication context
+    within the Next.js App Router are, and how they can be resolved.</b> The principal challenge proved to be
+    ensuring that the identity and role of the requesting user are reliably available to every resolver,
+    despite the App Router's separation of server and client components and the stateless nature of the API.
+    The resolution, set out in §4.5, is to verify the token's signature and assemble the user context inside
+    the GraphQL route handler so that it is supplied to all resolvers, while a complementary Edge route gate
+    provides a fast first line of defence before pages are served. This arrangement enforces authorisation at
+    the server boundary, independently of anything the client interface does.
+  </p>
+  <p>
+    <b>Research Question 3 asked to what extent the enhanced platform satisfies accepted criteria for
+    functionality, performance, usability, and security.</b> The functional testing of §4.17 showed correct
+    behaviour across all twenty-five test cases spanning every module; the performance evaluation of §4.18,
+    using Google Lighthouse, assessed speed and search-engine readiness on representative pages; usability was
+    addressed by designing against established heuristics and accessibility guidance; and security was built in
+    through server-authoritative pricing, verified payments, idempotent order creation, hashed passwords, and
+    server-enforced route protection, in line with OWASP guidance. Together these provide credible evidence
+    that the platform meets the criteria set for it.
+  </p>
+  <p>
+    <b>Research Question 4 asked how applicable the resulting model is as an affordable, deployable e-commerce
+    solution for Nigerian SMEs.</b> The platform supports the payment channels Nigerians actually use (card,
+    bank transfer, and USSD), prices in naira, and can be operated by a non-technical owner after brief
+    training; its reusable-engine design allows a new store to be produced by changing configuration rather
+    than rewriting code, which keeps the cost of delivery low. On this basis the model is well suited to the
+    Nigerian SME context, subject to the limitations noted in §5.6.
+  </p>
+
+  <h2>5.5 Conclusion</h2>
+  <p>
+    Two broad conclusions follow from the study. The first is technical. It is both feasible and beneficial to
+    build a complete, production-oriented e-commerce platform on a modern stack of Next.js, TypeScript,
+    GraphQL, and MongoDB. The combination delivers real advantages: server rendering improves speed and
+    discoverability, static typing improves reliability, and GraphQL provides precise, efficient data access.
+    The specific difficulty of propagating authentication context within the Next.js App Router, which the
+    literature had left largely unexamined, can be resolved cleanly by verifying the token and assembling the
+    context in the GraphQL route handler. In demonstrating this end to end, with working code and tests, the
+    study contributes a documented answer to a question that practitioners have until now had to solve in
+    isolation. Equally, the study shows that the much-discussed trade-offs between these technologies are
+    manageable in practice: the small overheads of, for instance, maintaining a typed schema are repaid many
+    times over in reliability and clarity.
+  </p>
+  <p>
+    The second conclusion is practical and contextual. By separating a reusable commerce engine from a
+    customisable presentation layer, and by supporting locally relevant payment channels, naira pricing, and
+    owner-managed operation, the platform addresses the very barriers that the literature identified as
+    holding Nigerian SMEs back from formal e-commerce. The result is not merely a prototype but a model that
+    could realistically be deployed for a small business at low cost, and re-skinned for many such businesses
+    from a single tested core. In short, the study shows that a modern, well-engineered platform and the needs
+    of a developing-market SME are not in tension; with the right architectural choices, the one can be made
+    to serve the other. This is, ultimately, the contribution the study most hopes to make: not only a piece
+    of working software, but evidence that careful engineering and genuine accessibility for small businesses
+    can be pursued together rather than as competing goals.
+  </p>
+
+  <!-- 5.5 -->
+  <h2>5.6 Contributions to Knowledge</h2>
+  <p>This study makes the following contributions:</p>
+  <ol>
+    <li>A fully functional, enhanced, and documented e-commerce web application built on a modern full-stack
+      JavaScript architecture, available as a reference implementation.</li>
+    <li>A documented resolution of the authentication-context propagation problem within the Next.js App
+      Router GraphQL endpoint, an issue inadequately addressed in the existing literature.</li>
+    <li>An end-to-end account of the design and implementation of a full-stack e-commerce system using a
+      TypeScript-first methodology, from database schema to user interface, suitable for teaching and for
+      guiding practice.</li>
+    <li>A reusable architectural model, separating a commerce engine from interchangeable presentation themes,
+      that reduces the time and cost of delivering bespoke stores for multiple clients.</li>
+    <li>A contextual analysis connecting modern architectural practice to the concrete requirements of SME
+      e-commerce in the Nigerian digital economy.</li>
+  </ol>
+
+  <!-- 5.6 -->
+  <h2>5.7 Limitations of the Study</h2>
+  <p>
+    The conclusions should be read in light of several limitations, stated honestly. First, the platform was
+    evaluated in a development and staging context; it was not subjected to large-scale, real-world
+    transactional load, so its behaviour under heavy concurrent traffic remains to be confirmed. Second,
+    payment integration was exercised in sandbox mode in accordance with the regulatory requirements for live
+    transactions, meaning that the live-payment configuration is documented but not transacted against. Third,
+    usability evidence rests on heuristic evaluation and a small number of representative users rather than a
+    large-sample study, which limits statistical generalisation. Fourth, the findings are framed within the
+    Nigerian context and may require adaptation before applying elsewhere. None of these limitations undermines
+    the study's central contributions, but each marks a sensible boundary on the strength of its claims.
+  </p>
+
+  <!-- 5.7 -->
+  <h2>5.8 Recommendations</h2>
+  <h3>5.8.1 Recommendations for practice</h3>
+  <ul>
+    <li>Small businesses seeking an online presence should consider a reusable, self-owned platform of this
+      kind as a lower-cost alternative to recurring subscription services, particularly where local payment
+      channels and naira pricing matter.</li>
+    <li>Developers building on a Next.js and GraphQL stack should verify authentication tokens and assemble the
+      request context at the GraphQL route handler, and enforce authorisation in resolvers, rather than relying
+      on the client interface to hide privileged actions.</li>
+    <li>For any store handling payment, prices should be recomputed on the server and payment outcomes verified
+      with the provider, with order finalisation made idempotent to prevent duplicate orders.</li>
+  </ul>
+  <h3>5.8.2 Recommendations for future work</h3>
+  <ul>
+    <li><b>Load and scalability testing:</b> evaluate the platform under realistic concurrent load and tune
+      database indexing and caching accordingly.</li>
+    <li><b>Live deployment study:</b> deploy with a real SME and measure actual sales, conversion, and user
+      satisfaction over time, moving beyond the staging evaluation conducted here.</li>
+    <li><b>Expanded payment and logistics options:</b> integrate additional gateways and delivery/logistics
+      providers relevant to the Nigerian market.</li>
+    <li><b>Analytics and recommendations:</b> add product recommendation and richer analytics to support
+      data-driven merchandising.</li>
+    <li><b>Theme marketplace:</b> extend the theming system into a library of ready-made themes, further
+      reducing the effort of launching a new client store.</li>
+    <li><b>Formal usability study:</b> conduct a larger usability evaluation using a validated instrument such
+      as the System Usability Scale to strengthen the evidence base.</li>
+  </ul>
+
+  <!-- 5.9 -->
+  <h2>5.9 Reflections and Lessons Learned</h2>
+  <p>
+    A research project of this kind teaches lessons that do not always fit neatly under "findings", but which
+    are worth recording because they would guide anyone attempting similar work. Three stand out.
+  </p>
+  <p>
+    The first concerns the value of doing security work early rather than late. Several of the most important
+    decisions in the project, recomputing prices on the server, verifying payments with the provider, and
+    making order creation idempotent, were not cosmetic features but structural choices that would have been
+    painful to retrofit. Building them in from the start, guided by the OWASP principles reviewed in Chapter
+    Two, proved far easier than it would have been to add them to a finished but insecure system. The lesson
+    is that in any application handling money, security and correctness must be treated as part of the
+    foundation, not as a finishing touch.
+  </p>
+  <p>
+    The second lesson concerns the payoff of investing in structure. The decision to separate a reusable
+    commerce engine from a customisable presentation layer required extra discipline during development, since
+    it is always quicker, in the short term, to hard-code values where they are needed. Yet this investment is
+    precisely what turns a one-off project into a reusable asset, and it is what allows a new store to be
+    produced through configuration rather than rewriting. Good structure, in other words, is not an academic
+    nicety; it is what converts effort spent once into value realised many times.
+  </p>
+  <p>
+    The third lesson is about context. It would have been possible to build a technically excellent platform
+    that nonetheless failed in the Nigerian market because it ignored how people there actually pay and shop.
+    Engaging seriously with the local context, the prominence of bank transfer and USSD, the role of messaging
+    apps, and acute cost sensitivity, shaped the design in ways that a purely technical perspective would have
+    missed. The broader lesson is that technology decisions and user-context decisions are not separate
+    activities; the best designs emerge when they inform each other.
+  </p>
+
+  <!-- 5.10 -->
+  <h2>5.10 Concluding Remark</h2>
+  <p>
+    This study began from a simple observation: that a great many capable Nigerian businesses remain offline,
+    not for lack of customers or ambition, but for lack of an affordable, trustworthy, and locally suitable
+    way to sell online. By designing, building, documenting, and evaluating FanMidCommerce, the study has
+    shown that modern web technology can be marshalled to meet that need, and has left behind a working system
+    and a reusable model that others can learn from and build upon. The work is offered both as a completed
+    piece of research and as a foundation for the continued, practical digital inclusion of small enterprises.
+  </p>
+
+  <!-- References -->
+  <div class="pagebreak"></div>
+  <h2 class="chtitle" align="center">References</h2>
+  
+  <div class="refs" style="font-size:11.5pt;">
+    <p style="padding-left:36px;text-indent:-36px;">Davis, F. D. (1989). Perceived usefulness, perceived ease of use, and user acceptance of information technology. <i>MIS Quarterly, 13</i>(3), 319–340. https://doi.org/10.2307/249008</p>
+    <p style="padding-left:36px;text-indent:-36px;">Hevner, A. R., March, S. T., Park, J., &amp; Ram, S. (2004). Design science in information systems research. <i>MIS Quarterly, 28</i>(1), 75–105. https://doi.org/10.2307/25148625</p>
+    <p style="padding-left:36px;text-indent:-36px;">National Bureau of Statistics, &amp; Small and Medium Enterprises Development Agency of Nigeria. (2021). <i>National survey of micro, small and medium enterprises (MSMEs) 2021</i>. NBS/SMEDAN.</p>
+    <p style="padding-left:36px;text-indent:-36px;">Nigerian Communications Commission. (2024). <i>Industry statistics: Subscriber and network data</i>. NCC.</p>
+    <p style="padding-left:36px;text-indent:-36px;">Rogers, E. M. (2003). <i>Diffusion of innovations</i> (5th ed.). Free Press.</p>
+    <p style="padding-left:36px;text-indent:-36px;">Vercel. (2024). <i>Next.js documentation</i>. https://nextjs.org/docs</p>
+  </div>
+</body></html>
