@@ -1,0 +1,186 @@
+﻿<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>@page{size:A4;margin:1in 1in 1in 1.5in;}body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.5;}h1{font-size:17pt;text-transform:uppercase;}h2.chtitle{font-size:15pt;font-weight:bold;}h2{font-size:13.5pt;}h3{font-size:12.5pt;}p{text-align:justify;margin:0 0 12px;}.refs p{padding-left:36px;text-indent:-36px;text-align:left;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #999;padding:6px 8px;vertical-align:top;font-size:11pt;}th{background:#f0f0f0;}.caption{font-style:italic;text-align:center;font-size:10.5pt;color:#555;}h1.chapter{page-break-before:always;}.pagebreak{page-break-before:always;}</style></head><body>
+
+  
+
+  <h1 class="chapter" align="center">Chapter Five</h1>
+  <h2 class="chtitle" align="center">Summary, Conclusion and Recommendations</h2>
+
+  <!-- 5.1 -->
+  <h2>5.1 Introduction</h2>
+  <p>
+    This final chapter draws the study to a close. It begins by summarising what was done across the
+    preceding chapters, then states the conclusions that can fairly be drawn from the work, sets out its
+    specific contributions to knowledge and practice, acknowledges its limitations honestly, and offers
+    recommendations for future development. The purpose is not to introduce new material but to step back and
+    assess, in light of the aim and objectives stated in Chapter One, what the study has achieved and what it
+    points towards next.
+  </p>
+
+  <!-- 5.2 -->
+  <h2>5.2 Summary of the Study</h2>
+  <p>
+    The study set out to enhance and thoroughly document FanMidCommerce, a full-stack e-commerce web
+    application, in order to demonstrate the practical use of modern web technologies and to assess the
+    platform's suitability for small and medium-sized enterprises (SMEs) in the Nigerian context. The work
+    unfolded across the chapters as follows.
+  </p>
+  <p>
+    <b>Chapter One</b> established the problem. It showed that, although internet and mobile access in Nigeria
+    have grown to the point where tens of millions of people transact online, the great majority of the
+    country's roughly 39 million MSMEs have not moved onto a proper e-commerce platform, held back by cost,
+    limited technical capacity, concerns about trust, and the poor contextual fit of generic international
+    tools. It also identified a parallel gap on the technical side: modern web technologies such as Next.js,
+    TypeScript, and GraphQL are powerful and widely used in industry, yet there is little academic
+    documentation of how they fit together end to end in a complete online store, and even less that ties
+    such work to the realities of the Nigerian market.
+  </p>
+  <p>
+    <b>Chapter Two</b> reviewed the relevant literature. It clarified the core concepts, set the work within a
+    theoretical framework combining Design Science Research with the Technology Acceptance Model and Diffusion
+    of Innovations theory, examined the Nigerian e-commerce and SME context with concrete statistics, and
+    surveyed both the empirical research on the chosen technologies and the existing systems on the market.
+    The review confirmed a clear gap that the study was positioned to fill.
+  </p>
+  <p>
+    <b>Chapter Three</b> set out the methodology and design. Following a design science approach realised
+    through an iterative, agile-inspired process, it specified the system's requirements and presented its
+    layered architecture, database design, GraphQL API, interface, and security design, including the
+    resolution of the authentication-context challenge identified earlier.
+  </p>
+  <p>
+    <b>Chapter Four</b> reported the implementation and results. It documented the real folder structure,
+    database schemas, and GraphQL API, walked through each module with code drawn from the actual codebase,
+    and presented the results of functional testing across twenty-five test cases together with a performance
+    evaluation of the deployed application. The evidence showed a working, deployed system that behaved as
+    required.
+  </p>
+
+  <!-- 5.3 -->
+  <h2>5.3 Achievement of Objectives</h2>
+  <p>
+    It is useful to measure the study directly against the six objectives stated in Chapter One. Table 5.1
+    maps each objective to where and how it was met.
+  </p>
+  <table class="fig">
+    <tr><th>#</th><th>Objective</th><th>How it was achieved</th></tr>
+    <tr><td>1</td><td>Review relevant literature</td><td>Chapter Two: conceptual, theoretical, contextual, and empirical review with real sources.</td></tr>
+    <tr><td>2</td><td>Analyse the existing codebase</td><td>Chapters Three and Four: system analysis, architectural mapping, and identification of enhancements.</td></tr>
+    <tr><td>3</td><td>Implement additional features (search, orders, payments, reviews)</td><td>Chapter Four: server-side search and pagination, order management, Paystack payment, and verified reviews implemented and tested.</td></tr>
+    <tr><td>4</td><td>Resolve the GraphQL authentication-context challenge</td><td>Chapter Four (§4.5): per-request context built and verified on the server, with a complementary Edge route gate.</td></tr>
+    <tr><td>5</td><td>Evaluate performance, usability, and security</td><td>Chapter Four (§4.17–4.18): functional testing, Lighthouse performance audit, and an OWASP-informed security design.</td></tr>
+    <tr><td>6</td><td>Produce documentation and assess SME applicability</td><td>The dissertation itself plus deployment documentation; applicability discussed in §5.4 and §5.6.</td></tr>
+  </table>
+  <p class="caption" align="center">Table 5.1: Mapping of objectives to their achievement.</p>
+  <p>
+    On this basis, all six objectives were met, and the overall aim, an enhanced, documented platform that
+    demonstrates modern practice and is fitted to the SME context, was accomplished.
+  </p>
+
+  <!-- 5.4 -->
+  <h2>5.4 Conclusion</h2>
+  <p>
+    Two broad conclusions follow from the study. The first is technical. It is both feasible and beneficial to
+    build a complete, production-oriented e-commerce platform on a modern stack of Next.js, TypeScript,
+    GraphQL, and MongoDB. The combination delivers real advantages, server rendering improves speed and
+    discoverability, static typing improves reliability, and GraphQL provides precise, efficient data access,
+    while the specific difficulty of propagating authentication context within the Next.js App Router can be
+    resolved cleanly by verifying the token and assembling the context in the GraphQL route handler. The study
+    therefore contributes a worked, documented answer to a question that the existing literature had left
+    largely open.
+  </p>
+  <p>
+    The second conclusion is practical and contextual. By separating a reusable commerce engine from a
+    customisable presentation layer, and by supporting locally relevant payment channels, naira pricing, and
+    owner-managed operation, the platform addresses the very barriers that the literature identified as
+    holding Nigerian SMEs back from formal e-commerce. The result is not merely a prototype but a model that
+    could realistically be deployed for a small business at low cost, and re-skinned for many such businesses
+    from a single tested core. In short, the study shows that a modern, well-engineered platform and the needs
+    of a developing-market SME are not in tension; with the right architectural choices, the one can be made
+    to serve the other.
+  </p>
+
+  <!-- 5.5 -->
+  <h2>5.5 Contributions to Knowledge</h2>
+  <p>This study makes the following contributions:</p>
+  <ol>
+    <li>A fully functional, enhanced, and documented e-commerce web application built on a modern full-stack
+      JavaScript architecture, available as a reference implementation.</li>
+    <li>A documented resolution of the authentication-context propagation problem within the Next.js App
+      Router GraphQL endpoint, an issue inadequately addressed in the existing literature.</li>
+    <li>An end-to-end account of the design and implementation of a full-stack e-commerce system using a
+      TypeScript-first methodology, from database schema to user interface, suitable for teaching and for
+      guiding practice.</li>
+    <li>A reusable architectural model, separating a commerce engine from interchangeable presentation themes,
+      that reduces the time and cost of delivering bespoke stores for multiple clients.</li>
+    <li>A contextual analysis connecting modern architectural practice to the concrete requirements of SME
+      e-commerce in the Nigerian digital economy.</li>
+  </ol>
+
+  <!-- 5.6 -->
+  <h2>5.6 Limitations of the Study</h2>
+  <p>
+    The conclusions should be read in light of several limitations, stated honestly. First, the platform was
+    evaluated in a development and staging context; it was not subjected to large-scale, real-world
+    transactional load, so its behaviour under heavy concurrent traffic remains to be confirmed. Second,
+    payment integration was exercised in sandbox mode in accordance with the regulatory requirements for live
+    transactions, meaning that the live-payment configuration is documented but not transacted against. Third,
+    usability evidence rests on heuristic evaluation and a small number of representative users rather than a
+    large-sample study, which limits statistical generalisation. Fourth, the findings are framed within the
+    Nigerian context and may require adaptation before applying elsewhere. None of these limitations undermines
+    the study's central contributions, but each marks a sensible boundary on the strength of its claims.
+  </p>
+
+  <!-- 5.7 -->
+  <h2>5.7 Recommendations</h2>
+  <h3>5.7.1 Recommendations for practice</h3>
+  <ul>
+    <li>Small businesses seeking an online presence should consider a reusable, self-owned platform of this
+      kind as a lower-cost alternative to recurring subscription services, particularly where local payment
+      channels and naira pricing matter.</li>
+    <li>Developers building on a Next.js and GraphQL stack should verify authentication tokens and assemble the
+      request context at the GraphQL route handler, and enforce authorisation in resolvers, rather than relying
+      on the client interface to hide privileged actions.</li>
+    <li>For any store handling payment, prices should be recomputed on the server and payment outcomes verified
+      with the provider, with order finalisation made idempotent to prevent duplicate orders.</li>
+  </ul>
+  <h3>5.7.2 Recommendations for future work</h3>
+  <ul>
+    <li><b>Load and scalability testing:</b> evaluate the platform under realistic concurrent load and tune
+      database indexing and caching accordingly.</li>
+    <li><b>Live deployment study:</b> deploy with a real SME and measure actual sales, conversion, and user
+      satisfaction over time, moving beyond the staging evaluation conducted here.</li>
+    <li><b>Expanded payment and logistics options:</b> integrate additional gateways and delivery/logistics
+      providers relevant to the Nigerian market.</li>
+    <li><b>Analytics and recommendations:</b> add product recommendation and richer analytics to support
+      data-driven merchandising.</li>
+    <li><b>Theme marketplace:</b> extend the theming system into a library of ready-made themes, further
+      reducing the effort of launching a new client store.</li>
+    <li><b>Formal usability study:</b> conduct a larger usability evaluation using a validated instrument such
+      as the System Usability Scale to strengthen the evidence base.</li>
+  </ul>
+
+  <!-- 5.8 -->
+  <h2>5.8 Concluding Remark</h2>
+  <p>
+    This study began from a simple observation: that a great many capable Nigerian businesses remain offline,
+    not for lack of customers or ambition, but for lack of an affordable, trustworthy, and locally suitable
+    way to sell online. By designing, building, documenting, and evaluating FanMidCommerce, the study has
+    shown that modern web technology can be marshalled to meet that need, and has left behind a working system
+    and a reusable model that others can learn from and build upon. The work is offered both as a completed
+    piece of research and as a foundation for the continued, practical digital inclusion of small enterprises.
+  </p>
+
+  <!-- References -->
+  <div class="pagebreak"></div>
+  <h2 class="chtitle" align="center">References</h2>
+  
+  <div class="refs" style="font-size:11.5pt;">
+    <p style="padding-left:36px;text-indent:-36px;">Davis, F. D. (1989). Perceived usefulness, perceived ease of use, and user acceptance of information technology. <i>MIS Quarterly, 13</i>(3), 319–340. https://doi.org/10.2307/249008</p>
+    <p style="padding-left:36px;text-indent:-36px;">Hevner, A. R., March, S. T., Park, J., &amp; Ram, S. (2004). Design science in information systems research. <i>MIS Quarterly, 28</i>(1), 75–105. https://doi.org/10.2307/25148625</p>
+    <p style="padding-left:36px;text-indent:-36px;">National Bureau of Statistics, &amp; Small and Medium Enterprises Development Agency of Nigeria. (2021). <i>National survey of micro, small and medium enterprises (MSMEs) 2021</i>. NBS/SMEDAN.</p>
+    <p style="padding-left:36px;text-indent:-36px;">Nigerian Communications Commission. (2024). <i>Industry statistics: Subscriber and network data</i>. NCC.</p>
+    <p style="padding-left:36px;text-indent:-36px;">Rogers, E. M. (2003). <i>Diffusion of innovations</i> (5th ed.). Free Press.</p>
+    <p style="padding-left:36px;text-indent:-36px;">Vercel. (2024). <i>Next.js documentation</i>. https://nextjs.org/docs</p>
+  </div>
+
+</body></html>
