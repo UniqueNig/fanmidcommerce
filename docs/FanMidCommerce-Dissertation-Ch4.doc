@@ -334,15 +334,68 @@ export const config = { matcher: ["/admin/:path*", "/dashboard/:path*"] };</pre>
   <!-- 4.7 -->
   <h2>4.7 Product Management Module</h2>
   <p>
-    Product management is performed by administrators through the dashboard. The module supports creating and
-    editing products, including uploading multiple images, defining per-size stock, and adding colour variants
-    with their own photographs. Listing 4.2 and the product schema (§4.4) underpin this module, while
-    Figures 4.3 and 4.4 show the product list and the add/edit product form.
+    Product management is the administrator's most frequent task, so the module was designed to handle the full
+    complexity of a real catalogue, multiple images, per-size stock, and colour variants, while remaining
+    simple to operate. Three aspects of its implementation are described here: the unified product form, the
+    handling of variants and derived fields, and the generation of SEO-friendly URLs.
+  </p>
+  <h3>4.7.1 The unified product form</h3>
+  <p>
+    A single React form serves both the "add" and "edit" cases, switching mode based on whether it receives an
+    existing product. On submission it assembles a set of variables and sends them through a GraphQL mutation.
+    Listing 4.12 shows the variables collected, which mirror the fields of the product schema in §4.4.
+  </p>
+  <pre class="code">const variables = {
+  name: form.name,
+  slug: form.slug,               // server slugifies + guarantees uniqueness
+  description: form.description,
+  price: parseFloat(form.price),
+  stock: sized ? sizeStock.reduce((s, r) =&gt; s + r.stock, 0)   // sum of sizes
+               : parseInt(form.stock) || 0,
+  sizeStock,                      // [{ size, stock }]
+  colors,                         // [{ name, hex, images[] }]
+  sizeGuide: form.sizeGuide,
+  category: form.categoryId,
+  images,                         // gallery; images[0] becomes the thumbnail
+  image: images[0] ?? "",
+  isNew: form.isNew,
+};</pre>
+  <p class="listing" align="center">Listing 4.12: Variables assembled by the product form before submission.</p>
+  <h3>4.7.2 Variant handling and derived fields</h3>
+  <p>
+    Products can be sized or unsized, and this affects how stock is recorded. For a sized product the
+    authoritative stock is the per-size breakdown, and the overall total is simply the sum of those sizes; for
+    an unsized product the single stock number is authoritative. To keep these consistent, the server derives
+    the dependent fields on every save rather than trusting the client to compute them, as shown in
+    Listing 4.13. This guards against the totals drifting out of step with the per-size figures.
+  </p>
+  <pre class="code">function deriveVariantFields(data) {
+  if (Array.isArray(data.sizeStock) &amp;&amp; data.sizeStock.length) {
+    // Total stock and the size list are derived from sizeStock.
+    data.stock = data.sizeStock.reduce((sum, s) =&gt; sum + (Number(s.stock) || 0), 0);
+    data.sizes = data.sizeStock.map((s) =&gt; s.size);
+  }
+  if (Array.isArray(data.images) &amp;&amp; data.images.length) {
+    data.image = data.images[0];   // first gallery image is the thumbnail
+  }
+  return data;
+}</pre>
+  <p class="listing" align="center">Listing 4.13: Server-side derivation of stock total, size list, and thumbnail.</p>
+  <h3>4.7.3 SEO-friendly URLs (slugs)</h3>
+  <p>
+    Each product is given a human- and search-engine-friendly URL slug derived from its name, for example
+    <code>minimalist-leather-jacket</code>. Because two products could share a name, the server guarantees
+    uniqueness by appending a numeric suffix when necessary, and a database index on the slug keeps look-ups
+    fast. This supports the discoverability goal identified in Chapter Two, since clean, descriptive URLs are
+    indexed more favourably than opaque numeric identifiers. Figures 4.3 and 4.4 show the product list and the
+    add/edit form.
   </p>
   <div class="shot" align="center"><b>[SCREENSHOT 3, Admin product list]</b>Capture /admin/products showing the table of products with prices and stock.</div>
   <p class="caption" align="center">Figure 4.3: Administrative product list.</p>
   <div class="shot" align="center"><b>[SCREENSHOT 4, Add / edit product form]</b>Capture the product form showing the images, sizes &amp; stock rows, and colours section.</div>
   <p class="caption" align="center">Figure 4.4: Add/edit product form with variant management.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 4b, Colour variant management]</b>Optional: a close-up of the colours section showing a colour name, swatch, and its uploaded images.</div>
+  <p class="caption" align="center">Figure 4.4b: Managing colour variants with per-colour images.</p>
 
   <!-- 4.8 -->
   <h2>4.8 Storefront and Cart</h2>
@@ -492,16 +545,158 @@ await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });</p
   <!-- 4.10 -->
   <h2>4.10 Customer Reviews</h2>
   <p>
-    Registered customers who have purchased a product may leave a star rating and written review, which then
-    appears on that product's page for other shoppers to read. Reviews are tied to both the product and the
-    customer, and a verified-purchase flag distinguishes genuine buyers. Figure 4.12 shows the review section
-    on a product page.
+    Customer reviews build the trust that Chapter Two identified as decisive for online purchase. To keep that
+    trust meaningful, the system only accepts reviews from people who have genuinely bought the product, a
+    safeguard against fake or malicious reviews. Before a review is allowed, the server checks the order
+    history for a paid order from that customer containing that product, as shown in Listing 4.14.
+  </p>
+  <pre class="code">async function hasPurchased(userId, productId) {
+  const order = await orderModel.findOne({
+    user: userId,
+    isPaid: true,
+    "items.product": productId,   // the customer actually bought this item
+  });
+  return !!order;
+}
+
+createReview: async (_p, { product, rating, text }, ctx) =&gt; {
+  if (!ctx.user) throw new Error("Not authenticated");
+  if (!(await hasPurchased(ctx.user.id, product)))
+    throw new Error("Only verified buyers can review this product.");
+  // ... save the review, flagged as a verified purchase
+}</pre>
+  <p class="listing" align="center">Listing 4.14: Verified-purchase check before a review is accepted.</p>
+  <p>
+    Each product page also displays an aggregate summary, the average star rating and the number of reviews,
+    which is computed on the server from all reviews for that product. The average feeds into the structured
+    data emitted for search engines, so a well-reviewed product can display its rating directly in search
+    results. Figure 4.12 shows the review section on a product page.
   </p>
   <div class="shot" align="center"><b>[SCREENSHOT 12, Product reviews]</b>Capture the reviews section of a product page (with at least one review and the rating form).</div>
   <p class="caption" align="center">Figure 4.12: Customer reviews on a product page.</p>
 
-  <!-- 4.11 -->
-  <h2>4.11 Administrative Dashboard</h2>
+  <!-- 4.10A Coupons -->
+  <h2>4.11 Coupons and Discounts</h2>
+  <p>
+    Administrators can create discount codes, either a fixed naira amount or a percentage, optionally with a
+    minimum spend and an expiry date. A crucial design point, consistent with the server-authoritative
+    pricing of §4.9, is that a coupon is never merely applied in the browser; it is always re-evaluated on the
+    server, both when the customer enters it and again when the order total is computed. This prevents a
+    discount from being forged or reused after it has expired. Listing 4.15 shows the server-side evaluation.
+  </p>
+  <pre class="code">export async function evaluateCoupon(rawCode, subtotal) {
+  const code = rawCode.trim().toUpperCase();
+  const coupon = await couponModel.findOne({ code });
+
+  if (!coupon)            return fail("Invalid coupon code.");
+  if (!coupon.active)     return fail("This coupon is no longer active.");
+  if (coupon.expiresAt &amp;&amp; new Date(coupon.expiresAt) &lt; new Date())
+                          return fail("This coupon has expired.");
+  if (subtotal &lt; (coupon.minSubtotal ?? 0))
+                          return fail("Minimum spend not reached.");
+
+  let discount = coupon.type === "percent"
+    ? (subtotal * coupon.value) / 100
+    : coupon.value;
+  // Never negative, never more than the subtotal, rounded to whole naira.
+  discount = Math.min(Math.max(0, Math.round(discount)), subtotal);
+  return { ok: true, code, discount };
+}</pre>
+  <p class="listing" align="center">Listing 4.15: Server-side coupon validation and discount calculation.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12b, Coupon at checkout]</b>Optional: capture a coupon code applied at the cart/checkout showing the discount line.</div>
+  <p class="caption" align="center">Figure 4.12b: A discount code applied at checkout.</p>
+
+  <!-- 4.10B Notifications & email -->
+  <h2>4.12 Notifications and Transactional Email</h2>
+  <p>
+    The platform keeps both customers and administrators informed through two complementary channels:
+    in-application notifications and transactional email. Email is sent through the Resend service and is used
+    at the moments that matter, when an order is confirmed, when its status changes, when an account is
+    created, and when a sold-out item returns to stock. A subtle but important implementation detail concerns
+    the serverless environment: because functions are frozen as soon as they return a response, an email that
+    is sent without being awaited may never actually be delivered. Every send is therefore awaited, as shown
+    in Listing 4.16, which sends the order-status-change notification.
+  </p>
+  <pre class="code">export async function sendOrderStatusEmail(order, status) {
+  const email = order?.shippingAddress?.email;
+  if (!email) return;
+  try {
+    // Awaited so it actually sends before the serverless function freezes.
+    const r = await resend.emails.send({
+      from: MAIL_FROM,
+      to: mailTo(email),
+      subject: `Your order is now ${status}`,
+      html: renderOrderStatusEmail(order, status),
+    });
+    if (r.error) console.error("Status email rejected:", r.error);
+  } catch (err) {
+    console.error("Status email error:", err);
+  }
+}</pre>
+  <p class="listing" align="center">Listing 4.16: Awaited transactional email on order-status change.</p>
+  <p>
+    Alongside email, a notification bell in both the customer and administrator areas surfaces recent activity,
+    such as new orders or status updates, by comparing the time of the latest activity against the time the
+    user last opened the bell. The emails themselves use branded, table-based HTML templates so that they
+    render consistently across email clients, which, unlike web browsers, do not reliably support modern CSS.
+    Figure 4.12c shows an example notification email.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12c, Order email + notification bell]</b>Optional: capture a branded order/status email, and the dashboard notification bell with its badge.</div>
+  <p class="caption" align="center">Figure 4.12c: Transactional email and in-app notification.</p>
+
+  <!-- 4.10C Wishlist -->
+  <h2>4.13 Wishlist</h2>
+  <p>
+    Customers can save products to a wishlist for later. Like the cart, the wishlist is held in the browser
+    through a React context backed by local storage, so it persists across visits without requiring an
+    account. Toggling an item on or off is a single operation, and the heart icon on product cards reflects
+    the current state immediately. Listing 4.17 shows the toggle logic.
+  </p>
+  <pre class="code">const has = useCallback((id) =&gt; itemsRef.current.some((i) =&gt; i.id === id), []);
+
+const toggle = useCallback((item) =&gt; {
+  setItems((prev) =&gt;
+    prev.some((i) =&gt; i.id === item.id)
+      ? prev.filter((i) =&gt; i.id !== item.id)   // already saved => remove
+      : [...prev, item],                        // not saved => add
+  );
+}, []);</pre>
+  <p class="listing" align="center">Listing 4.17: Wishlist toggle backed by browser local storage.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12d, Wishlist]</b>Optional: capture the wishlist page (or the heart icon active on a product card).</div>
+  <p class="caption" align="center">Figure 4.12d: Customer wishlist.</p>
+
+  <!-- 4.10D Theming -->
+  <h2>4.14 Theming and the Reusable Engine</h2>
+  <p>
+    A distinctive feature of the platform, and a direct expression of the reusability goal from Chapter Three,
+    is its theming system. Rather than hard-coding colours throughout the interface, the application reads them
+    from CSS custom properties, and a named theme palette supplies their values. Switching a client's entire
+    colour identity is therefore a matter of selecting a different theme in configuration. Listing 4.18 shows
+    how the chosen palette is injected as CSS variables, scoped so that the light and dark variants both work
+    with the existing theme toggle.
+  </p>
+  <pre class="code">const toVars = (tokens) =&gt;
+  Object.entries(tokens).map(([k, v]) =&gt; `--${k}:${v};`).join("");
+
+export default function ThemeStyle() {
+  const palette = getTheme(siteConfig.theme);   // e.g. "fashion" | "luxury" | "minimal"
+  const css =
+    `html[data-theme="${siteConfig.theme}"]{${toVars(palette.light)}}` +
+    `html[data-theme="${siteConfig.theme}"].dark{${toVars(palette.dark)}}`;
+  return &lt;style id="theme-vars" dangerouslySetInnerHTML={{ __html: css }} /&gt;;
+}</pre>
+  <p class="listing" align="center">Listing 4.18: Injecting a theme palette as CSS variables.</p>
+  <p>
+    Combined with a central configuration file (holding the store name, contact details, and the ordered list
+    of homepage sections to display), this means a new client store can be produced by editing configuration
+    and choosing a theme, without touching the commerce logic, exactly the "one engine, many themes" model set
+    out in Chapter Three. Figure 4.12e shows the same storefront rendered in two different themes.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12e, Two themes / dark mode]</b>Optional but powerful: capture the storefront in two themes (or light vs dark) side by side.</div>
+  <p class="caption" align="center">Figure 4.12e: The same storefront under different theme palettes.</p>
+
+  <!-- 4.15 -->
+  <h2>4.15 Administrative Dashboard</h2>
   <p>
     The administrative dashboard brings the management functions together in one protected area. From it, an
     administrator can view summary statistics, manage products and categories, process orders through their
@@ -515,7 +710,7 @@ await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });</p
   <p class="caption" align="center">Figure 4.14: Order management in the admin dashboard.</p>
 
   <!-- 4.12 -->
-  <h2>4.12 Deployment</h2>
+  <h2>4.16 Deployment</h2>
   <p>
     The application was deployed to Vercel, which is optimised for Next.js and integrates directly with the
     project's GitHub repository. Each push to the main branch triggers an automated build and release.
@@ -530,7 +725,7 @@ await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });</p
   <p class="caption" align="center">Figure 4.15: Vercel deployment dashboard.</p>
 
   <!-- 4.13 -->
-  <h2>4.13 Testing and Results</h2>
+  <h2>4.17 Testing and Results</h2>
   <p>
     Functional testing was carried out to confirm that each module behaves as required. The approach combined
     manual user-acceptance testing of complete workflows, such as registering, browsing, adding to cart, and
@@ -557,7 +752,7 @@ await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });</p
   
 
   <!-- 4.14 -->
-  <h2>4.14 Performance Evaluation</h2>
+  <h2>4.18 Performance Evaluation</h2>
   <p>
     Beyond functional correctness, the platform's performance was assessed because, as the literature in
     Chapter Two showed, speed affects both user experience and search-engine ranking. Performance was measured
@@ -578,7 +773,7 @@ await productModel.updateMany({ stock: { $lt: 0 } }, { $set: { stock: 0 } });</p
   
 
   <!-- 4.15 -->
-  <h2>4.15 Chapter Summary</h2>
+  <h2>4.19 Chapter Summary</h2>
   <p>
     This chapter has presented the implementation of FanMidCommerce and the results of testing it. It
     described the development environment and the modular folder structure, showed the database and GraphQL
