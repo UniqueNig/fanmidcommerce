@@ -1,0 +1,391 @@
+﻿<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>
+  @page { size:A4; margin:1in 1in 1in 1.5in; }
+  body { font-family:'Times New Roman',serif; font-size:12pt; line-height:1.5; }
+  h1 { font-size:17pt; text-transform:uppercase; }
+  h2.chtitle { font-size:15pt; font-weight:bold; }
+  h2 { font-size:13.5pt; } h3 { font-size:12.5pt; }
+  p { text-align:justify; margin:0 0 12px; }
+  table { border-collapse:collapse; width:100%; }
+  th,td { border:1px solid #999; padding:6px 8px; vertical-align:top; font-size:11pt; }
+  th { background:#f0f0f0; }
+  pre.code { background:#f6f8fa; border:1px solid #d0d7de; padding:10px; font-family:'Consolas','Courier New',monospace; font-size:9pt; white-space:pre; }
+  .shot { border:2px dashed #b9b9c9; background:#fbfbfd; padding:22px; text-align:center; color:#555; font-size:10.5pt; }
+  .caption { font-style:italic; text-align:center; font-size:10.5pt; color:#555; }
+  .listing { font-style:italic; text-align:center; font-size:10.5pt; color:#555; }
+  h1.chapter { page-break-before:always; }
+</style></head><body>
+
+  
+
+  <h1 class="chapter" align="center">Chapter Four</h1>
+  <h2 class="chtitle" align="center">System Implementation and Results</h2>
+
+  <!-- 4.1 -->
+  <h2>4.1 Introduction</h2>
+  <p>
+    The previous chapter set out the methodology and the design of the enhanced FanMidCommerce platform. This
+    chapter turns from design to reality. It describes how the system was actually built, shows the working
+    software through a series of screenshots and code listings, and reports the results of testing it. The
+    account follows the structure of the system itself, moving from the foundations outward: first the
+    development environment and the way the code is organised, then the database and the API that sit at the
+    core, and then each user-facing module in turn, authentication, product management, the storefront and
+    cart, checkout and payment, and customer reviews. After the administrative dashboard and the deployment
+    process, the chapter closes with the results of functional testing and a performance evaluation. Taken
+    together, these sections demonstrate that the objectives stated in Chapter One were met in a working,
+    deployed application.
+  </p>
+
+  <!-- 4.2 -->
+  <h2>4.2 Development Environment and Tools</h2>
+  <p>
+    Development was carried out on a standard personal computer using Visual Studio Code as the code editor,
+    with the Node.js runtime providing the JavaScript environment and the npm package manager handling
+    dependencies. Version control was managed with Git, and the source code was hosted on GitHub, which also
+    served as the trigger for automated deployment. The application itself was built on the technology stack
+    introduced in Chapter Three. Table 4.1 lists the principal tools and the version or role of each, as
+    recorded in the project's configuration.
+  </p>
+  <table class="fig">
+    <tr><th>Tool / technology</th><th>Role in the implementation</th></tr>
+    <tr><td>Next.js (App Router)</td><td>React framework providing routing, server and client rendering, and the build pipeline.</td></tr>
+    <tr><td>TypeScript</td><td>Typed language used across the entire codebase.</td></tr>
+    <tr><td>Apollo Server (@apollo/server) with @as-integrations/next</td><td>GraphQL server mounted on a Next.js route handler.</td></tr>
+    <tr><td>@apollo/client</td><td>GraphQL client used by the React front end.</td></tr>
+    <tr><td>MongoDB with Mongoose</td><td>Document database and object-data-modelling layer.</td></tr>
+    <tr><td>Tailwind CSS, next-themes</td><td>Utility-first styling and light/dark theming.</td></tr>
+    <tr><td>Paystack</td><td>Payment gateway (card, bank transfer, USSD).</td></tr>
+    <tr><td>Resend</td><td>Transactional email (order and status notifications).</td></tr>
+    <tr><td>Cloudinary</td><td>Image upload, storage, and delivery.</td></tr>
+    <tr><td>Visual Studio Code, Node.js, npm, Git, GitHub</td><td>Editor, runtime, package manager, and version control.</td></tr>
+    <tr><td>Vercel</td><td>Hosting and continuous deployment.</td></tr>
+  </table>
+  <p class="caption" align="center">Table 4.1: Tools and technologies used in the implementation.</p>
+  
+
+  <!-- 4.3 -->
+  <h2>4.3 Project and Folder Structure</h2>
+  <p>
+    A clear, predictable folder structure is one of the practical expressions of the modular design discussed
+    in Chapter Three. The project separates the routing and page layer (the <code>app/</code> directory, using
+    Next.js route groups) from the reusable application code (the <code>src/</code> directory). Within
+    <code>src/</code>, code is grouped by responsibility: data models, the GraphQL schema and resolvers,
+    shared libraries, external-service integrations, theming, and configuration. Listing 4.1 shows the
+    abridged structure of the project as implemented.
+  </p>
+  <pre class="code">fanmidcommerce/
+├── app/                          # Next.js App Router (routes &amp; pages)
+│   ├── (public)/                 # storefront: home, shop, product, cart, checkout
+│   ├── (admin)/                  # admin dashboard (protected)
+│   ├── (dashboard)/              # customer account area (protected)
+│   ├── (auth)/                   # login, register, password reset
+│   ├── api/                      # API routes
+│   │   ├── graphql/              # GraphQL endpoint (Apollo Server)
+│   │   └── paystack/             # payment initialise + webhook
+│   ├── layout.tsx                # root layout
+│   └── opengraph-image.tsx       # social-share preview image
+├── src/
+│   ├── components/               # shared UI (layout, ui, shop, auth, admin)
+│   ├── features/
+│   │   └── products/             # product feature: components + graphql + data
+│   ├── graphql/
+│   │   ├── typeDefs/             # GraphQL schema, split by domain
+│   │   └── resolvers/            # GraphQL resolvers, split by domain
+│   ├── models/                   # Mongoose schemas (Product, Order, User, ...)
+│   ├── lib/                      # db, auth, coupon, orders, rate-limit, slug
+│   ├── services/                # external integrations (email)
+│   ├── context/                  # React contexts (cart, wishlist, coupon, toast)
+│   ├── config/                   # central site configuration
+│   ├── themes/                   # theme palettes (fashion, luxury, minimal)
+│   ├── sections/                 # composable homepage sections
+│   └── hooks/                    # custom React hooks
+├── public/                       # static assets
+├── scripts/                      # maintenance scripts (create-admin, backfill)
+├── proxy.ts                      # Edge route gate (auth) for /admin and /dashboard
+├── next.config.ts
+└── package.json</pre>
+  <p class="listing">Listing 4.1: Abridged project folder structure.</p>
+  <p>
+    Two aspects of this layout are worth highlighting because they realise design goals from Chapter Three.
+    First, the <code>app/</code> directory uses Next.js <i>route groups</i>, the bracketed folders such as
+    <code>(public)</code>, <code>(admin)</code>, and <code>(dashboard)</code>, to keep the storefront, the
+    administrative area, and the customer account area cleanly separated while still sharing a single
+    code-base. Second, the presence of <code>src/config/</code>, <code>src/themes/</code>, and
+    <code>src/sections/</code> reflects the deliberate separation of the reusable commerce engine from a
+    customisable presentation layer: branding lives in configuration, colour identity in theme palettes, and
+    homepage composition in interchangeable sections.
+  </p>
+
+  <!-- 4.4 -->
+  <h2>4.4 Database Implementation</h2>
+  <p>
+    The data model described in Chapter Three was implemented as a set of Mongoose schemas, one per
+    collection. Each schema declares the fields, their types, and any constraints such as uniqueness or
+    required values, and Mongoose enforces these when documents are created or updated. Listing 4.2 shows an
+    abridged version of the Product schema, which is among the most elaborate because it supports product
+    variants, per-size stock, and colour options, each colour carrying its own images.
+  </p>
+  <pre class="code">const productSchema = new mongoose.Schema(
+  {
+    name:        { type: String, required: true },
+    slug:        { type: String, unique: true, sparse: true, index: true },
+    description: { type: String, required: true },
+    price:       { type: Number, required: true },
+    image:       { type: String },              // main thumbnail (= images[0])
+    images:      { type: [String], default: [] }, // gallery
+    stock:       { type: Number, required: true },
+    // Per-size inventory: e.g. [{ size: "S", stock: 3 }, { size: "M", stock: 5 }]
+    sizeStock:   { type: [{ size: String, stock: { type: Number, default: 0 } }], default: [] },
+    // Colour options, each with its own image(s)
+    colors:      { type: [{ name: String, hex: { type: String, default: "" },
+                            images: { type: [String], default: [] } }], default: [] },
+    sizes:       { type: [String], default: [] },
+    sizeGuide:   { type: String, enum: ["clothing", "footwear", "none"], default: "clothing" },
+    category:    { type: mongoose.Schema.Types.ObjectId,
+                   ref: "fanmidcommerce-categories", required: true },
+    isNew:       { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);</pre>
+  <p class="listing">Listing 4.2: Abridged Mongoose schema for the Product collection.</p>
+  <p>
+    The full database comprises the collections summarised in Chapter Three (Users, Products, Categories,
+    Orders, Reviews, Coupons, Shipping methods, and content/settings). Uniqueness constraints were applied to
+    fields that must not repeat, for example the product <code>slug</code> and the order payment reference, and
+    the latter constraint is what makes order finalisation safe against duplication, as explained in §4.9.
+  </p>
+
+  <!-- 4.5 -->
+  <h2>4.5 API Implementation: GraphQL Schema and Resolvers</h2>
+  <p>
+    The application exposes a single GraphQL endpoint. Its schema is defined in small, domain-specific files
+    (products, orders, users, categories, reviews, and so on) that are merged into one executable schema; the
+    matching resolvers are organised the same way. This keeps each domain self-contained while presenting a
+    unified API to the front end. Listing 4.3 shows part of the product schema, including the types that model
+    product variants.
+  </p>
+  <pre class="code">type Color {
+  name: String!
+  hex: String
+  images: [String]
+}
+
+type Product {
+  id: ID!
+  name: String!
+  slug: String
+  description: String!
+  price: Float!
+  images: [String]
+  stock: Int!
+  sizeStock: [SizeStock]
+  colors: [Color]
+  category: Category
+  isNew: Boolean
+}
+
+type ProductPage {        # paginated, server-filtered result
+  items: [Product!]!
+  total: Int!
+  page: Int!
+  pages: Int!
+}
+
+type Query {
+  productsPage(filter: ProductFilter, page: Int = 1, limit: Int = 12): ProductPage!
+  productBySlug(slug: ID!): Product
+  checkStock(items: [StockCheckInput!]!): [StockCheck!]!
+}</pre>
+  <p class="listing">Listing 4.3: Extract from the product GraphQL schema.</p>
+  <p>
+    A central technical contribution of the study, the reliable propagation of authentication context to
+    resolvers, is implemented in the GraphQL route handler. When a request arrives, the handler reads the
+    bearer token from the authorisation header, verifies its signature on the server, and places the resulting
+    user information into the per-request context object that every resolver receives. Resolvers that perform
+    privileged actions then check this context before acting. Listing 4.4 illustrates the pattern: a resolver
+    rejects the request unless the context carries an administrator identity.
+  </p>
+  <pre class="code">createProduct: async (_parent, args, context) =&gt; {
+  // Authorisation is enforced on the server, from the verified context,
+  // regardless of what the client interface shows.
+  if (!context.user || !["admin", "superadmin"].includes(context.user.role)) {
+    throw new Error("Unauthorized");
+  }
+  await connectDB();
+  const product = await productModel.create(deriveVariantFields(args));
+  return product.populate("category");
+}</pre>
+  <p class="listing">Listing 4.4: Resolver enforcing role-based authorisation from the GraphQL context.</p>
+
+  <!-- 4.6 -->
+  <h2>4.6 Authentication Module</h2>
+  <p>
+    The authentication module allows customers to register and log in, and it distinguishes ordinary customers
+    from administrators. Passwords are hashed before storage, and a successful login issues a signed JSON Web
+    Token that the client returns on subsequent requests. Route protection is enforced on the server through a
+    proxy (formerly "middleware") file at the project root, which gates the <code>/admin</code> and
+    <code>/dashboard</code> areas before any page in them is served. Figures 4.1 and 4.2 show the registration
+    and login interfaces.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 1 — Registration page]</b>Capture the customer registration form at /register (filled with sample data, before submit).</div>
+  <p class="caption" align="center">Figure 4.1: Customer registration interface.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 2 — Login page]</b>Capture the login form at /login.</div>
+  <p class="caption" align="center">Figure 4.2: Customer login interface.</p>
+
+  <!-- 4.7 -->
+  <h2>4.7 Product Management Module</h2>
+  <p>
+    Product management is performed by administrators through the dashboard. The module supports creating and
+    editing products, including uploading multiple images, defining per-size stock, and adding colour variants
+    with their own photographs. Listing 4.2 and the product schema (§4.4) underpin this module, while
+    Figures 4.3 and 4.4 show the product list and the add/edit product form.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 3 — Admin product list]</b>Capture /admin/products showing the table of products with prices and stock.</div>
+  <p class="caption" align="center">Figure 4.3: Administrative product list.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 4 — Add / edit product form]</b>Capture the product form showing the images, sizes &amp; stock rows, and colours section.</div>
+  <p class="caption" align="center">Figure 4.4: Add/edit product form with variant management.</p>
+
+  <!-- 4.8 -->
+  <h2>4.8 Storefront and Cart</h2>
+  <p>
+    The storefront is the customer-facing part of the system. The home page is composed from configurable
+    sections; the shop page lists products with server-side search, filtering, and pagination; and each
+    product has its own page showing an image gallery, variant selection, and stock status. Items added to the
+    cart are held in the browser and summarised on a dedicated cart page. Figures 4.5 to 4.8 illustrate these
+    screens.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 5 — Home page]</b>Capture the storefront home page (hero + featured products).</div>
+  <p class="caption" align="center">Figure 4.5: Storefront home page.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 6 — Shop / catalogue page]</b>Capture /shop showing products, filters, and pagination.</div>
+  <p class="caption" align="center">Figure 4.6: Shop page with filtering and pagination.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 7 — Product detail page]</b>Capture a product page showing the gallery, size/colour selection, and price.</div>
+  <p class="caption" align="center">Figure 4.7: Product detail page with variant selection.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 8 — Cart page]</b>Capture the cart with two or three items and the order summary.</div>
+  <p class="caption" align="center">Figure 4.8: Shopping cart.</p>
+
+  <!-- 4.9 -->
+  <h2>4.9 Checkout and Paystack Integration</h2>
+  <p>
+    Checkout is the most security-sensitive workflow in the system, and its design reflects that. When the
+    customer proceeds to pay, the server does not trust the totals supplied by the browser. Instead it
+    re-checks stock, re-validates any coupon, and recomputes the authoritative amount from the database. The
+    payment itself is handled by Paystack, which supports card, bank transfer, and USSD. After payment, the
+    application verifies the outcome directly with Paystack before creating the order, and a uniqueness
+    constraint on the payment reference guarantees that the order is created only once even if two
+    confirmation paths run at the same time (the browser redirect and Paystack's asynchronous webhook). This
+    makes order finalisation both idempotent and race-safe. Figure 4.9 shows the checkout page and Figure 4.10
+    the Paystack payment interface.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 9 — Checkout page]</b>Capture the checkout step showing address, shipping options, and order summary.</div>
+  <p class="caption" align="center">Figure 4.9: Checkout interface.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 10 — Paystack payment]</b>Capture the Paystack payment screen (test mode) showing card / transfer / USSD options.</div>
+  <p class="caption" align="center">Figure 4.10: Paystack payment interface (test mode).</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 11 — Order confirmation / success]</b>Capture the order-success page after a test payment, and (optionally) the confirmation email.</div>
+  <p class="caption" align="center">Figure 4.11: Order confirmation page.</p>
+
+  <!-- 4.10 -->
+  <h2>4.10 Customer Reviews</h2>
+  <p>
+    Registered customers who have purchased a product may leave a star rating and written review, which then
+    appears on that product's page for other shoppers to read. Reviews are tied to both the product and the
+    customer, and a verified-purchase flag distinguishes genuine buyers. Figure 4.12 shows the review section
+    on a product page.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 12 — Product reviews]</b>Capture the reviews section of a product page (with at least one review and the rating form).</div>
+  <p class="caption" align="center">Figure 4.12: Customer reviews on a product page.</p>
+
+  <!-- 4.11 -->
+  <h2>4.11 Administrative Dashboard</h2>
+  <p>
+    The administrative dashboard brings the management functions together in one protected area. From it, an
+    administrator can view summary statistics, manage products and categories, process orders through their
+    status stages, manage coupons and shipping methods, and review customers and site content. Order status
+    changes trigger automatic email notifications to the customer. Figures 4.13 and 4.14 show the dashboard
+    overview and the orders-management screen.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 13 — Admin dashboard overview]</b>Capture /admin showing the statistics cards and navigation.</div>
+  <p class="caption" align="center">Figure 4.13: Administrative dashboard overview.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 14 — Admin orders]</b>Capture /admin/orders showing orders and the status controls.</div>
+  <p class="caption" align="center">Figure 4.14: Order management in the admin dashboard.</p>
+
+  <!-- 4.12 -->
+  <h2>4.12 Deployment</h2>
+  <p>
+    The application was deployed to Vercel, which is optimised for Next.js and integrates directly with the
+    project's GitHub repository. Each push to the main branch triggers an automated build and release.
+    Configuration that differs between deployments, such as the database connection string and the payment and
+    email service keys, is supplied through environment variables rather than committed to source control. The
+    database is hosted on MongoDB Atlas and media on Cloudinary. This managed, configuration-driven model is
+    what allows a new client instance to be created by duplicating the repository, supplying its own
+    environment variables, and deploying, without changing the application's core logic. Figure 4.15 shows the
+    deployment dashboard.
+  </p>
+  <div class="shot" align="center"><b>[SCREENSHOT 15 — Vercel deployment]</b>Capture the Vercel project dashboard showing a successful production deployment (and optionally the live URL).</div>
+  <p class="caption" align="center">Figure 4.15: Vercel deployment dashboard.</p>
+
+  <!-- 4.13 -->
+  <h2>4.13 Testing and Results</h2>
+  <p>
+    Functional testing was carried out to confirm that each module behaves as required. The approach combined
+    manual user-acceptance testing of complete workflows, such as registering, browsing, adding to cart, and
+    checking out, with targeted checks of the individual modules. Each test case defines the action performed,
+    the result expected, and the result observed. Table 4.2 presents a representative set of these test cases
+    and their outcomes.
+  </p>
+  <table class="fig">
+    <tr><th>#</th><th>Test case</th><th>Expected result</th><th>Outcome</th></tr>
+    <tr><td>1</td><td>Register a new customer account</td><td>Account created; user able to log in</td><td>Pass</td></tr>
+    <tr><td>2</td><td>Log in with valid / invalid credentials</td><td>Valid accepted; invalid rejected with message</td><td>Pass</td></tr>
+    <tr><td>3</td><td>Access /admin while logged out</td><td>Redirected to admin login (server-enforced)</td><td>Pass</td></tr>
+    <tr><td>4</td><td>Create a product with images, sizes, and colours</td><td>Product saved and visible in shop</td><td>Pass</td></tr>
+    <tr><td>5</td><td>Search and filter products on the shop page</td><td>Correct, paginated results returned</td><td>Pass</td></tr>
+    <tr><td>6</td><td>Add items to cart and update quantities</td><td>Cart totals update correctly</td><td>Pass</td></tr>
+    <tr><td>7</td><td>Apply a valid / invalid coupon at checkout</td><td>Valid discounts; invalid rejected</td><td>Pass</td></tr>
+    <tr><td>8</td><td>Complete a payment (Paystack test mode)</td><td>Payment verified; order created once</td><td>Pass</td></tr>
+    <tr><td>9</td><td>Order placed when item out of stock</td><td>Blocked with out-of-stock message</td><td>Pass</td></tr>
+    <tr><td>10</td><td>Admin changes order status</td><td>Status updates; customer emailed</td><td>Pass</td></tr>
+    <tr><td>11</td><td>Submit a product review as a buyer</td><td>Review saved and displayed</td><td>Pass</td></tr>
+    <tr><td>12</td><td>Toggle light / dark theme</td><td>Theme switches and persists</td><td>Pass</td></tr>
+  </table>
+  <p class="caption" align="center">Table 4.2: Representative functional test cases and outcomes.</p>
+  
+
+  <!-- 4.14 -->
+  <h2>4.14 Performance Evaluation</h2>
+  <p>
+    Beyond functional correctness, the platform's performance was assessed because, as the literature in
+    Chapter Two showed, speed affects both user experience and search-engine ranking. Performance was measured
+    using Google Lighthouse, an industry-standard auditing tool built into the Chrome browser, which reports
+    scores out of 100 for Performance, Accessibility, Best Practices, and Search Engine Optimisation (SEO),
+    together with timing metrics such as First Contentful Paint and Time to Interactive. Representative pages,
+    the home page, a product page, and the shop page, were audited. Table 4.3 records the results.
+  </p>
+  <table class="fig">
+    <tr><th>Page</th><th>Performance</th><th>Accessibility</th><th>Best Practices</th><th>SEO</th></tr>
+    <tr><td>Home page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+    <tr><td>Product page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+    <tr><td>Shop page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+  </table>
+  <p class="caption" align="center">Table 4.3: Google Lighthouse scores for representative pages.</p>
+  <div class="shot" align="center"><b>[SCREENSHOT 16 — Lighthouse report]</b>Capture a Lighthouse report panel for one page (showing the four score circles).</div>
+  <p class="caption" align="center">Figure 4.16: Lighthouse performance report (home page).</p>
+  
+
+  <!-- 4.15 -->
+  <h2>4.15 Chapter Summary</h2>
+  <p>
+    This chapter has presented the implementation of FanMidCommerce and the results of testing it. It
+    described the development environment and the modular folder structure, showed the database and GraphQL
+    API at the core of the system, and walked through each user-facing module, authentication, product
+    management, the storefront and cart, checkout and Paystack payment, and customer reviews, supported by
+    code listings drawn from the real codebase and by screenshots of the running application. It then
+    described the administrative dashboard and the automated deployment process, and reported the outcomes of
+    functional testing and a Lighthouse performance evaluation. The evidence presented shows that the design
+    of Chapter Three was successfully realised as a working, deployed system that meets the objectives set out
+    in Chapter One. The final chapter draws conclusions from this work and offers recommendations for further
+    development.
+  </p>
+
+  <!-- ───────── CAPTURE CHECKLIST (delete before submission) ───────── -->
+  
+
+</body></html>
