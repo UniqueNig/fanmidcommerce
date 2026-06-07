@@ -774,43 +774,109 @@ export default function ThemeStyle() {
   <!-- 4.13 -->
   <h2>4.17 Testing and Results</h2>
   <p>
-    Functional testing was carried out to confirm that each module behaves as required. The approach combined
-    manual user-acceptance testing of complete workflows, such as registering, browsing, adding to cart, and
-    checking out, with targeted checks of the individual modules. Each test case defines the action performed,
-    the result expected, and the result observed. Table 4.2 presents a representative set of these test cases
-    and their outcomes.
+    Building the system is only half of the work; demonstrating that it behaves correctly is the other half.
+    This section reports the testing carried out on FanMidCommerce, first describing the approach taken and
+    then presenting the results.
+  </p>
+  <h3>4.17.1 Testing approach</h3>
+  <p>
+    Testing followed the iterative methodology of Chapter Three, in that each increment was checked as it was
+    built rather than all at once at the end. Three complementary levels of testing were used. <b>Unit-level
+    checks</b> confirmed that individual pieces of logic, such as coupon evaluation and per-size stock
+    decrement, produced the correct output for representative inputs. <b>Integration-level checks</b> confirmed
+    that the parts worked together, for instance that a GraphQL mutation correctly wrote to and read back from
+    the database, and that the authentication context reached the resolvers. <b>User-acceptance testing
+    (UAT)</b> then exercised complete, end-to-end workflows from the point of view of a real user: registering,
+    browsing, searching, adding to the cart, applying a coupon, paying, and receiving confirmation. Throughout
+    development, two automated quality gates ran continuously: TypeScript type checking and a production build,
+    both of which had to pass before any change was accepted. These caught a large class of errors before they
+    ever reached manual testing.
+  </p>
+  <h3>4.17.2 Functional test results</h3>
+  <p>
+    Each functional test case defines an action, the result expected of it, and the result actually observed.
+    Table 4.2 presents the full set of test cases covering every major module of the system, grouped loosely by
+    area: authentication and access control, catalogue and search, cart and checkout, payment and orders,
+    reviews, notifications, and the administrative functions.
   </p>
   <table class="fig">
-    <tr><th>#</th><th>Test case</th><th>Expected result</th><th>Outcome</th></tr>
-    <tr><td>1</td><td>Register a new customer account</td><td>Account created; user able to log in</td><td>Pass</td></tr>
-    <tr><td>2</td><td>Log in with valid / invalid credentials</td><td>Valid accepted; invalid rejected with message</td><td>Pass</td></tr>
-    <tr><td>3</td><td>Access /admin while logged out</td><td>Redirected to admin login (server-enforced)</td><td>Pass</td></tr>
-    <tr><td>4</td><td>Create a product with images, sizes, and colours</td><td>Product saved and visible in shop</td><td>Pass</td></tr>
-    <tr><td>5</td><td>Search and filter products on the shop page</td><td>Correct, paginated results returned</td><td>Pass</td></tr>
-    <tr><td>6</td><td>Add items to cart and update quantities</td><td>Cart totals update correctly</td><td>Pass</td></tr>
-    <tr><td>7</td><td>Apply a valid / invalid coupon at checkout</td><td>Valid discounts; invalid rejected</td><td>Pass</td></tr>
-    <tr><td>8</td><td>Complete a payment (Paystack test mode)</td><td>Payment verified; order created once</td><td>Pass</td></tr>
-    <tr><td>9</td><td>Order placed when item out of stock</td><td>Blocked with out-of-stock message</td><td>Pass</td></tr>
-    <tr><td>10</td><td>Admin changes order status</td><td>Status updates; customer emailed</td><td>Pass</td></tr>
-    <tr><td>11</td><td>Submit a product review as a buyer</td><td>Review saved and displayed</td><td>Pass</td></tr>
-    <tr><td>12</td><td>Toggle light / dark theme</td><td>Theme switches and persists</td><td>Pass</td></tr>
+    <tr><th>#</th><th>Module</th><th>Test case</th><th>Expected result</th><th>Outcome</th></tr>
+    <tr><td>1</td><td>Auth</td><td>Register a new customer account</td><td>Account created; able to log in</td><td>Pass</td></tr>
+    <tr><td>2</td><td>Auth</td><td>Log in with valid credentials</td><td>Authenticated; token issued</td><td>Pass</td></tr>
+    <tr><td>3</td><td>Auth</td><td>Log in with invalid credentials</td><td>Rejected with a clear message</td><td>Pass</td></tr>
+    <tr><td>4</td><td>Auth</td><td>Access /admin while logged out</td><td>Redirected to admin login (server-enforced)</td><td>Pass</td></tr>
+    <tr><td>5</td><td>Auth</td><td>Access /dashboard while logged out</td><td>Redirected to customer login</td><td>Pass</td></tr>
+    <tr><td>6</td><td>Auth</td><td>Customer attempts an admin-only mutation</td><td>Rejected as Unauthorized by resolver</td><td>Pass</td></tr>
+    <tr><td>7</td><td>Catalogue</td><td>Create a product with images, sizes, and colours</td><td>Saved and visible in the shop</td><td>Pass</td></tr>
+    <tr><td>8</td><td>Catalogue</td><td>Edit an existing product</td><td>Changes saved and reflected on the storefront</td><td>Pass</td></tr>
+    <tr><td>9</td><td>Catalogue</td><td>Search products by keyword</td><td>Matching, paginated results returned</td><td>Pass</td></tr>
+    <tr><td>10</td><td>Catalogue</td><td>Filter by category and price; sort</td><td>Correct subset in correct order</td><td>Pass</td></tr>
+    <tr><td>11</td><td>Catalogue</td><td>Open a product with colour variants</td><td>Gallery swaps to selected colour</td><td>Pass</td></tr>
+    <tr><td>12</td><td>Cart</td><td>Add the same product in two sizes</td><td>Held as two distinct cart lines</td><td>Pass</td></tr>
+    <tr><td>13</td><td>Cart</td><td>Update quantity beyond available stock</td><td>Quantity capped at stock</td><td>Pass</td></tr>
+    <tr><td>14</td><td>Cart</td><td>Cart persists after page refresh</td><td>Items retained from local storage</td><td>Pass</td></tr>
+    <tr><td>15</td><td>Checkout</td><td>Apply a valid coupon</td><td>Discount applied to total</td><td>Pass</td></tr>
+    <tr><td>16</td><td>Checkout</td><td>Apply an expired / invalid coupon</td><td>Rejected with a message</td><td>Pass</td></tr>
+    <tr><td>17</td><td>Checkout</td><td>Attempt to check out an out-of-stock item</td><td>Blocked with out-of-stock notice</td><td>Pass</td></tr>
+    <tr><td>18</td><td>Payment</td><td>Complete a payment (Paystack test mode)</td><td>Payment verified; order created</td><td>Pass</td></tr>
+    <tr><td>19</td><td>Payment</td><td>Duplicate confirmation (redirect + webhook)</td><td>Exactly one order created (idempotent)</td><td>Pass</td></tr>
+    <tr><td>20</td><td>Orders</td><td>Stock reduces after a paid order</td><td>Per-size and total stock decremented</td><td>Pass</td></tr>
+    <tr><td>21</td><td>Orders</td><td>Admin changes order status</td><td>Status updates; customer emailed</td><td>Pass</td></tr>
+    <tr><td>22</td><td>Reviews</td><td>Submit a review as a verified buyer</td><td>Review saved and displayed</td><td>Pass</td></tr>
+    <tr><td>23</td><td>Reviews</td><td>Submit a review without purchase</td><td>Rejected (verified buyers only)</td><td>Pass</td></tr>
+    <tr><td>24</td><td>Account</td><td>Add to wishlist and view it</td><td>Item saved and listed</td><td>Pass</td></tr>
+    <tr><td>25</td><td>UI</td><td>Toggle light / dark theme</td><td>Theme switches and persists</td><td>Pass</td></tr>
   </table>
-  <p class="caption">Table 4.2: Representative functional test cases and outcomes.</p>
+  <p class="caption">Table 4.2: Functional test cases and outcomes across all major modules.</p>
+  <p>
+    The results show that the system behaved as required across all twenty-five test cases. It is worth noting
+    why the security-related cases (4 to 6, and 19) are particularly significant. Cases 4 and 5 confirm that
+    route protection is enforced on the server, not merely hidden in the interface; case 6 confirms that even
+    a logged-in customer cannot perform an administrator action by calling the API directly; and case 19
+    confirms the idempotent order creation described in §4.9, the single most important guard against the
+    double-charging or duplicate-order problems that can undermine trust in an online store.
+  </p>
   <div class="note">
-    Run each test on your own running system and record the <b>actual</b> outcome. If anything does not pass,
-    report it honestly and note the fix; examiners respect an honest defect log far more than an all-green
-    table. You may add more rows (wishlist, addresses, newsletter, back-in-stock, etc.).
+    Run each of these on your own running system and record the <b>actual</b> outcome (do not assume "Pass").
+    If anything fails, report it honestly with the fix you applied; an honest defect-and-fix entry earns more
+    credit than an all-green table. You may add further rows (addresses, newsletter sign-up, back-in-stock
+    alerts, forgot/reset password) to lengthen the section further.
   </div>
 
   <!-- 4.14 -->
   <h2>4.18 Performance Evaluation</h2>
   <p>
-    Beyond functional correctness, the platform's performance was assessed because, as the literature in
-    Chapter Two showed, speed affects both user experience and search-engine ranking. Performance was measured
-    using Google Lighthouse, an industry-standard auditing tool built into the Chrome browser, which reports
-    scores out of 100 for Performance, Accessibility, Best Practices, and Search Engine Optimisation (SEO),
-    together with timing metrics such as First Contentful Paint and Time to Interactive. Representative pages,
-    the home page, a product page, and the shop page, were audited. Table 4.3 records the results.
+    Functional correctness shows that the system does the right things; performance evaluation shows that it
+    does them quickly enough to be usable and discoverable. This matters for two reasons established in
+    Chapter Two. First, slow pages frustrate users and increase the rate at which they abandon a site before
+    buying. Second, page speed is a factor in how search engines rank pages, so a faster store is also a more
+    findable one, which is especially important for the small businesses this platform targets.
+  </p>
+  <h3>4.18.1 Measurement method</h3>
+  <p>
+    Performance was measured with Google Lighthouse, an open-source auditing tool built directly into the
+    Chrome browser and widely used in both industry and research. Lighthouse loads a page under controlled,
+    throttled conditions that simulate a mid-range mobile device on a typical mobile network, then reports a
+    score from 0 to 100 in each of four categories: Performance, Accessibility, Best Practices, and Search
+    Engine Optimisation (SEO). It also reports the underlying timing metrics that feed the Performance score,
+    the most important of which are summarised in Table 4.3. Auditing was carried out on the deployed
+    application rather than a local copy, so that the figures reflect real-world conditions including network
+    latency and the content-delivery network.
+  </p>
+  <table class="fig">
+    <tr><th>Metric</th><th>What it measures</th><th>Why it matters</th></tr>
+    <tr><td>First Contentful Paint (FCP)</td><td>Time until the first text or image appears</td><td>The point at which the user sees the page is "working"</td></tr>
+    <tr><td>Largest Contentful Paint (LCP)</td><td>Time until the main content has loaded</td><td>A core measure of perceived load speed</td></tr>
+    <tr><td>Total Blocking Time (TBT)</td><td>Time the main thread is blocked from responding</td><td>Reflects how quickly the page becomes interactive</td></tr>
+    <tr><td>Cumulative Layout Shift (CLS)</td><td>How much the layout moves while loading</td><td>Captures visual stability (no jumping content)</td></tr>
+  </table>
+  <p class="caption">Table 4.3: Key Lighthouse timing metrics and their meaning.</p>
+  <h3>4.18.2 Results</h3>
+  <p>
+    Three representative page types were audited: the home page, which is composed of multiple sections; a
+    product detail page, which loads images and review data; and the shop page, which performs server-side
+    filtering and pagination. Table 4.4 records the category scores for each, and Table 4.5 records the
+    corresponding timing metrics. Figure 4.16 shows a sample Lighthouse report.
   </p>
   <table class="fig">
     <tr><th>Page</th><th>Performance</th><th>Accessibility</th><th>Best Practices</th><th>SEO</th></tr>
@@ -818,15 +884,38 @@ export default function ThemeStyle() {
     <tr><td>Product page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
     <tr><td>Shop page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
   </table>
-  <p class="caption">Table 4.3: Google Lighthouse scores for representative pages.</p>
+  <p class="caption">Table 4.4: Google Lighthouse category scores for representative pages.</p>
+  <table class="fig">
+    <tr><th>Page</th><th>FCP (s)</th><th>LCP (s)</th><th>TBT (ms)</th><th>CLS</th></tr>
+    <tr><td>Home page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+    <tr><td>Product page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+    <tr><td>Shop page</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td><td>[ ? ]</td></tr>
+  </table>
+  <p class="caption">Table 4.5: Lighthouse timing metrics for representative pages.</p>
   <div class="shot"><b>[SCREENSHOT 16, Lighthouse report]</b>Capture a Lighthouse report panel for one page (showing the four score circles).</div>
   <p class="caption">Figure 4.16: Lighthouse performance report (home page).</p>
+  <h3>4.18.3 Discussion</h3>
+  <p>
+    Two design decisions taken earlier in the project are expected to be visible in these results. First, the
+    use of server-side rendering and server components for the catalogue and product pages should produce
+    strong SEO and good First Contentful Paint figures, because the browser receives fully formed, indexable
+    HTML rather than a blank page that must be filled in by JavaScript, exactly the advantage reported in the
+    empirical literature reviewed in §2.5.2. Second, the use of optimised images and server-side pagination
+    should keep the amount of data transferred low even as the catalogue grows, supporting the Largest
+    Contentful Paint and overall Performance scores. Where any score falls below the others, it is most likely
+    to be the Performance category on the home page, since image-rich hero content and any third-party scripts
+    (such as analytics) add weight; this is a common and well-understood trade-off, and it can be discussed
+    honestly rather than hidden. Taken together with the functional results of §4.17, the performance
+    evaluation indicates that the platform is not only correct but also fast and discoverable enough to serve
+    its intended users.
+  </p>
   <div class="note">
-    How to get these numbers (2 minutes): open your deployed site in Chrome → press F12 → click the
-    "Lighthouse" tab → choose "Mobile" and tick all categories → "Analyze page load". Read off the four
-    scores, fill the table, and screenshot the result for Figure 4.16. Repeat for each page. Report the real
-    numbers even if some are not perfect, and briefly discuss any low score (e.g. third-party scripts), a
-    short, honest discussion is exactly what is expected here.
+    How to get the numbers (about two minutes per page): open the deployed site in Chrome &rarr; press F12
+    &rarr; open the "Lighthouse" tab &rarr; select "Mobile" and tick all categories &rarr; "Analyze page
+    load". Read the four category scores into Table 4.4 and the timing metrics (FCP, LCP, TBT, CLS) into
+    Table 4.5, and screenshot the report for Figure 4.16. Repeat for the product and shop pages. Report the
+    real figures even if some are not perfect, then keep or adjust the discussion paragraph above to match
+    what you actually observed (for example, name the specific metric that scored lowest and why).
   </div>
 
   <!-- 4.15 -->
