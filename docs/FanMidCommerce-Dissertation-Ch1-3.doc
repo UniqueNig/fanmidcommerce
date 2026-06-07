@@ -1,16 +1,4 @@
-﻿<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>
-  @page{size:A4;margin:1in 1in 1in 1.5in;}
-  body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.5;}
-  h1{font-size:17pt;text-transform:uppercase;} h2.chtitle{font-size:15pt;font-weight:bold;}
-  h2{font-size:13.5pt;} h3{font-size:12.5pt;} h4{font-size:12pt;font-style:italic;}
-  p{text-align:justify;margin:0 0 12px;}
-  .refs p{padding-left:36px;text-indent:-36px;text-align:left;}
-  table{border-collapse:collapse;width:100%;} th,td{border:1px solid #999;padding:6px 8px;vertical-align:top;font-size:11pt;} th{background:#f0f0f0;}
-  pre.code{background:#f6f8fa;border:1px solid #d0d7de;padding:10px;font-family:'Consolas','Courier New',monospace;font-size:9pt;white-space:pre;}
-  .shot{border:2px dashed #b9b9c9;background:#fbfbfd;padding:22px;text-align:center;color:#555;font-size:10.5pt;}
-  .caption,.listing{font-style:italic;text-align:center;font-size:10.5pt;color:#555;}
-  h1.chapter{page-break-before:always;} .titlepage{page-break-after:always;} .pagebreak{page-break-before:always;}
-</style></head><body>
+﻿<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>@page{size:A4;margin:1in 1in 1in 1.5in;}body{font-family:'Times New Roman',serif;font-size:12pt;line-height:1.5;}h1{font-size:17pt;text-transform:uppercase;}h2.chtitle{font-size:15pt;font-weight:bold;}h2{font-size:13.5pt;}h3{font-size:12.5pt;}h4{font-size:12pt;font-style:italic;}p{text-align:justify;margin:0 0 12px;}.refs p{padding-left:36px;text-indent:-36px;text-align:left;}table{border-collapse:collapse;width:100%;}th,td{border:1px solid #999;padding:6px 8px;vertical-align:top;font-size:11pt;}th{background:#f0f0f0;}pre.code{background:#f6f8fa;border:1px solid #d0d7de;padding:10px;font-family:'Consolas','Courier New',monospace;font-size:9pt;white-space:pre;}.shot{border:2px dashed #b9b9c9;background:#fbfbfd;padding:22px;text-align:center;color:#555;font-size:10.5pt;}.caption,.listing{font-style:italic;text-align:center;font-size:10.5pt;color:#555;}h1.chapter{page-break-before:always;}.titlepage{page-break-after:always;}.pagebreak{page-break-before:always;}</style></head><body>
 
   <!-- ───────── TITLE PAGE ───────── -->
   <div class="center titlepage" style="padding-top:24px;">
@@ -1136,11 +1124,11 @@
     <tr><td>API</td><td>GraphQL with Apollo Server</td><td>GraphQL 16; Apollo Server 5</td><td>Typed, client-driven data access.</td></tr>
     <tr><td>Database</td><td>MongoDB with Mongoose</td><td>Mongoose 9.3</td><td>Document storage and object-data modelling.</td></tr>
     <tr><td>Styling / theming</td><td>Tailwind CSS, next-themes</td><td>Tailwind 4</td><td>Responsive UI and dynamic theming.</td></tr>
-    <tr><td>Payments</td><td>Paystack (sandbox)</td><td>—</td><td>Card, transfer, and USSD payments with server-side verification.</td></tr>
+    <tr><td>Payments</td><td>Paystack (sandbox)</td><td>N/A</td><td>Card, transfer, and USSD payments with server-side verification.</td></tr>
     <tr><td>Email</td><td>Resend</td><td>6.10</td><td>Transactional email (order and status notifications).</td></tr>
-    <tr><td>Media</td><td>Cloudinary</td><td>—</td><td>Image upload, storage, and delivery.</td></tr>
-    <tr><td>Version control</td><td>Git</td><td>—</td><td>Change tracking and branch-based workflow.</td></tr>
-    <tr><td>Deployment</td><td>Vercel</td><td>—</td><td>Hosting and continuous deployment for evaluation.</td></tr>
+    <tr><td>Media</td><td>Cloudinary</td><td>N/A</td><td>Image upload, storage, and delivery.</td></tr>
+    <tr><td>Version control</td><td>Git</td><td>N/A</td><td>Change tracking and branch-based workflow.</td></tr>
+    <tr><td>Deployment</td><td>Vercel</td><td>N/A</td><td>Hosting and continuous deployment for evaluation.</td></tr>
   </table>
   <p class="caption" align="center">Table 3.4: Tools and technologies employed in the study, with versions.</p>
   <p>
