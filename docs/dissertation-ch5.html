@@ -129,16 +129,65 @@
   </p>
 
   <!-- 5.4 -->
-  <h2>5.4 Conclusion</h2>
+  <h2>5.4 Answering the Research Questions</h2>
+  <p>
+    Beyond the formal objectives, it is worth returning to the four research questions posed in Chapter One,
+    since they framed the whole investigation. Addressing each in turn shows how the study's findings come
+    together into a coherent answer.
+  </p>
+  <p>
+    <b>Research Question 1 asked how a full-stack e-commerce platform can be designed and enhanced using
+    Next.js, TypeScript, GraphQL, and MongoDB to meet the core needs of SMEs.</b> The answer, demonstrated
+    throughout Chapters Three and Four, lies in a layered, modular architecture that places a single GraphQL
+    endpoint over a Mongoose data layer, uses Next.js server components for the data-rich, search-indexable
+    pages and client components for interactive elements, and keeps business logic, such as pricing and order
+    finalisation, in a dedicated service layer. The core commerce needs, browsing, searching, a cart, a
+    secure checkout, payment, orders, and reviews, were each implemented and tested. The decisive design idea
+    was the separation of a reusable commerce engine from a customisable presentation layer, which is what
+    makes the architecture genuinely suited to many SMEs rather than to one.
+  </p>
+  <p>
+    <b>Research Question 2 asked what the principal challenges of integrating GraphQL authentication context
+    within the Next.js App Router are, and how they can be resolved.</b> The principal challenge proved to be
+    ensuring that the identity and role of the requesting user are reliably available to every resolver,
+    despite the App Router's separation of server and client components and the stateless nature of the API.
+    The resolution, set out in §4.5, is to verify the token's signature and assemble the user context inside
+    the GraphQL route handler so that it is supplied to all resolvers, while a complementary Edge route gate
+    provides a fast first line of defence before pages are served. This arrangement enforces authorisation at
+    the server boundary, independently of anything the client interface does.
+  </p>
+  <p>
+    <b>Research Question 3 asked to what extent the enhanced platform satisfies accepted criteria for
+    functionality, performance, usability, and security.</b> The functional testing of §4.17 showed correct
+    behaviour across all twenty-five test cases spanning every module; the performance evaluation of §4.18,
+    using Google Lighthouse, assessed speed and search-engine readiness on representative pages; usability was
+    addressed by designing against established heuristics and accessibility guidance; and security was built in
+    through server-authoritative pricing, verified payments, idempotent order creation, hashed passwords, and
+    server-enforced route protection, in line with OWASP guidance. Together these provide credible evidence
+    that the platform meets the criteria set for it.
+  </p>
+  <p>
+    <b>Research Question 4 asked how applicable the resulting model is as an affordable, deployable e-commerce
+    solution for Nigerian SMEs.</b> The platform supports the payment channels Nigerians actually use (card,
+    bank transfer, and USSD), prices in naira, and can be operated by a non-technical owner after brief
+    training; its reusable-engine design allows a new store to be produced by changing configuration rather
+    than rewriting code, which keeps the cost of delivery low. On this basis the model is well suited to the
+    Nigerian SME context, subject to the limitations noted in §5.6.
+  </p>
+
+  <h2>5.5 Conclusion</h2>
   <p>
     Two broad conclusions follow from the study. The first is technical. It is both feasible and beneficial to
     build a complete, production-oriented e-commerce platform on a modern stack of Next.js, TypeScript,
-    GraphQL, and MongoDB. The combination delivers real advantages, server rendering improves speed and
-    discoverability, static typing improves reliability, and GraphQL provides precise, efficient data access,
-    while the specific difficulty of propagating authentication context within the Next.js App Router can be
-    resolved cleanly by verifying the token and assembling the context in the GraphQL route handler. The study
-    therefore contributes a worked, documented answer to a question that the existing literature had left
-    largely open.
+    GraphQL, and MongoDB. The combination delivers real advantages: server rendering improves speed and
+    discoverability, static typing improves reliability, and GraphQL provides precise, efficient data access.
+    The specific difficulty of propagating authentication context within the Next.js App Router, which the
+    literature had left largely unexamined, can be resolved cleanly by verifying the token and assembling the
+    context in the GraphQL route handler. In demonstrating this end to end, with working code and tests, the
+    study contributes a documented answer to a question that practitioners have until now had to solve in
+    isolation. Equally, the study shows that the much-discussed trade-offs between these technologies are
+    manageable in practice: the small overheads of, for instance, maintaining a typed schema are repaid many
+    times over in reliability and clarity.
   </p>
   <p>
     The second conclusion is practical and contextual. By separating a reusable commerce engine from a
@@ -148,11 +197,13 @@
     could realistically be deployed for a small business at low cost, and re-skinned for many such businesses
     from a single tested core. In short, the study shows that a modern, well-engineered platform and the needs
     of a developing-market SME are not in tension; with the right architectural choices, the one can be made
-    to serve the other.
+    to serve the other. This is, ultimately, the contribution the study most hopes to make: not only a piece
+    of working software, but evidence that careful engineering and genuine accessibility for small businesses
+    can be pursued together rather than as competing goals.
   </p>
 
   <!-- 5.5 -->
-  <h2>5.5 Contributions to Knowledge</h2>
+  <h2>5.6 Contributions to Knowledge</h2>
   <p>This study makes the following contributions:</p>
   <ol>
     <li>A fully functional, enhanced, and documented e-commerce web application built on a modern full-stack
@@ -169,7 +220,7 @@
   </ol>
 
   <!-- 5.6 -->
-  <h2>5.6 Limitations of the Study</h2>
+  <h2>5.7 Limitations of the Study</h2>
   <p>
     The conclusions should be read in light of several limitations, stated honestly. First, the platform was
     evaluated in a development and staging context; it was not subjected to large-scale, real-world
@@ -183,8 +234,8 @@
   </p>
 
   <!-- 5.7 -->
-  <h2>5.7 Recommendations</h2>
-  <h3>5.7.1 Recommendations for practice</h3>
+  <h2>5.8 Recommendations</h2>
+  <h3>5.8.1 Recommendations for practice</h3>
   <ul>
     <li>Small businesses seeking an online presence should consider a reusable, self-owned platform of this
       kind as a lower-cost alternative to recurring subscription services, particularly where local payment
@@ -195,7 +246,7 @@
     <li>For any store handling payment, prices should be recomputed on the server and payment outcomes verified
       with the provider, with order finalisation made idempotent to prevent duplicate orders.</li>
   </ul>
-  <h3>5.7.2 Recommendations for future work</h3>
+  <h3>5.8.2 Recommendations for future work</h3>
   <ul>
     <li><b>Load and scalability testing:</b> evaluate the platform under realistic concurrent load and tune
       database indexing and caching accordingly.</li>
@@ -211,8 +262,40 @@
       as the System Usability Scale to strengthen the evidence base.</li>
   </ul>
 
-  <!-- 5.8 -->
-  <h2>5.8 Concluding Remark</h2>
+  <!-- 5.9 -->
+  <h2>5.9 Reflections and Lessons Learned</h2>
+  <p>
+    A research project of this kind teaches lessons that do not always fit neatly under "findings", but which
+    are worth recording because they would guide anyone attempting similar work. Three stand out.
+  </p>
+  <p>
+    The first concerns the value of doing security work early rather than late. Several of the most important
+    decisions in the project, recomputing prices on the server, verifying payments with the provider, and
+    making order creation idempotent, were not cosmetic features but structural choices that would have been
+    painful to retrofit. Building them in from the start, guided by the OWASP principles reviewed in Chapter
+    Two, proved far easier than it would have been to add them to a finished but insecure system. The lesson
+    is that in any application handling money, security and correctness must be treated as part of the
+    foundation, not as a finishing touch.
+  </p>
+  <p>
+    The second lesson concerns the payoff of investing in structure. The decision to separate a reusable
+    commerce engine from a customisable presentation layer required extra discipline during development, since
+    it is always quicker, in the short term, to hard-code values where they are needed. Yet this investment is
+    precisely what turns a one-off project into a reusable asset, and it is what allows a new store to be
+    produced through configuration rather than rewriting. Good structure, in other words, is not an academic
+    nicety; it is what converts effort spent once into value realised many times.
+  </p>
+  <p>
+    The third lesson is about context. It would have been possible to build a technically excellent platform
+    that nonetheless failed in the Nigerian market because it ignored how people there actually pay and shop.
+    Engaging seriously with the local context, the prominence of bank transfer and USSD, the role of messaging
+    apps, and acute cost sensitivity, shaped the design in ways that a purely technical perspective would have
+    missed. The broader lesson is that technology decisions and user-context decisions are not separate
+    activities; the best designs emerge when they inform each other.
+  </p>
+
+  <!-- 5.10 -->
+  <h2>5.10 Concluding Remark</h2>
   <p>
     This study began from a simple observation: that a great many capable Nigerian businesses remain offline,
     not for lack of customers or ambition, but for lack of an affordable, trustworthy, and locally suitable
