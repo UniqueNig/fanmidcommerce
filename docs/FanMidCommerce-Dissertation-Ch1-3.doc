@@ -111,122 +111,140 @@
 
   <h2>1.1 Background to the Study</h2>
   <p>
-    The diffusion of internet and mobile technologies has profoundly reshaped commerce across the developing
-    world, and nowhere is this transformation more consequential than in sub-Saharan Africa. Improvements in
-    mobile broadband coverage, the proliferation of affordable smartphones, and steadily falling data costs
-    have brought a large share of the population online, creating digital marketplaces of considerable scale
-    and potential (International Telecommunication Union [ITU], 2023; GSMA, 2023). In Nigeria, the
-    continent’s most populous nation and largest economy, internet penetration reached approximately
-    55.4 per cent of the population by early 2023, with broadband penetration standing at about 44.4 per cent
-    by the end of 2024 (Nigerian Communications Commission [NCC], 2024). These developments have established
-    the foundations for a rapidly maturing electronic-commerce sector that increasingly mediates the
-    discovery, marketing, and exchange of goods and services.
+    Over the past two decades, the internet has changed the way people buy and sell almost everywhere, and
+    this change has been especially dramatic in developing regions such as sub-Saharan Africa. As mobile
+    networks have spread, smartphones have become cheaper, and the cost of data has fallen, more and more
+    people have come online for the first time. The result is a large and fast-growing digital marketplace
+    (International Telecommunication Union [ITU], 2023; GSMA, 2023). Nigeria sits at the centre of this shift.
+    As the most populous country on the continent and its largest economy, it has seen internet penetration
+    climb to roughly 55.4 per cent of the population by early 2023, while broadband penetration stood at about
+    44.4 per cent by the end of 2024 (Nigerian Communications Commission [NCC], 2024). In practical terms,
+    tens of millions of Nigerians now carry an internet-connected device, and a growing number of them are
+    comfortable browsing, comparing, and ordering goods online. This is the foundation on which a maturing
+    electronic-commerce sector is being built.
   </p>
   <p>
-    Electronic commerce (e-commerce) denotes the buying and selling of goods and services, and the
-    associated transfer of funds and data, conducted over electronic networks, principally the internet
-    (Laudon &amp; Traver, 2021). A complete e-commerce platform, however, extends well beyond the act of
-    transacting. It integrates product-catalogue management, customer-account services, shopping-cart and
-    checkout workflows, payment processing, order fulfilment and tracking, and post-sale communication into a
-    single coherent system. The quality with which these components are designed and woven together
-    materially influences conversion rates, customer retention, and the trust upon which repeat commerce
-    depends (Laudon &amp; Traver, 2021). For enterprises of all sizes, a capable platform offers reach beyond
-    geographical boundaries and the ability to trade continuously, without the overheads of additional
-    physical premises.
+    What exactly is electronic commerce? At its simplest, e-commerce is the buying and selling of goods and
+    services, together with the related movement of money and information, carried out over electronic
+    networks such as the internet (Laudon &amp; Traver, 2021). That definition, however, hides how much work a
+    real platform has to do. A working online store is not just a page that displays products. It has to
+    manage a product catalogue, handle customer accounts, run a shopping cart and a checkout, process
+    payments, track orders through to delivery, and keep customers informed afterwards. All of these parts
+    must fit together smoothly. When they do, customers are more likely to complete a purchase, return for
+    another, and trust the business with their money; when they do not, sales are lost at every step
+    (Laudon &amp; Traver, 2021). For a business of any size, getting this right means it can reach customers
+    far beyond its physical location and sell around the clock, without paying for extra shop space.
   </p>
   <p>
-    Micro, small and medium-sized enterprises (MSMEs) occupy a central position in the Nigerian economy. The
-    most recent national survey jointly conducted by the Small and Medium Enterprises Development Agency of
-    Nigeria and the National Bureau of Statistics enumerated approximately 39 million MSMEs, which together
-    accounted for about 46.3 per cent of gross domestic product, some 87.9 per cent of national employment,
-    and roughly 96.9 per cent of all businesses (National Bureau of Statistics &amp; SMEDAN, 2021). For these
-    enterprises, e-commerce represents a pathway to wider markets and greater resilience. Yet the adoption of formal e-commerce among Nigerian SMEs remains uneven. The barriers are
-    well documented in broad terms: the recurring cost of proprietary, subscription-based platforms; limited
-    in-house technical capacity to deploy and maintain web applications; concerns about payment security and
-    consumer trust; and logistics constraints relating to delivery and returns (World Bank, 2019). A further,
-    frequently overlooked barrier is contextual fit. Generic international platforms are not always adapted to
-    local realities such as naira-denominated pricing, the prominence of bank-transfer and Unstructured
-    Supplementary Service Data (USSD) payment channels alongside card payments, and the prevalence of informal
-    ordering coordinated through messaging applications. The combined effect of these barriers is that many
-    capable businesses remain confined to ad-hoc digital presences, typically a social-media page and manual
-    order-taking, that lack the structure, security, and scalability of a dedicated platform.
+    In Nigeria, the businesses that stand to gain the most from this are the micro, small and medium-sized
+    enterprises (MSMEs), and there are a great many of them. The most recent national survey, conducted
+    jointly by the Small and Medium Enterprises Development Agency of Nigeria (SMEDAN) and the National Bureau
+    of Statistics, counted roughly 39 million MSMEs. Together they account for about 46.3 per cent of the
+    country's gross domestic product, some 87.9 per cent of national employment, and around 96.9 per cent of
+    all businesses (National Bureau of Statistics &amp; SMEDAN, 2021). These figures make one point very
+    clearly: small businesses are not a side note in the Nigerian economy; they are its backbone. For them,
+    selling online is a chance to reach new customers and to become more resilient when times are hard.
   </p>
   <p>
-    In parallel with these market dynamics, the technologies used to construct web applications have advanced
-    markedly. Contemporary practice increasingly favours full-stack JavaScript and TypeScript architectures,
-    in which a single language and type system span both client and server; server-rendered React frameworks
-    such as Next.js, which combine the interactivity of single-page applications with the performance and
-    search-engine visibility of server rendering; and API styles such as GraphQL, which allow clients to
-    request precisely the data they require from a strongly typed schema (Wieruch, 2022; Vercel, 2024). These
-    approaches promise improved performance, stronger reliability through static typing, and a more
-    productive developer experience than the legacy stacks on which many existing platforms are built.
-    Despite their growing adoption in industry, however, there is comparatively little peer-reviewed
-    documentation of their combined, end-to-end use in a complete, production-oriented e-commerce
-    application, and even less that connects such technical work to the contextual requirements of an SME
-    market such as Nigeria’s.
+    Yet, despite the opportunity, comparatively few of these businesses have moved onto a proper e-commerce
+    platform. Several obstacles stand in the way. The first is cost: many established platforms charge a
+    recurring subscription that is difficult for a small trader to justify month after month. The second is
+    skill: building and maintaining a website calls for technical knowledge that most business owners simply
+    do not have. The third is trust, both the customer's worry about paying online and the owner's worry about
+    fraud and chargebacks. There are also practical problems with delivery and returns (World Bank, 2019). On
+    top of all this sits a barrier that is easy to overlook but matters a great deal in practice, namely
+    contextual fit. International platforms are often built for other markets. They may not price comfortably
+    in naira, may not support the bank-transfer and Unstructured Supplementary Service Data (USSD) payment
+    channels that many Nigerians prefer, and rarely fit the very common habit of arranging orders through
+    messaging apps such as WhatsApp. Faced with these hurdles, a large number of capable businesses settle for
+    an informal online presence, usually a social-media page paired with manual order-taking, which lacks the
+    structure, security, and room to grow that a dedicated platform would provide.
   </p>
   <p>
-    It is at the intersection of these two concerns, an under-served SME market and an under-documented
-    modern technology stack, that the present study is situated. It concerns the design, enhancement, and
-    rigorous documentation of <i>FanMidCommerce</i>, a full-stack e-commerce web application developed with
-    Next.js (using the App Router), TypeScript, GraphQL served through Apollo Server, the MongoDB document
-    database accessed through the Mongoose object-data-modelling library, and the Tailwind CSS styling
-    framework, with payment and email capabilities provided by the Paystack and Resend services
-    respectively. In its current form, the application already provides a customer-facing storefront, a
-    customer account dashboard, and an administrative management panel. The study extends this foundation
-    with additional commerce capabilities, resolves identified technical challenges, most notably the
-    propagation of authentication context to GraphQL resolvers within the App Router, and produces a
-    thorough account of the architectural and design decisions involved. In doing so, it advances both an
-    academic contribution, in the form of a documented case study and reference implementation, and a
-    practical one, in the form of a low-cost, locally contextualised, and reusable platform model for
-    Nigerian SMEs.
+    While the market has been changing, so too has the technology used to build websites, and it has changed
+    quickly. Modern web development increasingly favours full-stack JavaScript, and in particular TypeScript,
+    where a single language and a single type system run across both the part of the application the user sees
+    (the front end) and the part that runs on the server (the back end). It favours server-rendered React
+    frameworks such as Next.js, which manage to combine the smooth interactivity people expect from a modern
+    app with the speed and search-engine visibility that come from rendering pages on the server. And it
+    increasingly favours newer ways of moving data between client and server, such as GraphQL, which lets the
+    application ask for exactly the data it needs and nothing more (Wieruch, 2022; Vercel, 2024). Taken
+    together, these tools promise faster, more reliable, and more maintainable software than the older
+    technology on which many existing online stores are built. The difficulty is that, although industry has
+    adopted them eagerly, there is still very little careful, academic documentation showing how they work
+    together from start to finish in a complete, real-world online store, and even less that ties such
+    technical work to the day-to-day realities of a market such as Nigeria's.
+  </p>
+  <p>
+    This study sits precisely where those two gaps meet: an under-served market of small businesses on one
+    side, and a powerful but under-documented set of modern tools on the other. Its subject is
+    <i>FanMidCommerce</i>, a full-stack e-commerce web application that the researcher has built using
+    Next.js (with the App Router), TypeScript, GraphQL served through Apollo Server, the MongoDB document
+    database accessed through the Mongoose library, and the Tailwind CSS styling framework, with payment and
+    email handled by the Paystack and Resend services. The application already provides a customer-facing
+    storefront, a customer account dashboard, and an administrative panel. The work reported here extends that
+    foundation with further commerce features, resolves a number of technical problems encountered along the
+    way (most notably how authentication information is carried through to GraphQL resolvers inside the App
+    Router), and documents the design decisions in detail. The intention is to deliver two things at once: an
+    academic contribution, in the form of a carefully documented case study and a reusable reference
+    implementation, and a practical contribution, in the form of a low-cost, locally suited e-commerce
+    platform that Nigerian small businesses could actually adopt.
   </p>
 
   <h2>1.2 Statement of the Problem</h2>
   <p>
-    The global e-commerce sector has expanded rapidly, but the development of technically sound,
-    feature-complete, and well-documented platforms built on modern JavaScript frameworks and API-first
-    architectures remains comparatively under-explored in scholarly work. Four interrelated problems
-    motivate this study.
+    E-commerce has grown rapidly worldwide, but growth in the marketplace has not been matched by clear,
+    well-documented guidance on how to build the platforms that power it, at least not for the modern
+    JavaScript frameworks and API-first designs that now dominate professional practice. A developer or a
+    student who wants to build a complete online store on these newer tools will find plenty of short
+    tutorials covering one feature at a time, but very little that shows the whole system fitting together,
+    and almost nothing written with academic rigour. This study is motivated by five related problems that
+    together describe this gap.
   </p>
   <p>
-    <b>First, a reliance on legacy architectures.</b> A substantial proportion of available e-commerce
-    solutions are built on older technology stacks that do not exploit the rendering performance, type
-    safety, and maintainability advantages offered by modern frameworks such as Next.js with the App Router
-    paradigm. Consequently, practitioners wishing to adopt these newer approaches have few documented,
-    end-to-end blueprints to follow, and academic treatments tend to examine individual techniques in
-    isolation rather than as parts of an integrated system.
+    <b>First, a reliance on legacy architectures.</b> A large share of the e-commerce solutions in use today
+    are built on older technology stacks. These work, but they do not take advantage of the rendering speed,
+    the type safety, or the easier maintenance that modern frameworks such as Next.js, with its App Router,
+    now offer. As a consequence, anyone wishing to adopt the newer approach has few complete, end-to-end
+    examples to learn from. The academic literature, where it touches these tools at all, tends to look at one
+    technique in isolation rather than showing how the pieces combine into a working whole.
   </p>
   <p>
-    <b>Second, the difficulty of GraphQL integration within the Next.js App Router.</b> Serving a GraphQL API
-    from within a Next.js App Router route handler introduces particular technical difficulties. Chief among
-    these is the reliable construction and propagation of authentication and authorisation <i>context</i>:
-    the per-request information, such as the identity and role of the requesting user, that resolvers depend
-    upon to enforce access control. This concern is fundamental to application security, yet it is addressed
-    only thinly in the current literature, leaving developers to rediscover solutions independently.
+    <b>Second, the difficulty of integrating GraphQL within the Next.js App Router.</b> Running a GraphQL API
+    from inside a Next.js App Router route handler turns out to be harder than it first appears. The thorniest
+    part is reliably building and passing along what GraphQL calls the <i>context</i>: the small bundle of
+    per-request information, such as who the user is and what role they hold, that every resolver needs in
+    order to decide whether the request should be allowed. If this context is not assembled correctly and made
+    available everywhere it is needed, access control breaks down, with obvious consequences for security.
+    Despite how central this is, the published literature barely addresses it, so developers are left to work
+    out a solution on their own, often by trial and error. The present study treats this challenge as a
+    first-class research concern and documents a working resolution.
   </p>
   <p>
-    <b>Third, a scarcity of end-to-end development documentation.</b> There is a limited body of work that
-    documents the complete development lifecycle of a full-stack e-commerce application, from database
-    schema design, through API specification, to user-interface implementation, using a TypeScript-first
-    methodology. Such integrated accounts are valuable for teaching, for guiding industry practice, and for
-    establishing reproducible patterns, but they are uncommon in the peer-reviewed literature.
+    <b>Third, a shortage of end-to-end development documentation.</b> Very little published work follows a
+    full-stack e-commerce application through its whole life cycle, from the design of the database schema,
+    through the specification of the API, to the building of the user interface, all using a TypeScript-first
+    approach. Accounts of this kind are genuinely useful: they help students learn, they guide practitioners,
+    and they make good patterns reproducible. Their scarcity in the peer-reviewed literature is itself part of
+    the problem this study sets out to address.
   </p>
   <p>
-    <b>Fourth, the treatment of usability and accessibility as afterthoughts.</b> Accessibility, theming, and
-    broader user-experience considerations are frequently appended late in academic prototypes rather than
-    embedded as first-class requirements from the outset. This diminishes the practical value of such
-    prototypes as genuinely deployable systems and overlooks the documented influence of usability and trust
-    on e-commerce adoption.
+    <b>Fourth, the habit of treating usability and accessibility as afterthoughts.</b> In many academic
+    prototypes, the way a system looks and feels, and whether people with different abilities can actually use
+    it, is bolted on near the end rather than designed in from the start. This is a mistake. It weakens the
+    prototype as something that could really be deployed, and it ignores a well-established body of evidence
+    showing that usability and trust strongly influence whether customers adopt an online store at all. This
+    study therefore treats usability and accessibility as requirements in their own right.
   </p>
   <p>
-    A fifth, contextual problem compounds the preceding four within the study’s setting: even where capable
-    platforms exist, they are frequently misaligned with the operational realities of Nigerian SMEs,
-    particularly with respect to affordability, local payment channels, and owner-managed operation. Taken
-    together, these problems indicate a clear need for an enhanced, thoroughly documented e-commerce platform
-    that demonstrates modern architectural patterns, resolves the noted integration challenges, treats
-    usability and accessibility as central design goals, and is deliberately fitted to the SME context.
-    FanMidCommerce is the vehicle through which this study addresses that need.
+    <b>Fifth, a mismatch with the local context.</b> Even when capable platforms do exist, they often do not
+    fit the day-to-day reality of running a small business in Nigeria. They may be too expensive, may not
+    support the payment channels customers actually use, and may assume a level of technical staffing that a
+    small owner-run business does not have. Pulling these five problems together, there is a clear need for an
+    e-commerce platform that is built on modern architecture, is documented thoroughly enough to be learned
+    from and reused, resolves the integration challenges noted above, treats usability and accessibility as
+    central, and is deliberately shaped to fit the small-business context. FanMidCommerce is the vehicle
+    through which this study sets out to meet that need.
   </p>
 
   <h2>1.3 Aim and Objectives of the Study</h2>
@@ -270,27 +288,37 @@
 
   <h2>1.5 Significance of the Study</h2>
   <p>
-    The study offers value to several audiences. <b>For the academic community,</b> it contributes a
-    documented, real-world case study of full-stack e-commerce development on a modern TypeScript-first
-    stack, an area in which peer-reviewed literature remains sparse. The detailed treatment of
-    authentication-context propagation across the Next.js App Router GraphQL boundary addresses a specific and
-    recognised gap, and the study’s structured evaluation provides a model for assessing comparable systems.
+    This study matters to several different groups of people, and it is worth being specific about how.
   </p>
   <p>
-    <b>For practitioners and the open-source ecosystem,</b> the enhanced platform constitutes a potentially
-    deployable solution for small businesses seeking an online presence at low cost. Because the architecture
-    separates a reusable commerce engine from a customisable presentation layer, a single, well-tested core
-    can be adapted to multiple businesses with distinct visual identities, reducing the time and expense of
-    delivering bespoke stores. The accompanying documentation lowers the barrier for other developers and
-    students to understand, deploy, and extend such a system.
+    <b>For the academic community,</b> it offers something that is currently in short supply: a documented,
+    real-world case study of building a full-stack e-commerce application on a modern TypeScript-first stack.
+    Much of the existing academic writing on web development examines one idea at a time, a rendering
+    strategy here, an API pattern there. By following a single, complete system from database to interface,
+    this work shows how the parts actually interact. Its detailed treatment of how authentication context is
+    carried across the Next.js App Router GraphQL boundary speaks to a specific and recognised gap, and the
+    structured way the system is evaluated can serve as a template for assessing similar projects in future.
   </p>
   <p>
-    <b>For the Nigerian SME sector,</b> the study advances the broader objective of expanding accessible
-    digital-commerce tooling adapted to local conditions, naira pricing, locally prevalent payment channels,
-    and owner-managed operation, thereby supporting the digital inclusion of small enterprises. <b>For
-    students and educators,</b> finally, the work serves as a reference implementation that illustrates how
-    contemporary web technologies combine into a cohesive, production-oriented architecture, complementing
-    fragmented tutorial material with an integrated, academically framed account.
+    <b>For practitioners and the wider open-source community,</b> the enhanced platform is more than an
+    academic exercise; it is something that could actually be deployed for a real small business at low cost.
+    A particular design decision makes this possible. The architecture deliberately separates a reusable
+    "commerce engine", the parts that handle products, carts, checkout, orders, payments, and administration,
+    from a customisable presentation layer that controls how each store looks. Because of this split, one
+    well-tested core can be re-skinned for many different businesses without rewriting the underlying logic.
+    In practice, this turns what is usually a costly, build-from-scratch project into a far quicker
+    configuration exercise, which is exactly the kind of saving a small business needs. The documentation that
+    accompanies the code lowers the barrier further, making it realistic for another developer or a student to
+    pick the system up, deploy it, and extend it.
+  </p>
+  <p>
+    <b>For the Nigerian small-business sector,</b> the study contributes to a larger goal: widening access to
+    digital-commerce tools that actually fit local conditions, pricing in naira, supporting the payment
+    channels people really use, and being simple enough for an owner to run after a short period of training.
+    In a small way, this supports the digital inclusion of enterprises that the formal e-commerce sector has
+    so far left behind. <b>Finally, for students and educators,</b> the work doubles as a teaching resource: a
+    reference implementation that shows, in one coherent place, how today's web technologies combine into a
+    production-ready whole, filling the space between scattered online tutorials and formal academic texts.
   </p>
 
   <h2>1.6 Scope and Limitations of the Study</h2>
@@ -376,26 +404,37 @@
 
   <h3>2.2.1 Electronic Commerce and Its Models</h3>
   <p>
-    Electronic commerce encompasses the range of commercial activities conducted over digital networks,
-    including online retailing, electronic payment, and the supporting flows of information between buyers,
-    sellers, and intermediaries (Laudon &amp; Traver, 2021). It is commonly classified by the parties
-    involved: business-to-consumer (B2C), in which enterprises sell directly to individual consumers;
-    business-to-business (B2B); consumer-to-consumer (C2C), typically mediated by a marketplace; and
-    consumer-to-business (C2B). FanMidCommerce is principally a B2C platform, designed to enable a single
-    enterprise to sell directly to its customers. A functional B2C system integrates a product catalogue, a
-    customer-account subsystem, a shopping cart and checkout process, a payment mechanism, an
-    order-management and fulfilment workflow, and channels for customer communication. The seamlessness with
-    which these elements operate, and the trust and perceived ease of use they engender, strongly
-    influences conversion, retention, and ultimately commercial success (Laudon &amp; Traver, 2021).
+    Electronic commerce covers the whole range of commercial activity that takes place over digital networks:
+    selling goods online, taking electronic payments, and the flow of information that passes between buyers,
+    sellers, and the middlemen who connect them (Laudon &amp; Traver, 2021). It is usually grouped according to
+    who is trading with whom. In business-to-consumer (B2C) commerce, a business sells directly to individual
+    shoppers; in business-to-business (B2B), one business sells to another; in consumer-to-consumer (C2C),
+    individuals sell to one another, normally through a marketplace that brings them together; and in
+    consumer-to-business (C2B), individuals offer goods or services to businesses. FanMidCommerce belongs
+    firmly in the first category. It is a B2C platform, built so that a single business can sell straight to
+    its own customers, which is the most common need among the small enterprises this study is concerned with.
+  </p>
+  <p>
+    Describing a B2C system as "a website that sells things" understates how many moving parts it really has.
+    Underneath, it must hold a product catalogue, manage customer accounts, run a shopping cart and a
+    checkout, take and verify payment, move each order through the stages of fulfilment, and keep the customer
+    informed at every point. None of these parts is impressive on its own; what matters is how smoothly they
+    work together. A checkout that stalls, a payment that is hard to trust, or an order whose status is never
+    communicated will each cost the business a sale. The research literature is consistent on this point: the
+    smoothness of the experience, and the trust and perceived ease of use it creates, has a direct bearing on
+    how many visitors become buyers, how many return, and therefore on whether the business succeeds online at
+    all (Laudon &amp; Traver, 2021). This is why the chapters that follow treat the quality of the experience
+    as seriously as the correctness of the code.
   </p>
 
   <h3>2.2.2 Full-Stack Web Development and TypeScript</h3>
   <p>
-    Full-stack web development refers to the construction of both the client-facing interface and the
-    server-side logic, together with the data layer that persists application state. The contemporary
-    JavaScript ecosystem has made it possible to use a single language across the entire stack, reducing
-    cognitive context-switching and enabling code and data structures to be shared between client and server
-    (Mikowski &amp; Powell, 2013). TypeScript, a statically typed superset of JavaScript, strengthens this
+    The phrase "full-stack" simply means working on the whole application rather than just one part of it:
+    the interface the user sees, the logic that runs on the server, and the database that stores everything in
+    between. What makes the modern JavaScript ecosystem unusual is that all three layers can be written in the
+    same language. A developer no longer has to switch mentally between, say, JavaScript in the browser and a
+    different language on the server, and the same code and data structures can often be shared across the
+    boundary (Mikowski &amp; Powell, 2013). TypeScript, a statically typed superset of JavaScript, strengthens this
     model by introducing a type system that surfaces many classes of error at compile time rather than at run
     time, thereby improving reliability and maintainability, qualities of particular importance in a
     transactional system where defects can have financial consequences. The benefit is not merely
@@ -409,11 +448,15 @@
 
   <h3>2.2.3 The Next.js Framework and Rendering Strategies</h3>
   <p>
-    Next.js is a React-based framework that provides server-side rendering (SSR), static site generation
-    (SSG), incremental static regeneration (ISR), file-system routing, and an integrated build pipeline
-    (Vercel, 2024). Its App Router model introduces a directory-based routing convention and a distinction
-    between <i>server components</i>, which render on the server and may access back-end resources directly,
-    and <i>client components</i>, which provide interactivity within the browser. The availability of
+    Next.js is a framework built on top of the React library. Where React on its own leaves many decisions to
+    the developer, Next.js supplies the surrounding machinery: it can render pages on the server (server-side
+    rendering, or SSR), build them ahead of time as static files (static site generation, SSG), refresh those
+    static pages periodically (incremental static regeneration, ISR), route requests based on the folder
+    structure of the project, and bundle everything for production through an integrated build pipeline
+    (Vercel, 2024). Its newer App Router introduces a distinction that matters a great deal for this study.
+    Some components are <i>server components</i>, which run on the server and can reach back-end resources such
+    as the database directly; others are <i>client components</i>, which run in the browser and provide the
+    interactivity users expect. The availability of
     multiple rendering strategies is significant for e-commerce: server rendering and static generation
     improve initial load performance and search-engine visibility, both of which affect discoverability and
     conversion, while client components support the interactive elements of cart and checkout. This
@@ -424,11 +467,13 @@
 
   <h3>2.2.4 API Architectures: REST and GraphQL</h3>
   <p>
-    An application programming interface (API) mediates the exchange of data between client and server.
-    Representational State Transfer (REST), articulated by Fielding (2000), structures an API around
-    resources accessed through a uniform interface, with each endpoint returning a fixed representation.
-    While widely adopted and well understood, REST can lead to over-fetching (returning more data than the
-    client needs) and under-fetching (necessitating multiple requests to assemble a view). GraphQL, by
+    An application programming interface, or API, is the agreed channel through which the front end and the
+    back end exchange data. For many years the dominant style has been Representational State Transfer (REST),
+    described by Fielding (2000), which organises an API around "resources" reached through a uniform set of
+    operations, each address returning a fixed bundle of data. REST is mature, well understood, and works
+    well, but it has two recurring inefficiencies. Sometimes an endpoint returns more than the screen actually
+    needs, wasting bandwidth (over-fetching); at other times a single screen needs data from several
+    endpoints, forcing the client to make multiple round trips (under-fetching). GraphQL, by
     contrast, is a query language and runtime in which a typed schema defines the data a client may request,
     and the client specifies precisely the fields it requires (GraphQL Foundation, 2021; Wieruch, 2022).
     This client-driven model mitigates over- and under-fetching and provides a strongly typed contract that
@@ -456,10 +501,11 @@
 
   <h3>2.2.6 Authentication, Authorisation, and Security</h3>
   <p>
-    Authentication establishes a user’s identity, whereas authorisation determines the actions that user is
-    permitted to perform. JSON Web Tokens (JWTs) offer a common mechanism for stateless authentication,
-    encoding signed claims that a server can verify on each request without maintaining server-side session
-    state. In an application that separates customer and administrative areas, authorisation must be enforced
+    Two related ideas are easy to confuse but important to separate. Authentication answers the question "who
+    are you?", confirming a user's identity; authorisation answers the next question, "what are you allowed to
+    do?", deciding which actions that identity may perform. A common way to handle the first is the JSON Web
+    Token (JWT), a small, digitally signed token that the server can check on every request without having to
+    remember sessions on its own side, an approach described as "stateless". In an application that separates customer and administrative areas, authorisation must be enforced
     consistently at the server boundary, so that privileged operations cannot be invoked by unauthorised
     clients irrespective of the state of the user interface. The Open Web Application Security Project
     (OWASP, 2021) identifies broken access control and cryptographic failures among the foremost categories
@@ -498,15 +544,19 @@
 
   <h2>2.3 Theoretical Framework</h2>
   <p>
-    The study is underpinned by a framework that combines a methodological theory for constructing and
-    evaluating the artefact with two adoption theories that explain its intended uptake, supported by
-    foundational software-engineering principles.
+    A study of this kind needs more than one theoretical lens, because it is doing more than one thing. It is
+    building something, so it needs a theory of how knowledge is created through building; and it hopes the
+    result will be adopted, so it needs theories that explain why people take up a new technology. The
+    framework adopted here therefore brings together one methodological theory, Design Science Research, with
+    two well-established adoption theories, the Technology Acceptance Model and Diffusion of Innovations, and
+    rests all three on a foundation of long-standing software-engineering principles. Each is introduced in
+    turn below, with a note on how it shapes the present work.
   </p>
   <h3>2.3.1 Design Science Research</h3>
   <p>
-    The principal methodological lens is Design Science Research (DSR), which holds that knowledge can be
-    produced through the construction and rigorous evaluation of innovative artefacts that address identified
-    problems (Hevner, March, Park, &amp; Ram, 2004). Hevner et al. (2004) propose guidelines requiring that
+    The main methodological lens is Design Science Research (DSR). Its central claim is that genuine knowledge
+    can come not only from observing the world but from carefully building and then rigorously evaluating an
+    artefact that solves a real problem (Hevner, March, Park, &amp; Ram, 2004). Hevner et al. (2004) propose guidelines requiring that
     the research produce a viable artefact, that the artefact address a relevant problem, that it be evaluated
     rigorously, and that the work make a clear contribution and be communicated effectively. Peffers, Tuunanen,
     Rothenberger, and Chatterjee (2007) operationalise this through a Design Science Research Methodology
@@ -535,25 +585,26 @@
   </p>
   <h3>2.3.4 Software-Engineering Principles</h3>
   <p>
-    Finally, the construction of the artefact is governed by long-standing software-engineering principles , 
-    modularity, separation of concerns, abstraction, and information hiding, that promote maintainable and
-    extensible systems (Sommerville, 2016; Pressman &amp; Maxim, 2020). These principles are expressed
+    Finally, the way the artefact is actually built is guided by software-engineering principles that have
+    stood the test of time: modularity, separation of concerns, abstraction, and information hiding, all of
+    which help keep a system maintainable and easy to extend (Sommerville, 2016; Pressman &amp; Maxim, 2020). These principles are expressed
     concretely in the layered architecture and in the deliberate division between commerce logic and
     presentation described in Chapter Three.
   </p>
 
   <h2>2.4 E-Commerce and SMEs in the Nigerian Context</h2>
   <p>
-    Nigeria presents a large, youthful, and increasingly connected market, yet one in which SME adoption of
-    formal e-commerce remains uneven (ITU, 2023; GSMA, 2023; World Bank, 2019). The scale of both the
-    opportunity and the enterprise base is considerable: internet penetration reached roughly 55.4 per cent
-    of the population by early 2023, with broadband penetration at about 44.4 per cent by the close of 2024
-    (NCC, 2024), while the national MSME survey enumerated some 39 million micro, small and medium-sized
-    enterprises contributing approximately 46.3 per cent of gross domestic product and 87.9 per cent of
-    employment (National Bureau of Statistics &amp; SMEDAN, 2021). Despite this, formal e-commerce adoption
-    among these enterprises remains limited, indicating a persistent gap between connectivity and commercial
-    digitalisation. Several contextual factors
-    shape the requirements for a platform intended to serve this market. First, <b>connectivity is
+    No technology choice makes sense in a vacuum, so it is worth looking closely at the market this platform is
+    meant to serve. Nigeria is large, young, and increasingly connected, yet the take-up of formal e-commerce
+    among its small businesses is still patchy (ITU, 2023; GSMA, 2023; World Bank, 2019). The raw numbers show
+    why the opportunity is so striking. Internet penetration had reached roughly 55.4 per cent of the
+    population by early 2023, and broadband penetration about 44.4 per cent by the close of 2024 (NCC, 2024),
+    while the national MSME survey counted some 39 million micro, small and medium-sized enterprises
+    contributing around 46.3 per cent of gross domestic product and 87.9 per cent of employment (National
+    Bureau of Statistics &amp; SMEDAN, 2021). Put side by side, these figures reveal a striking gap: the
+    connectivity is there and the businesses are there, yet relatively few of those businesses have moved
+    their trade onto a proper online platform. Closing that gap is precisely the practical problem this study
+    speaks to, and several features of the local context shape what a suitable platform must do. First, <b>connectivity is
     predominantly mobile</b>: most users access the internet through smartphones over mobile networks, which
     makes a mobile-first, performance-conscious interface essential rather than optional. Second, <b>payment
     behaviour is heterogeneous</b>: alongside card payments, bank transfers and USSD-based transactions are
@@ -583,15 +634,18 @@
 
   <h2>2.5 Empirical Review of Related Studies</h2>
   <p>
-    Beyond the conceptual and contextual literature, a growing body of empirical research has tested, under
-    controlled or comparative conditions, the specific technologies and adoption questions on which this study
-    rests. This section reviews that evidence across eight strands: the comparative performance of API
-    architectures (REST versus GraphQL); the performance and search-engine implications of server-rendered
-    React frameworks such as Next.js; the comparative behaviour of document and relational databases; the
-    empirical determinants of e-commerce adoption in developing economies and Nigeria; the effect of static
-    typing on software quality; web-application security and authentication; the relationship between
-    usability, trust, and purchase intention; and digital-payment adoption in Nigeria. Each study is
-    summarised in terms of what was done, what was found, and what limitations bear on the present work.
+    The concepts and context set out so far explain what the study is doing and why. This section turns to a
+    different kind of evidence: studies that have actually tested, under controlled or comparative conditions,
+    the very technologies and adoption questions on which this work depends. Reviewing them serves two
+    purposes. It grounds the design choices made later in measured findings rather than mere preference, and
+    it surfaces the limitations and disagreements in the evidence, which a careful design has to take into
+    account. The discussion is organised into eight strands, moving from the technical (how REST and GraphQL
+    compare; how Next.js affects performance and search visibility; how document and relational databases
+    behave; what static typing does for software quality; and what is known about web-application security)
+    through to the human and contextual (what drives e-commerce adoption in developing economies and Nigeria;
+    how usability and trust relate to purchase intention; and what shapes digital-payment adoption in
+    Nigeria). For each, the aim is to say plainly what was done, what was found, and what the finding means for
+    the present study.
   </p>
 
   <h3>2.5.1 Empirical Studies on REST and GraphQL</h3>
@@ -733,9 +787,11 @@
 
   <h2>2.6 Review of Related Systems</h2>
   <p>
-    Existing e-commerce solutions can be grouped into hosted platforms, self-hosted open-source systems,
-    modern headless/API-first frameworks, and bespoke builds. <b>Hosted platforms</b> such as Shopify provide
-    rapid setup and managed infrastructure but entail recurring subscription costs and limited control over
+    It also helps to look at the systems a small business could realistically use today, and to be honest
+    about where each falls short for the audience this study has in mind. Broadly, the options fall into four
+    groups: hosted platforms, self-hosted open-source systems, modern headless or API-first frameworks, and
+    fully bespoke builds. <b>Hosted platforms</b> such as Shopify are quick to set up and come with managed
+    infrastructure, but they charge a recurring subscription and give the owner limited control over
     the underlying code and data, constraints that are significant for cost-sensitive SMEs. <b>Self-hosted
     open-source systems</b> such as WooCommerce (built on WordPress and PHP) and Magento offer greater
     control and extensibility but are rooted in older technology stacks and can impose considerable
@@ -771,18 +827,25 @@
 
   <h2>2.7 Summary of Literature and Research Gap</h2>
   <p>
-    The literature reviewed establishes the strategic value of e-commerce for SMEs, the technical advantages
-    of modern full-stack and API-first architectures, and the central importance of usability, accessibility,
-    and security to adoption and trust. It also confirms the contextual particularities of the Nigerian
-    market, mobile-first access, heterogeneous payment channels, the interplay of formal and informal
-    ordering, and acute cost sensitivity. Against this backdrop, three gaps are evident. First, there is a
-    scarcity of integrated, end-to-end, and well-documented accounts of building a production-oriented
-    e-commerce application on a Next.js, TypeScript, GraphQL, and MongoDB stack. Second, the specific
-    challenge of authentication-context propagation within the Next.js App Router GraphQL endpoint is
-    inadequately addressed. Third, few works connect modern architectural practice to the concrete
-    requirements of SME e-commerce in a market such as Nigeria’s. This study addresses these gaps through the
-    design, enhancement, documentation, and evaluation of FanMidCommerce, as set out in the methodology that
-    follows.
+    Drawing the threads of this chapter together, a few things are now clear. The literature confirms that
+    e-commerce holds real strategic value for small businesses, that modern full-stack and API-first
+    architectures bring measurable technical advantages, and that usability, accessibility, and security are
+    not optional extras but central to whether customers adopt and trust an online store. It also paints a
+    clear picture of the Nigerian market in particular: access is mostly mobile, payment behaviour is varied
+    and leans on transfer and USSD as much as cards, formal and informal selling sit side by side, and small
+    businesses are highly sensitive to cost.
+  </p>
+  <p>
+    Set against this backdrop, three gaps stand out. The first is a shortage of integrated, end-to-end, and
+    properly documented accounts of building a production-ready e-commerce application on a Next.js,
+    TypeScript, GraphQL, and MongoDB stack; the evidence exists in fragments, but rarely as a coherent whole.
+    The second is more specific and more technical: the particular challenge of carrying authentication
+    context through to GraphQL resolvers within the Next.js App Router has been left largely unexamined, even
+    though it is fundamental to security. The third is contextual: very little work connects this kind of
+    modern architectural practice to the concrete, on-the-ground requirements of small-business e-commerce in
+    a market such as Nigeria's. It is these three gaps, taken together, that the present study sets out to
+    close, through the design, enhancement, documentation, and evaluation of FanMidCommerce described in the
+    chapters that follow.
   </p>
 
   <!-- ═══════════ CHAPTER THREE ═══════════ -->
@@ -791,20 +854,22 @@
 
   <h2>3.1 Introduction</h2>
   <p>
-    This chapter describes the methodology adopted for the study and the design of the enhanced
-    FanMidCommerce platform. It presents the research design, the software-development methodology, the
-    requirements analysis, and the architectural, database, API, interface, and security designs, before
-    detailing the tools employed and the strategy for testing and evaluation. The approach is design-and-
-    development oriented: the principal research output is a working, documented software artefact, evaluated
-    against defined functional and non-functional criteria, consistent with the design science research
-    paradigm introduced in Chapter Two.
+    Having set out the problem and reviewed the relevant literature, this chapter explains how the study was
+    actually carried out and how the enhanced FanMidCommerce platform was designed. It moves from the general
+    to the specific: first the overall research design and the development methodology, then the requirements
+    that the system had to meet, and finally the concrete design of the architecture, the database, the API,
+    the interface, and the security, before closing with the tools used and the plan for testing and
+    evaluation. Throughout, it is worth keeping one thing in mind. Unlike a study whose main output is a set
+    of survey results, the main output here is a working, documented piece of software, judged against clearly
+    stated functional and non-functional criteria. That is exactly what the design science research paradigm,
+    introduced in Chapter Two, calls for.
   </p>
 
   <h2>3.2 Research Design</h2>
   <p>
-    The study adopts a design science research (DSR) design, in which knowledge is generated through the
-    construction and evaluation of a purposeful artefact, here, the enhanced FanMidCommerce platform
-    (Hevner et al., 2004; Peffers et al., 2007). This is complemented by a descriptive case-study element,
+    The study follows a design science research (DSR) design, the central idea of which is that new knowledge
+    is produced by building and then carefully evaluating a purposeful artefact, in this case the enhanced
+    FanMidCommerce platform (Hevner et al., 2004; Peffers et al., 2007). This is complemented by a descriptive case-study element,
     since a single platform is examined in depth to surface design decisions, challenges, and their
     resolutions. The design is mixed-method: qualitative evidence (architectural analysis, documented design
     rationale, and usability observation) is combined with quantitative evidence (performance measurements
@@ -817,11 +882,13 @@
 
   <h2>3.3 Software Development Methodology</h2>
   <p>
-    Within the DSR design, the construction work follows an iterative, agile-inspired development methodology
-    (Beck et al., 2001; Sommerville, 2016). Rather than a single linear pass, enhancement proceeds in short
-    cycles, each delivering a working increment that is reviewed before the next begins; this accommodates
-    evolving understanding and reduces the risk associated with large, untested changes. The methodology is
-    realised in five phases, summarised in Table 3.1.
+    DSR says what kind of research this is, but not how the building itself should be organised. For that, the
+    study uses an iterative, agile-inspired development methodology (Beck et al., 2001; Sommerville, 2016).
+    Instead of attempting the whole enhancement in one long, linear push, the work proceeds in short cycles.
+    Each cycle delivers a small, working improvement that is reviewed before the next is started. This style
+    suits the project for two practical reasons: understanding of the existing system grew as the work went
+    on, and small, frequently-tested changes carry far less risk than large ones attempted all at once. In
+    practice the methodology was realised in the five phases summarised in Table 3.1.
   </p>
   <table class="fig">
     <tr><th>Phase</th><th>Activities</th><th>Principal outputs</th></tr>
@@ -910,11 +977,13 @@
 
   <h2>3.5 System Architecture</h2>
   <p>
-    FanMidCommerce follows a layered, modular architecture. The presentation layer is implemented with the
-    Next.js App Router, using server components for data-driven, search-indexable pages (such as product and
-    category pages) and client components for interactive elements (such as the cart and checkout). The
-    application exposes a single GraphQL endpoint, served by Apollo Server through a Next.js route handler,
-    which constitutes the API layer. Beneath this, a domain/service layer encapsulates business logic, for
+    The architecture of FanMidCommerce is best understood as a set of layers stacked on top of one another,
+    each with a clear job and a clean boundary to the layer below. At the top is the presentation layer, built
+    with the Next.js App Router. Here, server components are used for the data-heavy pages that need to be fast
+    and findable by search engines, such as product and category pages, while client components handle the
+    parts that must respond instantly to the user, such as the cart and checkout. Below the presentation layer
+    sits the API layer: a single GraphQL endpoint, served by Apollo Server through a Next.js route handler,
+    which acts as the one controlled doorway through which the front end asks for and changes data. Beneath this, a domain/service layer encapsulates business logic, for
     example, server-authoritative pricing and order finalisation, while a data-access layer, built on
     Mongoose, mediates interaction with MongoDB. External integrations for payment (Paystack), email
     (Resend), and media (Cloudinary) are isolated behind dedicated service modules, so that they may be
@@ -946,11 +1015,15 @@
 
   <h2>3.6 Database Design</h2>
   <p>
-    The data model is expressed as a set of MongoDB collections defined through Mongoose schemas.
-    Relationships between collections are represented primarily by document references (object identifiers),
-    with selective embedding where data is naturally owned by a parent document, for example, order line
-    items embedded within an order, and saved addresses embedded within a user. The principal collections are
-    summarised in Table 3.3, and their relationships are depicted in Figure 3.3.
+    Because MongoDB stores data as flexible documents rather than rigid tables, the design of the data model
+    is largely a series of decisions about how to shape those documents and how to connect them. In this
+    study the model is expressed as a set of MongoDB collections, each defined through a Mongoose schema. Most
+    relationships between collections are handled by reference, that is, one document stores the identifier of
+    another, much as a foreign key works in a relational database. In a few cases, however, data is embedded
+    directly inside its parent because it is naturally owned by that parent and is almost always read with it:
+    the line items of an order live inside the order document, and a customer's saved addresses live inside
+    the user document. The principal collections are summarised in Table 3.3, and the main relationships
+    between them are shown in Figure 3.3.
   </p>
   <table class="fig">
     <tr><th>Collection</th><th>Key fields (summary)</th><th>Purpose</th></tr>
@@ -1040,11 +1113,14 @@
 
   <h2>3.9 Security Design</h2>
   <p>
-    Security is treated as a cross-cutting requirement informed by the OWASP (2021) guidance. Passwords are
-    stored solely as salted hashes; sessions are conveyed through signed JSON Web Tokens whose validity is
-    checked on the server. Administrative and customer areas are protected at the server boundary, so that
-    privileged routes and operations remain inaccessible to unauthorised clients regardless of client-side
-    state. Critically, checkout pricing is recomputed on the server rather than trusted from the client, and
+    In a system that handles money and personal data, security cannot be a feature added at the end; it has to
+    run through every layer. The design here follows the guidance of the OWASP (2021) project, and a few
+    decisions deserve to be spelled out. Passwords are never stored in readable form, only as salted hashes,
+    so that even a database breach does not expose them. User sessions are carried in signed JSON Web Tokens
+    whose validity is always checked on the server, never merely trusted from the browser. The administrative
+    and customer areas are protected at the server boundary itself, which means a privileged route or
+    operation cannot be reached by an unauthorised client no matter what the front end happens to display; the
+    interface might hide a button, but it is the server that actually refuses the action. Critically, checkout pricing is recomputed on the server rather than trusted from the client, and
     payment outcomes are verified directly with the payment provider; order finalisation is made idempotent
     and race-safe through a uniqueness constraint on the payment reference, preventing duplicate orders when
     concurrent confirmation paths occur, for example, when both a redirect callback and an asynchronous
